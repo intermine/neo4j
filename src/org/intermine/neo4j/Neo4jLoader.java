@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -56,6 +56,15 @@ public class Neo4jLoader {
      */
     public static void main(String[] args) throws IOException {
 
+        // optional comma-separated list of classes to load; overrides loading of ALL classes other than those ignored
+        List<String> loadedClasses = new LinkedList<String>();
+        if (args.length>0) {
+            String[] parts = args[0].split(",");
+            for (String part : parts) {
+                loadedClasses.add(part);
+            }
+        }
+
         // Load parameters from neo4jloader.properties
         Properties props = new Properties();
         props.load(new FileInputStream(PROPERTIES_FILE));
@@ -67,23 +76,19 @@ public class Neo4jLoader {
         int maxRows = Integer.parseInt(props.getProperty("max.rows"));
 
         // classes to ignore, usually superclasses or maybe just classes you don't want
-        List<String> ignoredClasses = new ArrayList<String>();
+        List<String> ignoredClasses = new LinkedList<String>();
         if (props.getProperty("ignored.classes")!=null) ignoredClasses = Arrays.asList(props.getProperty("ignored.classes").trim().split(","));
 
-        // classes to load, overrides loading all classes other than those ignored
-        List<String> loadedClasses = new ArrayList<String>();
-        if (props.getProperty("loaded.classes")!=null && props.getProperty("loaded.classes").trim().length()>0) loadedClasses = Arrays.asList(props.getProperty("loaded.classes").trim().split(","));
-        
         // references to ignore, typically reverse-reference
-        List<String> ignoredReferences = new ArrayList<String>();
+        List<String> ignoredReferences = new LinkedList<String>();
         if (props.getProperty("ignored.references")!=null) ignoredReferences = Arrays.asList(props.getProperty("ignored.references").trim().split(","));
 
         // collections to ignore, typically reverse-reference
-        List<String> ignoredCollections = new ArrayList<String>();
+        List<String> ignoredCollections = new LinkedList<String>();
         if (props.getProperty("ignored.collections")!=null) ignoredCollections = Arrays.asList(props.getProperty("ignored.collections").trim().split(","));
 
         // list of IM IDs of nodes that have had their attributes stored HERE
-        List<Integer> nodesWithAttributesStored = new ArrayList<Integer>();
+        List<Integer> nodesWithAttributesStored = new LinkedList<Integer>();
 
         // InterMine setup
         ServiceFactory factory = new ServiceFactory(intermineServiceUrl);
@@ -109,7 +114,7 @@ public class Neo4jLoader {
         }
         
         // Retreive the IM IDs of nodes that have already been fully stored
-        List<Integer> nodesAlreadyStored = new ArrayList<Integer>();
+        List<Integer> nodesAlreadyStored = new LinkedList<Integer>();
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
                 StatementResult result = tx.run("MATCH (n:InterMineID) RETURN n.id");
@@ -210,13 +215,13 @@ public class Neo4jLoader {
                         nodesWithAttributesStored.add(id);
                     }
 
-                    // CREATE INDEX on these individual node types
+                    // CREATE UNIQUE constraint on these individual node types
                     if (nodeCount==1) {
                         try (Session session = driver.session()) {
                             List<String> labels = Arrays.asList(nodeLabel.split(":"));
                             for (String label : labels) {
                                 try (Transaction tx = session.beginTransaction()) {
-                                    tx.run("CREATE INDEX ON :"+label+"(id)");
+                                    tx.run("CREATE CONSTRAINT ON (n:"+label+") ASSERT n.id IS UNIQUE");
                                     tx.success();
                                     tx.close();
                                 }
