@@ -2,13 +2,13 @@
 <html>
     
     <head>
-        <title>NCGR Neo4j PathQuery Endpoint Development</title>
+        <title>InterMine-Neo4j PathQuery Endpoint Development</title>
         <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style"/>
     </head>
 
     <body>
 
-        <h1>Welcome to the NCGR Neo4j PathQuery service.</h1>
+        <h1>Welcome to the InterMine-Neo4j PathQuery service.</h1>
 
         <p>
             The concept here is to mimic an InterMine web service by reverse engineering PathQuery XML and querying either a Neo4j database with Cypher (for most bio objects) or perhaps
@@ -26,7 +26,7 @@
         <p>
             For your convenience, here's a place where you can paste PathQuery XML and test this out, or submit one of the sample queries provided below.
         </p>
-        <form action="service/query/results" method="POST">
+        <form action="service/query/test" method="POST">
             <input type="hidden" name="format" value="tab"/>
             <table>
                 <tr>

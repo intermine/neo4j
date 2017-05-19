@@ -196,29 +196,20 @@ public class Neo4jEdgeLoader {
             int eid = Integer.parseInt(row[i++].toString()); // edge
             int tid = Integer.parseInt(row[i++].toString()); // target
 
-            // only process edges that haven't been done for nodes that are fully stored on both sides
+            // only process edges that haven't been done for nodes that ARE fully stored on both sides
             if (thingsAlreadyStored.contains(sid) && !thingsAlreadyStored.contains(eid) && thingsAlreadyStored.contains(tid))  {
-                
-                // MERGE the source and target (one or other may be missing in Neo4j)
-                String merge = "MERGE (s:"+sourceClass+" {id:"+sid+"}) MERGE (t:"+targetClass+" {id:"+tid+"})";
-                try (Session session = driver.session()) {
-                    try (Transaction tx = session.beginTransaction()) {
-                        tx.run(merge);
-                        tx.success();
-                    }
-                }
                 
                 // SET the source and target attributes (just in case, possible a stored node lacks an attribute)
                 Neo4jLoader.populateIdClassAttributes(service, driver, attrQuery, sid, sourceClass, sourceDescriptor);
                 Neo4jLoader.populateIdClassAttributes(service, driver, attrQuery, tid, targetClass, targetDescriptor);
                 
-                // MERGE the edge
-                merge = "MATCH (s:"+sourceClass+" {id:"+sid+"}),(t:"+targetClass+" {id:"+tid+"}) MERGE (s)-[:"+edgeType+" {id:"+eid+"}]->(t)";
-                System.out.println(merge);
+                // MERGE the edge, but don't relate InterMineID nodes!
+                String merge = "MATCH (s {id:"+sid+"}),(t {id:"+tid+"}) WHERE labels(s)<>'InterMineID' AND labels(t)<>'InterMineID' MERGE (s)-[:"+edgeType+" {id:"+eid+"}]->(t)";
                 try (Session session = driver.session()) {
                     try (Transaction tx = session.beginTransaction()) {
                         tx.run(merge);
                         tx.success();
+                        System.out.println("("+sourceClass+":"+sid+")-["+edgeType+":"+eid+"]->("+targetClass+":"+tid+")");
                     }
                 }
                 

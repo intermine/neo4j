@@ -2,7 +2,7 @@
 
 <web-app>
 
-  <display-name>NCGR Neo4j PathQuery Endpoint Development</display-name>
+  <display-name>InterMine-Neo4j PathQuery Endpoint Development</display-name>
   <description>
     This is a middleware app to query Neo4j and/or InterMine from a posted PathQuery.
   </description>
@@ -42,18 +42,31 @@
 	
 
   <servlet>
-    <servlet-name>PathQuery</servlet-name>
+    <servlet-name>PathQueryTestServlet</servlet-name>
     <description>
-      This servlet mimics the web service function of InterMine.
+      This servlet tests HTTP, PathQuery and Neo4j responses to a PathQuery request.
+    </description>
+    <servlet-class>org.intermine.neo4j.PathQueryTestServlet</servlet-class>
+    <load-on-startup>5</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PathQueryTestServlet</servlet-name>
+    <url-pattern>/service/query/test</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>PathQueryServlet</servlet-name>
+    <description>
+      This servlet returns a Neo4j response to a PathQuery request.
     </description>
     <servlet-class>org.intermine.neo4j.PathQueryServlet</servlet-class>
     <load-on-startup>5</load-on-startup>
   </servlet>
-
   <servlet-mapping>
-    <servlet-name>PathQuery</servlet-name>
+    <servlet-name>PathQueryServlet</servlet-name>
     <url-pattern>/service/query/results</url-pattern>
   </servlet-mapping>
+
 
   <session-config>
     <session-timeout>30</session-timeout>
