@@ -1,12 +1,12 @@
 package org.intermine.neo4j;
 
+import java.io.InputStreamReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -19,8 +19,10 @@ import org.intermine.metadata.AttributeDescriptor;
 import org.intermine.metadata.ClassDescriptor;
 import org.intermine.metadata.CollectionDescriptor;
 import org.intermine.metadata.ConstraintOp;
+import org.intermine.metadata.InterMineModelParser;
 import org.intermine.metadata.ReferenceDescriptor;
 import org.intermine.metadata.Model;
+import org.intermine.metadata.ModelParserException;
 import org.intermine.pathquery.Constraints;
 import org.intermine.pathquery.OrderDirection;
 import org.intermine.pathquery.PathConstraintAttribute;
@@ -54,7 +56,16 @@ public class Neo4jLoader {
      * @param args command line arguments
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ModelParserException {
+
+        // optional comma-separated list of classes to load; overrides loading of ALL classes other than those ignored
+        List<String> loadedClasses = new LinkedList<String>();
+        if (args.length>0) {
+            String[] parts = args[0].split(",");
+            for (String part : parts) {
+                loadedClasses.add(part);
+            }
+        }
 
         // Load parameters from neo4jloader.properties
         Properties props = new Properties();
@@ -65,30 +76,32 @@ public class Neo4jLoader {
         String neo4jPassword = props.getProperty("neo4j.password");
         boolean verbose = Boolean.parseBoolean(props.getProperty("verbose"));
         int maxRows = Integer.parseInt(props.getProperty("max.rows"));
+        String dataModelFilename = props.getProperty("data.model.file");
 
         // classes to ignore, usually superclasses or maybe just classes you don't want
-        List<String> ignoredClasses = new ArrayList<String>();
+        List<String> ignoredClasses = new LinkedList<String>();
         if (props.getProperty("ignored.classes")!=null) ignoredClasses = Arrays.asList(props.getProperty("ignored.classes").trim().split(","));
 
-        // classes to load, overrides loading all classes other than those ignored
-        List<String> loadedClasses = new ArrayList<String>();
-        if (props.getProperty("loaded.classes")!=null && props.getProperty("loaded.classes").trim().length()>0) loadedClasses = Arrays.asList(props.getProperty("loaded.classes").trim().split(","));
-        
         // references to ignore, typically reverse-reference
-        List<String> ignoredReferences = new ArrayList<String>();
+        List<String> ignoredReferences = new LinkedList<String>();
         if (props.getProperty("ignored.references")!=null) ignoredReferences = Arrays.asList(props.getProperty("ignored.references").trim().split(","));
 
         // collections to ignore, typically reverse-reference
-        List<String> ignoredCollections = new ArrayList<String>();
+        List<String> ignoredCollections = new LinkedList<String>();
         if (props.getProperty("ignored.collections")!=null) ignoredCollections = Arrays.asList(props.getProperty("ignored.collections").trim().split(","));
 
         // list of IM IDs of nodes that have had their attributes stored HERE
-        List<Integer> nodesWithAttributesStored = new ArrayList<Integer>();
+        List<Integer> nodesWithAttributesStored = new LinkedList<Integer>();
 
         // InterMine setup
         ServiceFactory factory = new ServiceFactory(intermineServiceUrl);
-        Model model = factory.getModel();
         QueryService service = factory.getQueryService();
+
+        // load local model XML file, which contains additional info for IM->Neo4j
+        InterMineModelParser immp = new InterMineModelParser();
+        Model model = immp.process(new InputStreamReader(new FileInputStream(dataModelFilename)));
+
+        // PathQuery objects used in various places
         PathQuery nodeQuery = new PathQuery(model);
         PathQuery refQuery = new PathQuery(model);
         PathQuery collQuery = new PathQuery(model);
@@ -109,7 +122,7 @@ public class Neo4jLoader {
         }
         
         // Retreive the IM IDs of nodes that have already been fully stored
-        List<Integer> nodesAlreadyStored = new ArrayList<Integer>();
+        List<Integer> nodesAlreadyStored = new LinkedList<Integer>();
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
                 StatementResult result = tx.run("MATCH (n:InterMineID) RETURN n.id");
