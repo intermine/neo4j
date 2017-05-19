@@ -48,6 +48,9 @@ Tomcat webapps for doing interactive demos.
 ### webapps/ROOT/index.jsp
 The webapp page, currently holds a textarea to submit PathQuery XML to...
 
-### org.intermine.neo4j.PathQueryServlet
+### org.intermine.neo4j.PathQueryTestServlet
 A servlet which receives an XML PathQuery then submits it to: (1) a mine's web service endpoint; (2) the mine using the Java PathQuery API; (3) a Neo4j using a reverse-engineered Cypher query,
 which may or may not actually work, and returns all the results along with query execution + mine-to-webapp timing. Parameters are in ```web.xml```.
+
+### org.intermine.neo4j.PathQueryServlet
+A servlet which mimics the IM query endpoint: it receives an XML PathQuery with format=tab and then queries Neo4j using a reverse-engineered Cypher query, returning the tabular results.
