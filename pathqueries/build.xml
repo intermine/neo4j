@@ -32,7 +32,7 @@
 
   <target name="about">
     <echo> 
-      This build.xml file builds the NCGR intermine utilities.
+      This build.xml file builds the org.intermine.neo4j utilities.
     </echo>
   </target>
 

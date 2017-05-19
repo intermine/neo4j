@@ -51,13 +51,14 @@ import org.neo4j.driver.v1.Transaction;
 import static org.neo4j.driver.v1.Values.parameters;
 
 /**
- * Handle PathQuery requests by querying Neo4j and returning a tabular response.
+ * Test PathQuery requests by querying Neo4j AND InterMine with timing output.
  *
  * @author Sam Hokin
  */
-public class PathQueryServlet extends HttpServlet {
+public class PathQueryTestServlet extends HttpServlet {
 
     static final String CHARSET = "UTF-8";
+    static final int MAX_ROWS_SHOWN = 10;
 
     // IM classes which should be treated as edges: key=IM class, value=Neo4j edge type
     static Map<String,String> edgeClassTypes = new HashMap<String,String>();
@@ -126,18 +127,120 @@ public class PathQueryServlet extends HttpServlet {
         // get the request data
         String queryXml = request.getParameter("query");
         String format = request.getParameter("format");
-
+        
         // bail if there is no query
         if (queryXml==null) return;
 
-        // bail if non-tab format requested
-        if (format!=null && !format.equals("tab")) return;
-        
-        // set the content type to plain text since that's what it is
+        // set the content type to plain text so we don't have to deal with HTML formatting
         response.setContentType("text/plain");
  
-        // we'll use a PrintWriter to write our output to the response
+        // we'll use a PrintWriter to directly write our output to the response
         PrintWriter writer = response.getWriter();
+
+        // ----------------------------------------
+        // ---------- INTERMINE ENDPOINT ----------
+        // ----------------------------------------
+
+        // URLEncode the query and form the request URL
+        String encodedQuery = URLEncoder.encode(queryXml, CHARSET);
+        String intermineEndpoint = intermineRootUrl+"/service/query/results";
+        String queryUrl = intermineEndpoint+"?query="+encodedQuery;
+        if (format!=null) queryUrl += "&format="+format;
+        
+        writer.println("========== IM web services endpoint ==========");
+        writer.println("");
+        writer.println(queryUrl);
+        writer.println("");
+
+        // timing
+        long startTime = System.currentTimeMillis();
+
+        // do the request, get results in a list of strings
+        List<String> endpointOutput = doEndpointRequest(queryUrl);
+        
+        // timing
+        long endTime = System.currentTimeMillis();
+
+        // send the endpointOutput to the response writer
+        int count = 0;
+        for (String s : endpointOutput) {
+            count++;
+            if (count<=MAX_ROWS_SHOWN) writer.println(s);
+        }
+        if (count>MAX_ROWS_SHOWN) {
+            writer.println("");
+            writer.println("+ "+(endpointOutput.size()-MAX_ROWS_SHOWN)+" more records.");
+        }
+        writer.println("");
+        writer.println("Query time: "+(endTime-startTime)+" ms");
+        writer.println("");
+
+        // ------------------------------------
+        // ---------- PATH QUERY API ----------
+        // ------------------------------------
+        
+        // create the PathQuery for Java API request
+        PathQuery pathQuery = service.createPathQuery(queryXml);
+        
+        writer.println("========== PathQuery API ==========");
+        writer.println("");
+        writer.println(service.getRootUrl());
+        writer.println("");
+
+        // // some diagnostics
+        // try {
+        //     writer.println("PathQuery:"+pathQuery);
+        //     writer.println("ConstraintLogic:"+pathQuery.getConstraintLogic());
+        //     writer.println("Description:"+pathQuery.getDescription());
+        //     writer.println("JSON:"+pathQuery.getJson());
+        //     writer.println("RootClass:"+pathQuery.getRootClass());
+        //     writer.println("SubClasses:"+pathQuery.getSubclasses());
+        //     writer.println("Title:"+pathQuery.getTitle());
+        //     writer.println("Valid:"+pathQuery.isValid());
+        //     writer.println("FixUpForJoinStyle:"+pathQuery.fixUpForJoinStyle());
+        //     writer.println("ColumnHeaders:"+pathQuery.getColumnHeaders());
+        //     writer.println("GroupedConstraintLogic:"+pathQuery.getGroupedConstraintLogic());
+        //     writer.println("View:"+pathQuery.getView());
+        //     writer.println("VerifyList:"+pathQuery.verifyQuery());
+        //     writer.println("BagNames:"+pathQuery.getBagNames());
+        //     writer.println("ConstraintCodes:"+pathQuery.getConstraintCodes());
+        //     writer.println("ExistingLoops:"+pathQuery.getExistingLoops());
+        //     writer.println("ConstraintGroups:"+pathQuery.getConstraintGroups());
+        //     writer.println("OuterJoinGroups:"+pathQuery.getOuterJoinGroups());
+        //     writer.println("OuterMap:"+pathQuery.getOuterMap());
+        // } catch (PathException e) {
+        //     writer.println("diagnostics:"+e);
+        // }
+
+        // do the path query request with timing
+        startTime = System.currentTimeMillis();
+        List<String> pathQueryOutput = doPathQueryRequest(service, pathQuery);
+        endTime = System.currentTimeMillis();
+
+        // spit the pathQueryOutput out to the response writer
+        count = 0;
+        for (String s : pathQueryOutput) {
+            count++;
+            if (count<=MAX_ROWS_SHOWN) {
+                writer.println(s);
+            }
+        }
+        if (count>MAX_ROWS_SHOWN) {
+            writer.println("");
+            writer.println("+ "+(pathQueryOutput.size()-MAX_ROWS_SHOWN)+" more records.");
+        }
+        writer.println("");
+        writer.println("Query time: "+(endTime-startTime)+" ms");
+        writer.println("");
+
+        // ----------------------------------------
+        // ---------- NEO4J CYPHER QUERY ----------
+        // ----------------------------------------
+
+        writer.println("========== Neo4j Cypher Query ==========");
+        writer.println("");
+        writer.println(neo4jBoltUrl);
+        writer.println("");
 
         // Cypher nodes keyed by letter (a:Gene)
         Map<String,String> nodes = new LinkedHashMap<String,String>();          
@@ -147,17 +250,13 @@ public class PathQueryServlet extends HttpServlet {
 
         // IM field types (java.lang.String, etc.) for each property
         Map<String,String> types = new LinkedHashMap<String,String>();
-
-        // create the PathQuery we'll convert to Cypher
-        PathQuery pathQuery = service.createPathQuery(queryXml);
         
         // populate the nodes, properties and types
         int l = -1;
         String previousClass = "";
         try {
             for (String view : pathQuery.getView()) {
-                // needed to switch from one class to a subclass (Transcript -> MRNA)
-                Map<String,String> subclasses = pathQuery.getSubclasses();
+                Map<String,String> subclasses = pathQuery.getSubclasses();      // needed to switch from one class to a subclass (Transcript -> MRNA)
                 for (String superclass : subclasses.keySet()) {
                     view = view.replaceAll(superclass, subclasses.get(superclass));
                 }
@@ -189,7 +288,12 @@ public class PathQueryServlet extends HttpServlet {
             return;
         }           
         
-        // execute the Cypher query and load results into a list of tab-delimited strings
+        // display our Cypher query!
+        writer.println(cypherQuery);
+        writer.println("");
+
+        // execute the Cypher query with timing
+        startTime = System.currentTimeMillis();
         List<String> cypherOutput = new ArrayList<String>();
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
@@ -214,11 +318,22 @@ public class PathQueryServlet extends HttpServlet {
                 }
             }
         }
+        endTime = System.currentTimeMillis();
 
-        // print out the results
+        // display output in response
+        count = 0;
         for (String s : cypherOutput) {
-            writer.println(s);
+            count++;
+            if (count<=MAX_ROWS_SHOWN) writer.println(s);
         }
+        if (count>MAX_ROWS_SHOWN) {
+            writer.println("");
+            writer.println("+ "+(cypherOutput.size()-MAX_ROWS_SHOWN)+" more records.");
+        }
+        writer.println("");
+        writer.println("Query time: "+(endTime-startTime)+" ms");
+
+
         
         // close out the response writer
         writer.flush();
@@ -231,6 +346,48 @@ public class PathQueryServlet extends HttpServlet {
     public void destroy() {
         // close the Neo4j Bolt driver
         driver.close();
+    }
+
+    /**
+     * Do a GET request to the InterMine HTTP query service
+     */
+    List<String> doEndpointRequest(String queryUrl) {
+        List<String> output = new ArrayList<String>();
+        try {
+            // make the IM GET request
+            URLConnection connection = new URL(queryUrl).openConnection();
+            connection.setRequestProperty("Accept-Charset", CHARSET);
+            BufferedReader imReader = new BufferedReader(new InputStreamReader(connection.getInputStream(), CHARSET));
+            // spit out the results
+            String line = null;
+            while ((line=imReader.readLine())!=null) {
+                output.add(line);
+            }
+        } catch (Exception e) {
+            output.add(e.toString());
+        }
+        return output;
+    }
+
+    /**
+     * Do a PathQuery request to the InterMine PathQuery API service
+     */
+    List<String> doPathQueryRequest(QueryService service, PathQuery pathQuery) {
+        List<String> output = new ArrayList<String>();
+        try {
+            Iterator<List<Object>> rows = service.getRowListIterator(pathQuery);
+            while (rows.hasNext()) {
+                Object[] row = rows.next().toArray();
+                String s = "";
+                for (int i=0; i<row.length; i++) {
+                    s += row[i].toString()+"\t";
+                }
+                output.add(s);
+            }
+        } catch (Exception e) {
+            output.add(e.toString());
+        }
+        return output;
     }
 
     /**
