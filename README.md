@@ -1,17 +1,7 @@
-# intermine
-These are Java apps written to perform various tasks using the InterMine PathQuery API.
+# Neo4j
+Project to develop Neo4j as the backing store for InterMine
 
 Compile: ```ant jar```
-
-### org.intermine.FastaQueryClient
-Prints the FASTA for the gene with the given symbol. Parameters: IM service URL and gene symbol.
-
-```./run org.intermine.FastaQueryClient https://apps.araport.org/thalemine/service REV```
-
-### org.intermine.ModelViewer
-Prints out the full data model from a mine. Parameter: IM service URL.
-
-```./run org.intermine.ModelViewer https://apps.araport.org/thalemine/service```
 
 ### org.intermine.neo4j.Neo4jLoader
 Loads a mine into Neo4j using parameters in neo4jloader.properties.
@@ -32,7 +22,7 @@ This is very handy to fill out the graph without adding new nodes. neo4jloader.p
 ### org.intermine.neo4j.Neo4jNodeLoader
 Load a single node into Neo4j identified by its class and InterMine id. Other parameters are read from neo4jloader.properties.
 
-```./run org.intermine.neo4j.Neo4jNodeLoader Gene 4295368``` 
+```./run org.intermine.neo4j.Neo4jNodeLoader Gene 4295368```
 
 ### org.intermine.neo4j.Neo4jEdgeLoader
 Load edges into Neo4j given by source class, edge reference or collection, and target as referenced in the edge class. This converts IM objects
