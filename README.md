@@ -6,23 +6,23 @@ Compile: ```ant jar```
 ### org.intermine.neo4j.Neo4jLoader
 Loads a mine into Neo4j using parameters in neo4jloader.properties.
 
-```./run org.intermine.neo4j.Neo4jLoader```
+```./run Neo4jLoader```
 
 ### org.intermine.neo4j.Neo4jBatchLoader
 A variation on Neo4jLoader which stores up a bunch of queries and submits them to Neo4j as a batch rather than one at a time. Written to compare timing.
 
-```./run org.intermine.neo4j.Neo4jBatchLoader```
+```./run Neo4jBatchLoader```
 
 ### org.intermine.neo4j.Neo4jCompleter
 Completes the references and collections for nodes that have only had attributes stored as a result of being loaded as references and collections by Neo4jLoader.
 This is very handy to fill out the graph without adding new nodes. neo4jloader.properties is used, especially ```loaded.classes``` to indicate which types of nodes you'd like completed.
 
-```./run org.intermine.neo4j.Neo4jCompleter```
+```./run Neo4jCompleter```
 
 ### org.intermine.neo4j.Neo4jNodeLoader
 Load a single node into Neo4j identified by its class and InterMine id. Other parameters are read from neo4jloader.properties.
 
-```./run org.intermine.neo4j.Neo4jNodeLoader Gene 4295368```
+```./run Neo4jNodeLoader Gene 4295368```
 
 ### org.intermine.neo4j.Neo4jEdgeLoader
 Load edges into Neo4j given by source class, edge reference or collection, and target as referenced in the edge class. This converts IM objects
@@ -30,7 +30,7 @@ which store relations, like Location, into Neo4j edges with properties. Since so
 parameters in neo4jloader.properties, ```intermine.edge.classes``` and ```neo4j.edge.types```, which map IM classes to Neo4j edge types so that, for example,
 chromosomeLocation edges are given the type "location" in Neo4j.
 
-```./run org.intermine.neo4j.Neo4jEdgeLoader Gene chromosomeLocation locatedOn```
+```./run Neo4jEdgeLoader Gene chromosomeLocation locatedOn```
 
 ### webapps
 Tomcat webapps for doing interactive demos.
