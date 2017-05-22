@@ -118,7 +118,7 @@ public class PathQueryTestServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
     }
-  
+
     /**
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
@@ -127,13 +127,13 @@ public class PathQueryTestServlet extends HttpServlet {
         // get the request data
         String queryXml = request.getParameter("query");
         String format = request.getParameter("format");
-        
+
         // bail if there is no query
         if (queryXml==null) return;
 
         // set the content type to plain text so we don't have to deal with HTML formatting
         response.setContentType("text/plain");
- 
+
         // we'll use a PrintWriter to directly write our output to the response
         PrintWriter writer = response.getWriter();
 
@@ -146,7 +146,7 @@ public class PathQueryTestServlet extends HttpServlet {
         String intermineEndpoint = intermineRootUrl+"/service/query/results";
         String queryUrl = intermineEndpoint+"?query="+encodedQuery;
         if (format!=null) queryUrl += "&format="+format;
-        
+
         writer.println("========== IM web services endpoint ==========");
         writer.println("");
         writer.println(queryUrl);
@@ -157,20 +157,12 @@ public class PathQueryTestServlet extends HttpServlet {
 
         // do the request, get results in a list of strings
         List<String> endpointOutput = doEndpointRequest(queryUrl);
-        
+
         // timing
         long endTime = System.currentTimeMillis();
 
-        // send the endpointOutput to the response writer
-        int count = 0;
-        for (String s : endpointOutput) {
-            count++;
-            if (count<=MAX_ROWS_SHOWN) writer.println(s);
-        }
-        if (count>MAX_ROWS_SHOWN) {
-            writer.println("");
-            writer.println("+ "+(endpointOutput.size()-MAX_ROWS_SHOWN)+" more records.");
-        }
+        writeResponse(writer, endpointOutput);
+
         writer.println("");
         writer.println("Query time: "+(endTime-startTime)+" ms");
         writer.println("");
@@ -178,10 +170,10 @@ public class PathQueryTestServlet extends HttpServlet {
         // ------------------------------------
         // ---------- PATH QUERY API ----------
         // ------------------------------------
-        
+
         // create the PathQuery for Java API request
         PathQuery pathQuery = service.createPathQuery(queryXml);
-        
+
         writer.println("========== PathQuery API ==========");
         writer.println("");
         writer.println(service.getRootUrl());
@@ -217,18 +209,8 @@ public class PathQueryTestServlet extends HttpServlet {
         List<String> pathQueryOutput = doPathQueryRequest(service, pathQuery);
         endTime = System.currentTimeMillis();
 
-        // spit the pathQueryOutput out to the response writer
-        count = 0;
-        for (String s : pathQueryOutput) {
-            count++;
-            if (count<=MAX_ROWS_SHOWN) {
-                writer.println(s);
-            }
-        }
-        if (count>MAX_ROWS_SHOWN) {
-            writer.println("");
-            writer.println("+ "+(pathQueryOutput.size()-MAX_ROWS_SHOWN)+" more records.");
-        }
+        writeResponse(writer, pathQueryOutput);
+
         writer.println("");
         writer.println("Query time: "+(endTime-startTime)+" ms");
         writer.println("");
@@ -243,14 +225,14 @@ public class PathQueryTestServlet extends HttpServlet {
         writer.println("");
 
         // Cypher nodes keyed by letter (a:Gene)
-        Map<String,String> nodes = new LinkedHashMap<String,String>();          
+        Map<String,String> nodes = new LinkedHashMap<String,String>();
 
         // Cypher properties (c.name) keyed by full IM path (Gene.goAnnotation.ontologyTerm.name)
         Map<String,String> properties = new LinkedHashMap<String,String>();
 
         // IM field types (java.lang.String, etc.) for each property
         Map<String,String> types = new LinkedHashMap<String,String>();
-        
+
         // populate the nodes, properties and types
         int l = -1;
         String previousClass = "";
@@ -263,7 +245,7 @@ public class PathQueryTestServlet extends HttpServlet {
                 Path path = new Path(model, view);
                 String currentClass = path.getLastClassDescriptor().getSimpleName();
                 if (!currentClass.equals(previousClass)) {
-                    l++;                
+                    l++;
                     nodes.put(nodeLetters.get(l), currentClass);
                     previousClass = currentClass;
                 }
@@ -281,13 +263,13 @@ public class PathQueryTestServlet extends HttpServlet {
         String cypherQuery;
         try {
             cypherQuery = toCypher(pathQuery, nodes, properties, types);
-        } catch (PathException e) { 
+        } catch (PathException e) {
             writer.println(e);
             writer.flush();
             writer.close();
             return;
-        }           
-        
+        }
+
         // display our Cypher query!
         writer.println(cypherQuery);
         writer.println("");
@@ -320,21 +302,13 @@ public class PathQueryTestServlet extends HttpServlet {
         }
         endTime = System.currentTimeMillis();
 
-        // display output in response
-        count = 0;
-        for (String s : cypherOutput) {
-            count++;
-            if (count<=MAX_ROWS_SHOWN) writer.println(s);
-        }
-        if (count>MAX_ROWS_SHOWN) {
-            writer.println("");
-            writer.println("+ "+(cypherOutput.size()-MAX_ROWS_SHOWN)+" more records.");
-        }
+        writeResponse(writer, cypherOutput);
+
         writer.println("");
         writer.println("Query time: "+(endTime-startTime)+" ms");
 
 
-        
+
         // close out the response writer
         writer.flush();
         writer.close();
@@ -367,6 +341,21 @@ public class PathQueryTestServlet extends HttpServlet {
             output.add(e.toString());
         }
         return output;
+    }
+
+    /**
+     * Writes query output to the response writer
+     */
+    void writeResponse(PrintWriter writer, List<String> output){
+        int count = 0;
+        for (String s : output) {
+            count++;
+            if (count<=MAX_ROWS_SHOWN) writer.println(s);
+        }
+        if (count>MAX_ROWS_SHOWN) {
+            writer.println("");
+            writer.println("+ "+(output.size()-MAX_ROWS_SHOWN)+" more records.");
+        }
     }
 
     /**
@@ -429,7 +418,7 @@ public class PathQueryTestServlet extends HttpServlet {
             for (PathConstraint pc : constraints.keySet()) {
                 String pcString = pc.toString();
                 // subclasses map is needed to switch from one class to a subclass (Transcript -> MRNA)
-                Map<String,String> subclasses = pathQuery.getSubclasses();              
+                Map<String,String> subclasses = pathQuery.getSubclasses();
                 for (String superclass : subclasses.keySet()) {
                     pcString = pcString.replaceAll(superclass, subclasses.get(superclass));
                 }
