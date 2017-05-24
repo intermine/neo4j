@@ -1,0 +1,808 @@
+<model name="genomic" package="org.intermine.model.bio">
+<class name="Interaction" is-interface="true" neo4j-ignore="true">
+	<reference name="participant2" referenced-type="BioEntity"/>
+	<reference name="participant1" referenced-type="BioEntity" reverse-reference="interactions"/>
+	<collection name="details" referenced-type="InteractionDetail" reverse-reference="interaction"/>
+</class>
+<class name="Allele" extends="SequenceCollection" is-interface="true">
+	<reference name="gene" referenced-type="Gene" reverse-reference="alleles"/>
+</class>
+<class name="SBOLComponentDefinition" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_regulatoryElement" type="java.lang.String"/>
+	<attribute name="SYNBIS_nativeFrom" type="java.lang.String"/>
+	<attribute name="SYNBIS_rnapSigmaFactor" type="java.lang.Integer"/>
+	<attribute name="SBOL_role" type="java.lang.String"/>
+	<attribute name="SYNBIS_inducer" type="java.lang.String"/>
+	<attribute name="SYNBIS_rnapSpecies" type="java.lang.String"/>
+	<attribute name="SYNBIS_origin" type="java.lang.String"/>
+	<attribute name="SBOL_type" type="java.lang.String"/>
+	<reference name="SBOL_sequence" referenced-type="SBOLSequence"/>
+</class>
+<class name="SBOLSequence" extends="SBOLEntity" is-interface="true">
+	<attribute name="SBOL_elements" type="java.lang.String"/>
+	<attribute name="SBOL_encoding" type="java.lang.String"/>
+</class>
+<class name="GEOSeriesResult" is-interface="true">
+	<attribute name="meanExpr" type="java.lang.Double"/>
+	<attribute name="log2FoldChange" type="java.lang.Double"/>
+	<attribute name="CV" type="java.lang.Double"/>
+	<reference name="experiment" referenced-type="MicroArrayExperiment"/>
+	<reference name="condition" referenced-type="ExperimentCondition" reverse-reference="results"/>
+	<reference name="gene" referenced-type="Gene" reverse-reference="expressionResults"/>
+	<collection name="dataSet" referenced-type="DataSet"/>
+</class>
+<class name="Transcript" extends="Region" is-interface="true" neo4j-ignore="true">
+	<reference name="gene" referenced-type="Gene" reverse-reference="transcripts"/>
+	<reference name="protein" referenced-type="Protein" reverse-reference="transcripts"/>
+	<collection name="terminators" referenced-type="Terminator" reverse-reference="transcript"/>
+	<collection name="introns" referenced-type="Intron" reverse-reference="transcripts"/>
+	<collection name="exons" referenced-type="Exon" reverse-reference="transcripts"/>
+	<collection name="ribosomeEntrySites" referenced-type="RibosomeEntrySite" reverse-reference="transcript"/>
+	<collection name="CDSs" referenced-type="CDS" reverse-reference="transcript"/>
+	<collection name="UTRs" referenced-type="UTR" reverse-reference="transcripts"/>
+</class>
+<class name="PointMutation" extends="Region" is-interface="true"></class>
+<class name="Gene" extends="Region" is-interface="true">
+	<attribute name="briefDescription" type="java.lang.String"/>
+	<attribute name="description" type="java.lang.String"/>
+	<reference name="upstreamIntergenicRegion" referenced-type="IntergenicRegion"/>
+	<reference name="downstreamIntergenicRegion" referenced-type="IntergenicRegion"/>
+	<collection name="flankingRegions" referenced-type="GeneFlankingRegion" reverse-reference="gene"/>
+	<collection name="introns" referenced-type="Intron" reverse-reference="genes"/>
+	<collection name="operons" referenced-type="Operon" reverse-reference="genes"/>
+	<collection name="proteins" referenced-type="Protein" reverse-reference="genes"/>
+	<collection name="eggNogCategories" referenced-type="EggNogCategory" reverse-reference="genes"/>
+	<collection name="CDSs" referenced-type="CDS" reverse-reference="gene"/>
+	<collection name="homologues" referenced-type="Homologue" reverse-reference="gene"/>
+	<collection name="exons" referenced-type="Exon" reverse-reference="gene"/>
+	<collection name="pathways" referenced-type="Pathway" reverse-reference="genes"/>
+	<collection name="UTRs" referenced-type="UTR" reverse-reference="gene"/>
+	<collection name="promoters" referenced-type="Promoter" reverse-reference="gene"/>
+	<collection name="transcripts" referenced-type="Transcript" reverse-reference="gene"/>
+	<collection name="reactions" referenced-type="Reaction" reverse-reference="modifiers"/>
+	<collection name="alleles" referenced-type="Allele" reverse-reference="gene"/>
+	<collection name="regulatoryRegions" referenced-type="RegulatoryRegion" reverse-reference="gene"/>
+	<collection name="experimentConditions" referenced-type="ExperimentCondition" reverse-reference="genes"/>
+	<collection name="goAnnotation" referenced-type="GOAnnotation"/>
+	<collection name="expressionResults" referenced-type="GEOSeriesResult" reverse-reference="gene"/>
+</class>
+<class name="Ontology" is-interface="true">
+	<attribute name="url" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+</class>
+<class name="EST" extends="Oligo" is-interface="true">
+	<collection name="overlappingESTSets" referenced-type="OverlappingESTSet" reverse-reference="ESTs"/>
+</class>
+<class name="SYNBISAssay" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_repeatsPlate" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselType" type="java.lang.String"/>
+	<attribute name="SYNBIS_dilutionTo" type="java.lang.Double"/>
+	<attribute name="SYNBIS_vesselModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_duration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_vesselSeal" type="java.lang.String"/>
+	<attribute name="SYNBIS_volumeUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibioticConcentration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_temperatureUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_measTimeIntervals" type="java.lang.Double"/>
+	<attribute name="SYNBIS_antibiotic" type="java.lang.String"/>
+	<attribute name="SYNBIS_dayRepeats" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_dilutionToUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_aerobic" type="java.lang.String"/>
+	<attribute name="SYNBIS_temperature" type="java.lang.Double"/>
+	<attribute name="SYNBIS_durationUnits" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselBrand" type="java.lang.String"/>
+	<attribute name="SYNBIS_incubatorModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingSpeed" type="java.lang.Double"/>
+	<attribute name="SYNBIS_shaking" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibioticConcentrationUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_measTimeIntervalsUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_volume" type="java.lang.Double"/>
+	<attribute name="SYNBIS_shakingUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_incubatorBrand" type="java.lang.String"/>
+	<reference name="SYNBIS_medium" referenced-type="SYNBISMedium"/>
+</class>
+<class name="OrthologueEvidence" is-interface="true">
+	<reference name="evidenceCode" referenced-type="OrthologueEvidenceCode"/>
+	<collection name="publications" referenced-type="Publication"/>
+</class>
+<class name="RegulatoryRegion" extends="Region" is-interface="true">
+	<reference name="gene" referenced-type="Gene" reverse-reference="regulatoryRegions"/>
+</class>
+<class name="ChromosomeBand" extends="Region" is-interface="true"></class>
+<class name="TransposableElementInsertionSite" extends="SequenceFeature" is-interface="true"></class>
+<class name="SYNBISExperiment" extends="SBOLEntity" is-interface="true">
+	<reference name="SYNBIS_experimentalProtocol" referenced-type="SYNBISExperimentalProtocol"/>
+	<reference name="SYNBIS_transformation" referenced-type="SYNBISTransformation"/>
+	<collection name="SYNBIS_series" referenced-type="SYNBISSeries"/>
+</class>
+<class name="CRM" extends="RegulatoryRegion" is-interface="true">
+	<collection name="TFBindingSites" referenced-type="TFBindingSite" reverse-reference="CRM"/>
+</class>
+<class name="Reaction" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="equation" type="java.lang.String"/>
+	<attribute name="sboterm" type="java.lang.String"/>
+	<attribute name="type" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<reference name="kineticParameters" referenced-type="KineticParameters"/>
+	<collection name="reactionSpecies" referenced-type="ReactionSpecies"/>
+	<collection name="modifiers" referenced-type="Gene" reverse-reference="reactions"/>
+	<collection name="pathways" referenced-type="Pathway" reverse-reference="reactions"/>
+	<collection name="compounds" referenced-type="Compound" reverse-reference="reactions"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="OverlappingESTSet" extends="Region" is-interface="true">
+	<collection name="ESTs" referenced-type="EST" reverse-reference="overlappingESTSets"/>
+</class>
+<class name="GOEvidence" is-interface="true">
+	<attribute name="withText" type="java.lang.String"/>
+	<reference name="code" referenced-type="GOEvidenceCode"/>
+	<collection name="publications" referenced-type="Publication"/>
+	<collection name="with" referenced-type="BioEntity"/>
+</class>
+<class name="ExperimentCondition" is-interface="true">
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="shortName" type="java.lang.String"/>
+	<reference name="experiment" referenced-type="MicroArrayExperiment" reverse-reference="conditions"/>
+	<collection name="results" referenced-type="GEOSeriesResult" reverse-reference="condition"/>
+	<collection name="genes" referenced-type="Gene" reverse-reference="experimentConditions"/>
+</class>
+<class name="BindingSite" extends="Region" is-interface="true"></class>
+<class name="ChromosomalTranslocation" extends="ChromosomeStructureVariation" is-interface="true"></class>
+<class name="PromoterEvidence" is-interface="true">
+	<collection name="publications" referenced-type="Publication"/>
+	<collection name="evidenceCodes" referenced-type="PromoterEvidenceCode"/>
+</class>
+<class name="SYNBISMedium" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_preparation" type="java.lang.String"/>
+	<attribute name="SYNBIS_supplier" type="java.lang.String"/>
+	<attribute name="SYNBIS_name" type="java.lang.String"/>
+	<attribute name="SYNBIS_reference" type="java.lang.String"/>
+	<collection name="SYNBIS_ingredient" referenced-type="SYNBISIngredient"/>
+</class>
+<class name="ProteinDomainRegion" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="start" type="java.lang.Integer"/>
+	<attribute name="database" type="java.lang.String"/>
+	<attribute name="end" type="java.lang.Integer"/>
+	<reference name="protein" referenced-type="Protein" reverse-reference="proteinDomainRegions"/>
+	<reference name="proteinDomain" referenced-type="ProteinDomain"/>
+</class>
+<class name="SYNBISTransformation" extends="SBOLEntity" is-interface="true">
+	<reference name="SYNBIS_host" referenced-type="SYNBISHost"/>
+	<reference name="SYNBIS_componentDefinition" referenced-type="SBOLComponentDefinition"/>
+</class>
+<class name="SnoRNA" extends="NcRNA" is-interface="true"></class>
+<class name="Terminator" extends="RegulatoryRegion" is-interface="true">
+	<reference name="transcript" referenced-type="Transcript" reverse-reference="terminators"/>
+</class>
+<class name="Primer" extends="Oligo" is-interface="true"></class>
+<class name="InteractionDetail" is-interface="true">
+	<attribute name="role2" type="java.lang.String"/>
+	<attribute name="type" type="java.lang.String"/>
+	<attribute name="role1" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="relationshipType" type="java.lang.String"/>
+	<reference name="experiment" referenced-type="InteractionExperiment" reverse-reference="interactions"/>
+	<reference name="interaction" referenced-type="Interaction" reverse-reference="details"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="allInteractors" referenced-type="Interactor"/>
+</class>
+<class name="SYNBISDatasheet" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_collectionLocation" type="java.lang.String"/>
+	<attribute name="SYNBIS_curator" type="java.lang.String"/>
+	<attribute name="SYNBIS_curationLocation" type="java.lang.String"/>
+	<attribute name="SBOL_version" type="java.lang.String"/>
+	<attribute name="SYNBIS_collector" type="java.lang.String"/>
+	<reference name="SYNBIS_experiment" referenced-type="SYNBISExperiment"/>
+	<reference name="SYNBIS_componentDefinition" referenced-type="SBOLComponentDefinition"/>
+	<collection name="SYNBIS_plateReaderMetrics" referenced-type="SYNBISMetricsTable"/>
+	<collection name="SYNBIS_controlExperiment" referenced-type="SYNBISExperiment"/>
+	<collection name="SYNBIS_flowCytometryMetrics" referenced-type="SYNBISMetricsTable"/>
+	<collection name="SYNBIS_transferFunction" referenced-type="SYNBISTransferFunction"/>
+</class>
+<class name="MRNA" extends="Transcript" is-interface="true"></class>
+<class name="MiRNA" extends="NcRNA" is-interface="true"></class>
+<class name="Plasmid" extends="Region" is-interface="true"></class>
+<class name="SYNBISCulture" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_vesselType" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselBrand" type="java.lang.String"/>
+	<attribute name="SYNBIS_incubatorModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingSpeed" type="java.lang.Double"/>
+	<attribute name="SYNBIS_shaking" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselSeal" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibioticConcentrationUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_volumeUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibioticConcentration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_temperatureUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_source" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibiotic" type="java.lang.String"/>
+	<attribute name="SYNBIS_volume" type="java.lang.Double"/>
+	<attribute name="SYNBIS_aerobic" type="java.lang.String"/>
+	<attribute name="SYNBIS_duration" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_temperature" type="java.lang.Double"/>
+	<attribute name="SYNBIS_durationUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_incubatorBrand" type="java.lang.String"/>
+	<reference name="SYNBIS_medium" referenced-type="SYNBISMedium"/>
+</class>
+<class name="ChromosomalInversion" extends="ChromosomeStructureVariation" is-interface="true"></class>
+<class name="TFBindingSite" extends="BindingSite RegulatoryRegion" is-interface="true">
+	<reference name="CRM" referenced-type="CRM" reverse-reference="TFBindingSites"/>
+</class>
+<class name="RRNA" extends="NcRNA" is-interface="true"></class>
+<class name="Synonym" is-interface="true">
+	<attribute name="value" type="java.lang.String"/>
+	<reference name="subject" referenced-type="BioEntity" reverse-reference="synonyms"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="Region" extends="SequenceFeature" is-interface="true"></class>
+<class name="FunctionalCategory" is-interface="true">
+	<attribute name="category" type="java.lang.String"/>
+	<attribute name="classifier" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<collection name="eggNogCategories" referenced-type="EggNogCategory" reverse-reference="functionalCategories"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="SBOLEntity" is-interface="true">
+	<attribute name="SBOL_displayId" type="java.lang.String"/>
+	<attribute name="SBOL_persistentIdentity" type="java.lang.String"/>
+</class>
+<class name="TransposableElement" extends="Region" is-interface="true"></class>
+<class name="GOAnnotation" extends="OntologyAnnotation" is-interface="true">
+	<attribute name="annotationExtension" type="java.lang.String"/>
+	<collection name="evidence" referenced-type="GOEvidence"/>
+</class>
+<class name="GeneFlankingRegion" extends="SequenceFeature" is-interface="true">
+	<attribute name="direction" type="java.lang.String"/>
+	<attribute name="distance" type="java.lang.String"/>
+	<attribute name="includeGene" type="java.lang.Boolean"/>
+	<reference name="gene" referenced-type="Gene" reverse-reference="flankingRegions"/>
+</class>
+<class name="RibosomeEntrySite" extends="Region" is-interface="true">
+	<reference name="transcript" referenced-type="Transcript" reverse-reference="ribosomeEntrySites"/>
+</class>
+<class name="KineticParameters" is-interface="true">
+	<attribute name="lowerBound" type="java.lang.Double"/>
+	<attribute name="objectiveCoefficient" type="java.lang.Double"/>
+	<attribute name="type" type="java.lang.String"/>
+	<attribute name="upperBound" type="java.lang.Double"/>
+	<attribute name="fluxValue" type="java.lang.Double"/>
+</class>
+<class name="MeshTerm" is-interface="true">
+	<attribute name="name" type="java.lang.String"/>
+	<collection name="publications" referenced-type="Publication" reverse-reference="meshTerms"/>
+</class>
+<class name="SOTerm" extends="OntologyTerm" is-interface="true"></class>
+<class name="IntergenicRegion" extends="Region" is-interface="true">
+	<collection name="adjacentGenes" referenced-type="Gene"/>
+</class>
+<class name="Comment" is-interface="true">
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="type" type="java.lang.String"/>
+	<collection name="publications" referenced-type="Publication"/>
+</class>
+<class name="BacterialTerminator" extends="SequenceFeature" is-interface="true">
+	<attribute name="stemloop" type="java.lang.String"/>
+	<attribute name="energy" type="java.lang.Double"/>
+	<reference name="operon" referenced-type="Operon" reverse-reference="terminator"/>
+</class>
+<class name="Compound" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="formula" type="java.lang.String"/>
+	<attribute name="sboterm" type="java.lang.String"/>
+	<attribute name="kegg" type="java.lang.String"/>
+	<attribute name="charge" type="java.lang.Double"/>
+	<attribute name="name" type="java.lang.String"/>
+	<collection name="reactions" referenced-type="Reaction" reverse-reference="compounds"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="OntologyTermSynonym" is-interface="true">
+	<attribute name="type" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+</class>
+<class name="SYNBISSeriesGroup" extends="SBOLEntity" is-interface="true">
+	<collection name="SYNBIS_series" referenced-type="SYNBISSeries"/>
+</class>
+<class name="Chromosome" extends="Region" is-interface="true"></class>
+<class name="CDNAClone" extends="Region" is-interface="true"></class>
+<class name="SYNBISProtocol" is-interface="true">
+	<attribute name="SYNBIS_stepNr" type="java.lang.Integer"/>
+	<reference name="SYNBIS_definition" referenced-type="SBOLEntity"/>
+</class>
+<class name="FivePrimeUTR" extends="UTR" is-interface="true"></class>
+<class name="CDS" extends="Region" is-interface="true">
+	<reference name="gene" referenced-type="Gene" reverse-reference="CDSs"/>
+	<reference name="transcript" referenced-type="Transcript" reverse-reference="CDSs"/>
+	<reference name="protein" referenced-type="Protein" reverse-reference="CDSs"/>
+</class>
+<class name="Exon" extends="Region" is-interface="true">
+	<reference name="gene" referenced-type="Gene" reverse-reference="exons"/>
+	<collection name="transcripts" referenced-type="Transcript" reverse-reference="exons"/>
+</class>
+<class name="Component" is-interface="true">
+	<attribute name="name" type="java.lang.String"/>
+	<reference name="protein" referenced-type="Protein" reverse-reference="components"/>
+</class>
+<class name="PromoterEvidenceCode" is-interface="true">
+	<attribute name="abbreviation" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+</class>
+<class name="DataSet" is-interface="true">
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="url" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="version" type="java.lang.String"/>
+	<reference name="dataSource" referenced-type="DataSource" reverse-reference="dataSets"/>
+	<reference name="publication" referenced-type="Publication"/>
+	<collection name="bioEntities" referenced-type="BioEntity" reverse-reference="dataSets"/>
+</class>
+<class name="TRNA" extends="NcRNA" is-interface="true"></class>
+<class name="Publication" is-interface="true">
+	<attribute name="year" type="java.lang.Integer"/>
+	<attribute name="issue" type="java.lang.String"/>
+	<attribute name="title" type="java.lang.String"/>
+	<attribute name="pages" type="java.lang.String"/>
+	<attribute name="doi" type="java.lang.String"/>
+	<attribute name="volume" type="java.lang.String"/>
+	<attribute name="journal" type="java.lang.String"/>
+	<attribute name="firstAuthor" type="java.lang.String"/>
+	<attribute name="month" type="java.lang.String"/>
+	<attribute name="abstractText" type="java.lang.String"/>
+	<attribute name="pubMedId" type="java.lang.String"/>
+	<collection name="authors" referenced-type="Author" reverse-reference="publications"/>
+	<collection name="bioEntities" referenced-type="BioEntity" reverse-reference="publications"/>
+	<collection name="crossReferences" referenced-type="DatabaseReference" reverse-reference="subject"/>
+	<collection name="meshTerms" referenced-type="MeshTerm" reverse-reference="publications"/>
+</class>
+<class name="Author" is-interface="true">
+	<attribute name="firstName" type="java.lang.String"/>
+	<attribute name="initials" type="java.lang.String"/>
+	<attribute name="lastName" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<collection name="publications" referenced-type="Publication" reverse-reference="authors"/>
+</class>
+<class name="SYNBISMetricsTable" is-interface="true">
+	<attribute name="SYNBIS_flRepeats" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_sdRefSynRate6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_refFl6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdSynRate3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_carryingCapacity" type="java.lang.Double"/>
+	<attribute name="SYNBIS_flReferences" type="java.lang.String"/>
+	<attribute name="SYNBIS_references3" type="java.lang.String"/>
+	<attribute name="SYNBIS_sdRpu6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_repeats3" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_refFl3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_references6" type="java.lang.String"/>
+	<attribute name="SYNBIS_controls3" type="java.lang.String"/>
+	<attribute name="SYNBIS_refDoublingTime" type="java.lang.Double"/>
+	<attribute name="SYNBIS_refCarryingCapacity" type="java.lang.Double"/>
+	<attribute name="SYNBIS_lag" type="java.lang.Double"/>
+	<attribute name="SYNBIS_flControls" type="java.lang.String"/>
+	<attribute name="SYNBIS_repeats6" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_controls6" type="java.lang.String"/>
+	<attribute name="SYNBIS_sdFl3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_odRepeats" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_odControls" type="java.lang.String"/>
+	<attribute name="SYNBIS_sdSynRate6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdFl6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_fl3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdRefDoublingTime" type="java.lang.Double"/>
+	<attribute name="SYNBIS_fl6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_rpu3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdRefFl3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdRefFl6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_odReferences" type="java.lang.String"/>
+	<attribute name="SYNBIS_refSynRate6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_synRate6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_refSynRate3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdRpu3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_refLag" type="java.lang.Double"/>
+	<attribute name="SYNBIS_refGrowthRate" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdRefSynRate3" type="java.lang.Double"/>
+	<attribute name="SYNBIS_growthRate" type="java.lang.Double"/>
+	<attribute name="SYNBIS_sdDoublingTime" type="java.lang.Double"/>
+	<attribute name="SYNBIS_doublingTime" type="java.lang.Double"/>
+	<attribute name="SYNBIS_rpu6" type="java.lang.Double"/>
+	<attribute name="SYNBIS_synRate3" type="java.lang.Double"/>
+	<reference name="SYNBIS_stimulus" referenced-type="SYNBISStimulus"/>
+	<reference name="SYNBIS_refSeriesGroup" referenced-type="SYNBISSeriesGroup"/>
+	<reference name="SYNBIS_series" referenced-type="SYNBISSeries"/>
+	<collection name="SYNBIS_series" referenced-type="SYNBISSeries"/>
+</class>
+<class name="SYNBISHost" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_species" type="java.lang.String"/>
+	<attribute name="SYNBIS_strain" type="java.lang.String"/>
+	<attribute name="SYNBIS_origin" type="java.lang.String"/>
+	<attribute name="SYNBIS_name" type="java.lang.String"/>
+</class>
+<class name="InteractionExperiment" is-interface="true">
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="hostOrganism" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<reference name="publication" referenced-type="Publication"/>
+	<collection name="interactions" referenced-type="InteractionDetail" reverse-reference="experiment"/>
+	<collection name="interactionDetectionMethods" referenced-type="InteractionTerm"/>
+</class>
+<class name="SYNBISExperimentalProtocol" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_ownership" type="java.lang.String"/>
+	<attribute name="SYNBIS_refPromoter" type="java.lang.String"/>
+	<attribute name="SYNBIS_mainComplement" type="java.lang.String"/>
+	<attribute name="SYNBIS_reporterVariant" type="java.lang.String"/>
+	<attribute name="SYNBIS_refComplement" type="java.lang.String"/>
+	<attribute name="SYNBIS_mainPromoter" type="java.lang.String"/>
+	<attribute name="SYNBIS_reporter" type="java.lang.String"/>
+	<attribute name="SYNBIS_backgroundPromoter" type="java.lang.String"/>
+	<attribute name="SYNBIS_name" type="java.lang.String"/>
+	<attribute name="SYNBIS_backgroundComplement" type="java.lang.String"/>
+	<collection name="SYNBIS_modality" referenced-type="SYNBISModality"/>
+	<collection name="SYNBIS_subprotocol" referenced-type="SYNBISProtocol"/>
+</class>
+<class name="SigmaBindingFactor" is-interface="true">
+	<reference name="primaryIdentifier" referenced-type="Gene"/>
+	<collection name="promoters" referenced-type="Promoter" reverse-reference="sigmaBindingFactors"/>
+</class>
+<class name="ChromosomalDuplication" extends="ChromosomeStructureVariation" is-interface="true"></class>
+<class name="ThreePrimeUTR" extends="UTR" is-interface="true"></class>
+<class name="OntologyAnnotation" is-interface="true" neo4j-ignore="true">
+	<attribute name="qualifier" type="java.lang.String"/>
+	<reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations"/>
+	<reference name="subject" referenced-type="BioEntity" reverse-reference="ontologyAnnotations"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="GOEvidenceCode" is-interface="true">
+	<attribute name="code" type="java.lang.String"/>
+</class>
+<class name="SYNBISIngredient" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_unit" type="java.lang.String"/>
+	<attribute name="SYNBIS_concentration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_name" type="java.lang.String"/>
+</class>
+<class name="ProteinDomain" extends="BioEntity" is-interface="true">
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="type" type="java.lang.String"/>
+	<attribute name="shortName" type="java.lang.String"/>
+	<collection name="childFeatures" referenced-type="ProteinDomain"/>
+	<collection name="foundIn" referenced-type="ProteinDomain"/>
+	<collection name="parentFeatures" referenced-type="ProteinDomain"/>
+	<collection name="contains" referenced-type="ProteinDomain"/>
+	<collection name="proteinDomainRegions" referenced-type="ProteinDomainRegion" reverse-reference="proteinDomain"/>
+</class>
+<class name="SnRNA" extends="NcRNA" is-interface="true"></class>
+<class name="GoldenPathFragment" extends="Region" is-interface="true"></class>
+<class name="Enhancer" extends="CRM" is-interface="true"></class>
+<class name="SequenceVariant" is-interface="true">
+	<collection name="genes" referenced-type="Gene"/>
+</class>
+<class name="ReversePrimer" extends="Primer" is-interface="true"></class>
+<class name="Interactor" is-interface="true"></class>
+<class name="TranscriptionFactor" is-interface="true">
+	<attribute name="regulation" type="java.lang.String"/>
+	<attribute name="tfFamily" type="java.lang.String"/>
+	<reference name="primaryIdentifier" referenced-type="Gene"/>
+	<collection name="promoters" referenced-type="Promoter" reverse-reference="transcriptionFactor"/>
+</class>
+<class name="Oligo" extends="Region" is-interface="true"></class>
+<class name="DataSource" is-interface="true">
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="url" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<collection name="publications" referenced-type="Publication"/>
+	<collection name="dataSets" referenced-type="DataSet" reverse-reference="dataSource"/>
+</class>
+<class name="MicroarrayOligo" extends="Oligo" is-interface="true"></class>
+<class name="Location" is-interface="true" neo4j-ignore="true">
+	<attribute name="strand" type="java.lang.String"/>
+	<attribute name="start" type="java.lang.Integer"/>
+	<attribute name="end" type="java.lang.Integer"/>
+	<reference name="locatedOn" referenced-type="BioEntity" reverse-reference="locatedFeatures"/>
+	<reference name="feature" referenced-type="BioEntity" reverse-reference="locations"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="EggNogCategory" is-interface="true">
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="primaryIdentifier" type="java.lang.String"/>
+	<collection name="genes" referenced-type="Gene" reverse-reference="eggNogCategories"/>
+	<collection name="functionalCategories" referenced-type="FunctionalCategory" reverse-reference="eggNogCategories"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="SYNBISStimulus" is-interface="true">
+	<attribute name="SYNBIS_timeStamp" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_amount" type="java.lang.Double"/>
+	<reference name="SYNBIS_stimulusDefinition" referenced-type="SYNBISStimulusDefinition"/>
+</class>
+<class name="Intron" extends="Region" is-interface="true">
+	<collection name="transcripts" referenced-type="Transcript" reverse-reference="introns"/>
+	<collection name="genes" referenced-type="Gene" reverse-reference="introns"/>
+</class>
+<class name="ChromosomeStructureVariation" extends="SequenceCollection" is-interface="true"></class>
+<class name="NaturalTransposableElement" extends="TransposableElement" is-interface="true"></class>
+<class name="Minus10Signal" extends="Region" is-interface="true"></class>
+<class name="ReactionSpecies" is-interface="true">
+	<attribute name="stoichiometry" type="java.lang.Double"/>
+	<attribute name="role" type="java.lang.String"/>
+	<reference name="compound" referenced-type="Compound"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="Homologue" is-interface="true" neo4j-ignore="true">
+	<attribute name="type" type="java.lang.String"/>
+	<reference name="gene" referenced-type="Gene" reverse-reference="homologues"/>
+	<reference name="homologue" referenced-type="Gene"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="evidence" referenced-type="OrthologueEvidence"/>
+	<collection name="crossReferences" referenced-type="CrossReference"/>
+</class>
+<class name="DatabaseReference" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<reference name="subject" referenced-type="Publication" reverse-reference="crossReferences"/>
+	<reference name="source" referenced-type="DataSource"/>
+</class>
+<class name="ForwardPrimer" extends="Primer" is-interface="true"></class>
+<class name="OntologyRelation" is-interface="true" neo4j-ignore="true">
+	<attribute name="redundant" type="java.lang.Boolean"/>
+	<attribute name="direct" type="java.lang.Boolean"/>
+	<attribute name="relationship" type="java.lang.String"/>
+	<reference name="parentTerm" referenced-type="OntologyTerm"/>
+	<reference name="childTerm" referenced-type="OntologyTerm"/>
+</class>
+<class name="UTR" extends="Region" is-interface="true">
+	<reference name="gene" referenced-type="Gene" reverse-reference="UTRs"/>
+	<collection name="transcripts" referenced-type="Transcript" reverse-reference="UTRs"/>
+</class>
+<class name="NcRNA" extends="Transcript" is-interface="true" neo4j-ignore="true"></class>
+<class name="CrossReference" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<reference name="source" referenced-type="DataSource"/>
+	<reference name="subject" referenced-type="BioEntity" reverse-reference="crossReferences"/>
+</class>
+<class name="Protein" extends="BioEntity" is-interface="true">
+	<attribute name="md5checksum" type="java.lang.String"/>
+	<attribute name="primaryAccession" type="java.lang.String"/>
+	<attribute name="molecularWeight" type="java.lang.Integer"/>
+	<attribute name="ecNumber" type="java.lang.String"/>
+	<attribute name="length" type="java.lang.Integer"/>
+	<attribute name="isFragment" type="java.lang.Boolean"/>
+	<attribute name="uniprotAccession" type="java.lang.String"/>
+	<attribute name="isUniprotCanonical" type="java.lang.Boolean"/>
+	<attribute name="uniprotName" type="java.lang.String"/>
+	<reference name="canonicalProtein" referenced-type="Protein" reverse-reference="isoforms"/>
+	<reference name="sequence" referenced-type="Sequence"/>
+	<collection name="CDSs" referenced-type="CDS" reverse-reference="protein"/>
+	<collection name="comments" referenced-type="Comment"/>
+	<collection name="ecNumbers" referenced-type="ECNumber" reverse-reference="proteins"/>
+	<collection name="genes" referenced-type="Gene" reverse-reference="proteins"/>
+	<collection name="isoforms" referenced-type="Protein" reverse-reference="canonicalProtein"/>
+	<collection name="keywords" referenced-type="OntologyTerm"/>
+	<collection name="components" referenced-type="Component" reverse-reference="protein"/>
+	<collection name="proteinDomainRegions" referenced-type="ProteinDomainRegion" reverse-reference="protein"/>
+	<collection name="pathways" referenced-type="Pathway"/>
+	<collection name="transcripts" referenced-type="Transcript" reverse-reference="protein"/>
+	<collection name="features" referenced-type="UniProtFeature" reverse-reference="protein"/>
+</class>
+<class name="SYNBISStimulusDefinition" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_timeUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_amountType" type="java.lang.String"/>
+	<attribute name="SYNBIS_amountUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_name" type="java.lang.String"/>
+</class>
+<class name="PredictedSigmaFactor" is-interface="true">
+	<attribute name="probability" type="java.lang.Double"/>
+	<reference name="primaryIdentifier" referenced-type="Gene"/>
+	<collection name="promoters" referenced-type="Promoter" reverse-reference="predictedSigmaFactors"/>
+</class>
+<class name="STS" extends="Oligo" is-interface="true"></class>
+<class name="SYNBISOutgrowth" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_vesselType" type="java.lang.String"/>
+	<attribute name="SYNBIS_dilutionTo" type="java.lang.Double"/>
+	<attribute name="SYNBIS_vesselBrand" type="java.lang.String"/>
+	<attribute name="SYNBIS_incubatorModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingSpeed" type="java.lang.Double"/>
+	<attribute name="SYNBIS_shaking" type="java.lang.String"/>
+	<attribute name="SYNBIS_duration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_vesselSeal" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibioticConcentrationUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_volumeUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibioticConcentration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_temperatureUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_antibiotic" type="java.lang.String"/>
+	<attribute name="SYNBIS_dilutionToUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_volume" type="java.lang.Double"/>
+	<attribute name="SYNBIS_aerobic" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_temperature" type="java.lang.Double"/>
+	<attribute name="SYNBIS_durationUnits" type="java.lang.String"/>
+	<attribute name="SYNBIS_incubatorBrand" type="java.lang.String"/>
+	<reference name="SYNBIS_medium" referenced-type="SYNBISMedium"/>
+</class>
+<class name="Pathway" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="curated" type="java.lang.Boolean"/>
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="shortName" type="java.lang.String"/>
+	<collection name="genes" referenced-type="Gene" reverse-reference="pathways"/>
+	<collection name="proteins" referenced-type="Protein"/>
+	<collection name="reactions" referenced-type="Reaction" reverse-reference="pathways"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+</class>
+<class name="MicroArrayExperiment" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<reference name="publication" referenced-type="Publication"/>
+	<collection name="conditions" referenced-type="ExperimentCondition" reverse-reference="experiment"/>
+</class>
+<class name="OntologyTerm" is-interface="true" neo4j-ignore="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="obsolete" type="java.lang.Boolean"/>
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="namespace" type="java.lang.String"/>
+	<reference name="ontology" referenced-type="Ontology"/>
+	<collection name="relations" referenced-type="OntologyRelation"/>
+	<collection name="synonyms" referenced-type="OntologyTermSynonym"/>
+	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="ontologyTerm"/>
+	<collection name="parents" referenced-type="OntologyTerm"/>
+	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="crossReferences" referenced-type="OntologyTerm"/>
+</class>
+<class name="GOTerm" extends="OntologyTerm" is-interface="true"></class>
+<class name="Organism" is-interface="true">
+	<attribute name="species" type="java.lang.String"/>
+	<attribute name="genus" type="java.lang.String"/>
+	<attribute name="taxonId" type="java.lang.Integer"/>
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="commonName" type="java.lang.String"/>
+	<attribute name="shortName" type="java.lang.String"/>
+</class>
+<class name="ChromosomalDeletion" extends="ChromosomeStructureVariation" is-interface="true"></class>
+<class name="SequenceFeature" extends="BioEntity" is-interface="true" neo4j-ignore="true">
+	<attribute name="score" type="java.lang.Double"/>
+	<attribute name="scoreType" type="java.lang.String"/>
+	<attribute name="length" type="java.lang.Integer"/>
+	<reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
+	<reference name="chromosomeLocation" referenced-type="Location"/>
+	<reference name="sequence" referenced-type="Sequence"/>
+	<reference name="chromosome" referenced-type="Chromosome"/>
+	<collection name="overlappingFeatures" referenced-type="SequenceFeature"/>
+	<collection name="childFeatures" referenced-type="SequenceFeature"/>
+</class>
+<class name="Operon" extends="Region" is-interface="true">
+	<attribute name="comment" type="java.lang.String"/>
+	<attribute name="synonym" type="java.lang.String"/>
+	<collection name="genes" referenced-type="Gene" reverse-reference="operons"/>
+	<collection name="evidence" referenced-type="OperonEvidence"/>
+	<collection name="terminator" referenced-type="BacterialTerminator" reverse-reference="operon"/>
+	<collection name="promoters" referenced-type="Promoter" reverse-reference="operon"/>
+</class>
+<class name="RepeatRegion" extends="Region" is-interface="true"></class>
+<class name="SYNBISModality" extends="SBOLEntity" is-interface="true">
+	<attribute name="SYNBIS_excitationLaser" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselType" type="java.lang.String"/>
+	<attribute name="SYNBIS_collectionStopTimeUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_flh2VoltageUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselModel" type="java.lang.String"/>
+	<attribute name="SYNBIS_excitationWaveLengthUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_collectionStopTime" type="java.lang.Double"/>
+	<attribute name="SYNBIS_emissionMargin" type="java.lang.Double"/>
+	<attribute name="SYNBIS_eventNrThreshold" type="java.lang.Double"/>
+	<attribute name="SYNBIS_channels" type="java.lang.String"/>
+	<attribute name="SYNBIS_fscVoltage" type="java.lang.String"/>
+	<attribute name="SYNBIS_temperatureUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_flSensitivity" type="java.lang.Double"/>
+	<attribute name="SYNBIS_emissionWavelengthUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_opticOrientation" type="java.lang.String"/>
+	<attribute name="SYNBIS_model" type="java.lang.String"/>
+	<attribute name="SYNBIS_excitationMargin" type="java.lang.Double"/>
+	<attribute name="SYNBIS_excitationWaveLength" type="java.lang.Double"/>
+	<attribute name="SYNBIS_temperature" type="java.lang.Double"/>
+	<attribute name="SYNBIS_flh1VoltageUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_type" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingDuration" type="java.lang.Double"/>
+	<attribute name="SYNBIS_fscRange" type="java.lang.String"/>
+	<attribute name="SYNBIS_vesselBrand" type="java.lang.String"/>
+	<attribute name="SYNBIS_odWaveLengthUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_shaking" type="java.lang.String"/>
+	<attribute name="SYNBIS_fscVoltageUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_odWaveLength" type="java.lang.Double"/>
+	<attribute name="SYNBIS_emissionWaveLength" type="java.lang.Double"/>
+	<attribute name="SYNBIS_brand" type="java.lang.String"/>
+	<attribute name="SYNBIS_sscVoltageUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingIntUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingInt" type="java.lang.String"/>
+	<attribute name="SYNBIS_sscVoltage" type="java.lang.String"/>
+	<attribute name="SYNBIS_shakingDurationUnit" type="java.lang.String"/>
+	<attribute name="SYNBIS_flh2Voltage" type="java.lang.String"/>
+	<attribute name="SYNBIS_sscRange" type="java.lang.String"/>
+	<attribute name="SYNBIS_gated" type="java.lang.String"/>
+	<attribute name="SYNBIS_flh1Voltage" type="java.lang.String"/>
+</class>
+<class name="PCRProduct" extends="Region" is-interface="true"></class>
+<class name="SYNBISTransferFunction" is-interface="true">
+	<attribute name="SYNBIS_activity" type="java.lang.String"/>
+	<attribute name="SYNBIS_timeWindowEnd" type="java.lang.Double"/>
+	<attribute name="SYNBIS_basalValue" type="java.lang.Double"/>
+	<attribute name="SYNBIS_maxValue" type="java.lang.Double"/>
+	<attribute name="SYNBIS_modality" type="java.lang.String"/>
+	<attribute name="SYNBIS_time" type="java.lang.Double"/>
+	<attribute name="SYNBIS_hillExponent" type="java.lang.Double"/>
+	<attribute name="SYNBIS_Km" type="java.lang.Double"/>
+	<attribute name="SYNBIS_timeWindowStart" type="java.lang.Double"/>
+</class>
+<class name="UniProtFeature" is-interface="true">
+	<attribute name="begin" type="java.lang.Integer"/>
+	<attribute name="description" type="java.lang.String"/>
+	<attribute name="type" type="java.lang.String"/>
+	<attribute name="end" type="java.lang.Integer"/>
+	<reference name="feature" referenced-type="OntologyTerm"/>
+	<reference name="protein" referenced-type="Protein" reverse-reference="features"/>
+</class>
+<class name="InteractionTerm" extends="OntologyTerm" is-interface="true"></class>
+<class name="ECNumber" is-interface="true">
+	<attribute name="identifier" type="java.lang.String"/>
+	<attribute name="description" type="java.lang.String"/>
+	<collection name="proteins" referenced-type="Protein" reverse-reference="ecNumbers"/>
+</class>
+<class name="OrthologueEvidenceCode" is-interface="true">
+	<attribute name="abbreviation" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+</class>
+<class name="OperonEvidence" is-interface="true">
+	<collection name="publications" referenced-type="Publication"/>
+	<collection name="evidenceCodes" referenced-type="OperonEvidenceCode"/>
+</class>
+<class name="Promoter" extends="SequenceFeature" is-interface="true">
+	<attribute name="predictedCluster" type="java.lang.String"/>
+	<attribute name="predictedSigmaProbability" type="java.lang.String"/>
+	<attribute name="clusterProbability" type="java.lang.String"/>
+	<attribute name="synonym" type="java.lang.String"/>
+	<reference name="transcriptionFactor" referenced-type="TranscriptionFactor" reverse-reference="promoters"/>
+	<reference name="gene" referenced-type="Gene" reverse-reference="promoters"/>
+	<reference name="operon" referenced-type="Operon" reverse-reference="promoters"/>
+	<collection name="predictedSigmaFactors" referenced-type="PredictedSigmaFactor" reverse-reference="promoters"/>
+	<collection name="sigmaBindingFactors" referenced-type="SigmaBindingFactor" reverse-reference="promoters"/>
+	<collection name="evidence" referenced-type="PromoterEvidence"/>
+</class>
+<class name="BioEntity" is-interface="true" neo4j-ignore="true">
+	<attribute name="symbol" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+	<attribute name="primaryIdentifier" type="java.lang.String"/>
+	<attribute name="secondaryIdentifier" type="java.lang.String"/>
+	<reference name="organism" referenced-type="Organism"/>
+	<collection name="interactions" referenced-type="Interaction" reverse-reference="participant1"/>
+	<collection name="locations" referenced-type="Location" reverse-reference="feature"/>
+	<collection name="publications" referenced-type="Publication" reverse-reference="bioEntities"/>
+	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="subject"/>
+	<collection name="synonyms" referenced-type="Synonym" reverse-reference="subject"/>
+	<collection name="crossReferences" referenced-type="CrossReference" reverse-reference="subject"/>
+	<collection name="dataSets" referenced-type="DataSet" reverse-reference="bioEntities"/>
+	<collection name="locatedFeatures" referenced-type="Location" reverse-reference="locatedOn"/>
+</class>
+<class name="TmRNA" extends="NcRNA" is-interface="true"></class>
+<class name="OperonEvidenceCode" is-interface="true">
+	<attribute name="abbreviation" type="java.lang.String"/>
+	<attribute name="name" type="java.lang.String"/>
+</class>
+<class name="SequenceCollection" extends="BioEntity" is-interface="true">
+	<reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
+</class>
+<class name="Sequence" is-interface="true" neo4j-ignore="true">
+	<attribute name="md5checksum" type="java.lang.String"/>
+	<attribute name="residues" type="org.intermine.objectstore.query.ClobAccess"/>
+	<attribute name="length" type="int"/>
+</class>
+<class name="ChromosomalTransposition" extends="ChromosomeStructureVariation" is-interface="true"></class>
+<class name="Minus35Signal" extends="Region" is-interface="true"></class>
+<class name="SYNBISSeries" is-interface="true">
+	<attribute name="SYNBIS_variant" type="java.lang.String"/>
+	<attribute name="SYNBIS_date" type="java.lang.String"/>
+	<attribute name="SYNBIS_rep" type="java.lang.Integer"/>
+	<attribute name="SYNBIS_dataLocation" type="java.lang.String"/>
+	<attribute name="SYNBIS_modality_type" type="java.lang.String"/>
+	<reference name="SYNBIS_stimulus" referenced-type="SYNBISStimulus"/>
+	<reference name="SYNBIS_modality" referenced-type="SYNBISModality"/>
+</class>
+</model>
