@@ -223,13 +223,13 @@ public class Neo4jLoader {
                         nodesWithAttributesStored.add(id);
                     }
 
-                    // CREATE INDEX on these individual node types
+                    // CREATE unique CONSTRAINT on these individual node types
                     if (nodeCount==1) {
                         try (Session session = driver.session()) {
                             List<String> labels = Arrays.asList(nodeLabel.split(":"));
                             for (String label : labels) {
                                 try (Transaction tx = session.beginTransaction()) {
-                                    tx.run("CREATE INDEX ON :"+label+"(id)");
+                                    tx.run("CREATE CONSTRAINT ON ("+label+":id) ASSERT "+label+".id IS UNIQUE");
                                     tx.success();
                                     tx.close();
                                 }
