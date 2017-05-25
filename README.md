@@ -32,6 +32,11 @@ chromosomeLocation edges are given the type "location" in Neo4j.
 
 ```./run Neo4jEdgeLoader Gene chromosomeLocation locatedOn```
 
+### org.intermine.neo4j.InterMineModelXMLDumper
+Simple utility dump an InterMine model in XML form to standard output.
+
+```./run InterMineModelXMLDumper http://www.synbiomine.org/synbiomine/service```
+
 ### webapps
 Tomcat webapps for doing interactive demos.
 
