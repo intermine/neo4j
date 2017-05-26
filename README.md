@@ -32,6 +32,11 @@ chromosomeLocation edges are given the type "location" in Neo4j.
 
 ```./run Neo4jEdgeLoader Gene chromosomeLocation locatedOn```
 
+### org.intermine.neo4j.Neo4jModelParser
+Parses a Neo4j-annotated model XML file, which contains instructions like neo4j-include="true" in the class, attribute, reference and collection definitions to indicate that
+those items should be ignored in Neo4j loading. The main method takes an XML file as a parameter and spits out the data model with "X" denoting ignored items.
+Methods like isIgnored(ReferenceDescriptor) provide an easy way to see if a given reference (for example) should be ignored during loading.
+
 ### webapps
 Tomcat webapps for doing interactive demos.
 

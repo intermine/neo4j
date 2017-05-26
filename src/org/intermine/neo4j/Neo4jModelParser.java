@@ -157,9 +157,9 @@ public class Neo4jModelParser {
      * @return an InterMine Model
      * @throws ModelParserException if something goes wrong with parsing the class descriptors.
      */
-            public void process(Reader reader) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
-            // parse the file for Neo4j relevant stuff
-            SAXParser.parse(new InputSource(reader), new ModelHandler());
+    public void process(Reader reader) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
+        // parse the file for Neo4j relevant stuff
+        SAXParser.parse(new InputSource(reader), new ModelHandler());
     }
 
     /**
