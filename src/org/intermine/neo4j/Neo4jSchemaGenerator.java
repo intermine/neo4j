@@ -15,15 +15,15 @@ import java.util.Map;
 public class Neo4jSchemaGenerator {
 
     public static void generateAndStoreSchema(Driver driver){
-        // Create three initial nodes of the Metagraph : Root, Node Owner & Rel Owner
+        // Create three initial nodes of the Metagraph : Root, Node Owner & Rel Owner.
         createInitialNodes(driver);
 
         // Creates Representative NodeType & RelType nodes for each relationship & node and
         // Add required relationships between them.
         mapConnectedNodes(driver);
 
-        // Create Representative (Admin) nodes for all disconnected nodes
-//        mapDisconnectedNodes(driver);
+        // Create Representative (Admin) nodes for all disconnected nodes.
+        mapDisconnectedNodes(driver);
     }
 
     private static void createInitialNodes(Driver driver){
@@ -35,8 +35,9 @@ public class Neo4jSchemaGenerator {
                 tx.run(query);
                 tx.success();
                 tx.close();
+
                 // Log the progress
-                System.out.println("Initial Nodes Created - Root Node, NodeTypeOwner & RelTypeOwner.");
+                System.out.println("Schema Progress : Initial Nodes Created - Root Node, NodeTypeOwner & RelTypeOwner.");
             }
         }
     }
@@ -52,58 +53,81 @@ public class Neo4jSchemaGenerator {
                                     "RETURN DISTINCT labels(n), keys(n), " +
                                     "type(r), keys(r), labels(m), keys(m)";
                 StatementResult result = tx.run(readQuery);
+
                 // For each node and relationship store NodeType and RelTpe nodes respectively,
                 // And add required relationships.
                 while (result.hasNext()) {
                     Record record = result.next();
+                    System.out.println("------------------Record------------------");
+                    System.out.println(record.toString());
                     Map<String, Object> params = getQueryParams(record);
-                    String writeQuery = getQuery();
+                    String writeQuery = generateWriteQuery(record);
                     tx.run(writeQuery, params);
                 }
                 tx.success();
                 tx.close();
+
                 // Log the progress
-                System.out.println("Mapped Connected Nodes.");
+                System.out.println("Schema Progress : Mapped Connected Nodes.");
             }
         }
     }
 
-    private static String getQuery(){
+    private static String generateWriteQuery(Record record){
+        Value startNodeLabels = record.get("labels(n)");
+        Value startNodeKeys = record.get("keys(n)");
+        Value endNodeLabels = record.get("labels(m)");
+        Value endNodeKeys = record.get("keys(m)");
+        Value relType = record.get("type(r)");
+        Value relKeys = record.get("keys(r)");
+
         String query = "MATCH (nodeOwner:Metagraph { metaType: 'NodeTypeOwner' }), " +
                         "(relOwner:Metagraph { metaType: 'RelTypeOwner' }) " +
-                        "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType', " +
-                        "labels: '$startNodeLabels', properties: '$startNodeProperties'}) " +
-                        "MERGE (nodeOwner)-[:OWNS]->(m:Metagraph { metaType: 'NodeType', " +
-                        "labels: '$endNodeLabels', properties: '$endNodeProperties'}) " +
-                        "MERGE (relOwner)-[:OWNS]->(r:Metagraph { metaType: 'RelType', " +
-                        "type: '$relType', properties: '$relProperties'}) " +
-                        "MERGE (n)<-[:StartNodeType]-(r)-[:EndNodeType]->(m)";
+                        "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType'";
+        if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
+            query = query + ", Labels: $startNodeLabels";
+        }
+        if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
+            query = query + ", Properties: $startNodeKeys";
+        }
+        query = query + "}) MERGE (nodeOwner)-[:OWNS]->(m:Metagraph { metaType: 'NodeType'";
+        if (!endNodeLabels.isNull() && !endNodeLabels.isEmpty()){
+            query = query + ", Labels: $endNodeLabels";
+        }
+        if (!endNodeKeys.isNull() && !endNodeKeys.isEmpty()){
+            query = query + ", Properties: $endNodeKeys";
+        }
+        query = query + "}) MERGE (relOwner)-[:OWNS]->(r:Metagraph { metaType: 'RelType'";
+        if (!relType.isNull()){
+            query = query + ", type: $relType";
+        }
+        if (!relKeys.isNull() && !relKeys.isEmpty()){
+            query = query + ", Properties: $relKeys";
+        }
+        query = query + "}) MERGE (n)<-[:StartNodeType]-(r)-[:EndNodeType]->(m)";
+
+        //Print the generated query
+        System.out.println("-------------------Query------------------");
+        System.out.println(query);
+        System.out.println("------------------------------------------");
+
         return query;
     }
 
     private static HashMap<String, Object> getQueryParams(Record record){
+    	// TO DO: Sort the lists before inserting them in the Map to redundant nodes in the database (same data ordered differently).
         HashMap<String, Object> params = new HashMap<>();
         params.put("relType", record.get("type(r)"));
-        params.put("relProperties", record.get("key(r)"));
+        params.put("relKeys", record.get("keys(r)"));
         params.put("startNodeLabels", record.get("labels(n)"));
-        params.put("startNodeProperties", record.get("key(n)"));
+        params.put("startNodeKeys", record.get("keys(n)"));
         params.put("endNodeLabels", record.get("labels(m)"));
-        params.put("endNodeProperties", record.get("key(m)"));
+        params.put("endNodeKeys", record.get("keys(m)"));
         return params;
     }
 
     private static void mapDisconnectedNodes(Driver driver){
-        try (Session session = driver.session()) {
-            try (Transaction tx = session.beginTransaction()) {
-                StatementResult result = tx.run("MATCH (n)-[r]-(m) " +
-                                                "RETURN DISTINCT labels(n),type(r),labels(m)");
-                while (result.hasNext()) {
-                    Record record = result.next();
-                    System.out.println(record.get("r").asList());
-                }
-                tx.success();
-                tx.close();
-            }
-        }
+    	// TO DO : Write this function
     }
+
 }
