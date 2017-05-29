@@ -2,8 +2,7 @@ package org.intermine.neo4j;
 
 import org.neo4j.driver.v1.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Generates schema of a given Neo4j database and stores it in the database itself.
@@ -14,6 +13,10 @@ import java.util.Map;
  */
 public class Neo4jSchemaGenerator {
 
+    /**
+     * Creates a Metagraph which maps all the nodes and relationships of the database.
+     * @param driver Neo4j Java Driver instance.
+     */
     public static void generateAndStoreSchema(Driver driver){
         // Create three initial nodes of the Metagraph : Root, Node Owner & Rel Owner.
         createInitialNodes(driver);
@@ -26,6 +29,10 @@ public class Neo4jSchemaGenerator {
         mapDisconnectedNodes(driver);
     }
 
+    /**
+     * Create three initial nodes of the Metagraph : Root, Node Owner & Rel Owner.
+     * @param driver Neo4j Java Driver instance.
+     */
     private static void createInitialNodes(Driver driver){
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
@@ -42,6 +49,10 @@ public class Neo4jSchemaGenerator {
         }
     }
 
+    /**
+     * Maps all the connected nodes of the database to the schema.
+     * @param driver Neo4j Java Driver instance.
+     */
     private static void mapConnectedNodes(Driver driver){
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
@@ -73,6 +84,11 @@ public class Neo4jSchemaGenerator {
         }
     }
 
+    /**
+     * Generates a write cypher query for mapping connected nodes based on the data provided.
+     * @param record A record containing one record of the read cypher query.
+     * @return A string containing the cypher query.
+     */
     private static String generateWriteQuery(Record record){
         Value startNodeLabels = record.get("labels(n)");
         Value startNodeKeys = record.get("keys(n)");
@@ -114,18 +130,41 @@ public class Neo4jSchemaGenerator {
         return query;
     }
 
+    /**
+     * Takes a list of objects, converts it into a list of Strings then returns the list after sorting.
+     * @param listObjects A list of objects.
+     * @return Sorted list of strings.
+     */
+    private static List<String> processList(List<Object> listObjects){
+        List<String> listStrings = new ArrayList<>(listObjects.size());
+        for(Object object: listObjects){
+            listStrings.add(object.toString());
+        }
+        Collections.sort(listStrings);
+        return listStrings;
+    }
+
+    /**
+     * Creates a HashMap containing all the parameters to be passed to the write cypher query.
+     * @param record A record containing one record of the read cypher query.
+     * @return A HashMap containing all the parameters.
+     */
     private static HashMap<String, Object> getQueryParams(Record record){
-    	// TO DO: Sort the lists before inserting them in the Map to redundant nodes in the database (same data ordered differently).
         HashMap<String, Object> params = new HashMap<>();
-        params.put("relType", record.get("type(r)"));
-        params.put("relKeys", record.get("keys(r)"));
-        params.put("startNodeLabels", record.get("labels(n)"));
-        params.put("startNodeKeys", record.get("keys(n)"));
-        params.put("endNodeLabels", record.get("labels(m)"));
-        params.put("endNodeKeys", record.get("keys(m)"));
+        params.put("relType", record.get("type(r)").asString());
+        params.put("relKeys", processList(record.get("keys(r)").asList()));
+        params.put("startNodeLabels", processList(record.get("labels(n)").asList()));
+        params.put("startNodeKeys", processList(record.get("keys(n)").asList()));
+        params.put("endNodeLabels", processList(record.get("labels(m)").asList()));
+        params.put("endNodeKeys", processList(record.get("keys(m)").asList()));
+
         return params;
     }
 
+    /**
+     * Maps all the disconnected nodes of the database to the schema.
+     * @param driver Neo4j Java Driver instance.
+     */
     private static void mapDisconnectedNodes(Driver driver){
     	// TO DO : Write this function
     }
