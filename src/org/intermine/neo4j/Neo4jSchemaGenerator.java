@@ -166,7 +166,73 @@ public class Neo4jSchemaGenerator {
      * @param driver Neo4j Java Driver instance.
      */
     private static void mapDisconnectedNodes(Driver driver){
-    	// TO DO : Write this function
+        try (Session session = driver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                // For all disconnected nodes which are not in the metagraph,
+                // return the set of labels & properties of these nodes
+                String readQuery = "match (n)\n" +
+                        "with n\n" +
+                        "optional match (n)-[r]-()\n" +
+                        "with n, count(r) as c\n" +
+                        "where c=0\n" +
+                        "return labels(n), keys(n)";
+                StatementResult result = tx.run(readQuery);
+
+                // For each node store NodeType and add required relationships.
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    System.out.println("------------------Record------------------");
+                    System.out.println(record.toString());
+                    Map<String, Object> params = getDisconnectedQueryParams(record);
+                    String writeQuery = generateDisconnectedWriteQuery(record);
+                    tx.run(writeQuery, params);
+                }
+                tx.success();
+                tx.close();
+
+                // Log the progress
+                System.out.println("Schema Progress : Mapped Disconnected Nodes.");
+            }
+        }
     }
 
+    /**
+     * Generates a write cypher query for mapping disconnected nodes based on the data provided.
+     * @param record A record containing one record of the read cypher query.
+     * @return A string containing the cypher query.
+     */
+    private static String generateDisconnectedWriteQuery(Record record){
+        Value startNodeLabels = record.get("labels(n)");
+        Value startNodeKeys = record.get("keys(n)");
+
+        String query = "MATCH (nodeOwner:Metagraph { metaType: 'NodeTypeOwner' }) " +
+                "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType'";
+        if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
+            query = query + ", Labels: $startNodeLabels";
+        }
+        if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
+            query = query + ", Properties: $startNodeKeys";
+        }
+        query = query + "})";
+
+        //Print the generated query
+        System.out.println("-------------------Query------------------");
+        System.out.println(query);
+        System.out.println("------------------------------------------");
+
+        return query;
+    }
+
+    /**
+     * Creates a HashMap containing all the parameters to be passed to the write cypher query.
+     * @param record A record containing one record of the read cypher query.
+     * @return A HashMap containing all the parameters.
+     */
+    private static HashMap<String, Object> getDisconnectedQueryParams(Record record){
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("startNodeLabels", processList(record.get("labels(n)").asList()));
+        params.put("startNodeKeys", processList(record.get("keys(n)").asList()));
+
+        return params;
+    }
 }
