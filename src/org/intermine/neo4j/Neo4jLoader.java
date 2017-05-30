@@ -45,7 +45,7 @@ import static org.neo4j.driver.v1.Values.parameters;
 /**
  * Query an InterMine model, and load it and its data into a Neo4j database, along with the relationships derived from relations and collections.
  * Connection and other properties are given in neo4jloader.properties.
- * 
+ *
  * @author Sam Hokin
  */
 public class Neo4jLoader {
@@ -106,7 +106,7 @@ public class Neo4jLoader {
         PathQuery refQuery = new PathQuery(model);
         PathQuery collQuery = new PathQuery(model);
         PathQuery attrQuery = new PathQuery(model);
-        
+
         // Neo4j setup
         Driver driver = GraphDatabase.driver(neo4jUrl, AuthTokens.basic(neo4jUser, neo4jPassword));
 
@@ -120,7 +120,7 @@ public class Neo4jLoader {
                 nodeDescriptors.put(nodeClass, cd);
             }
         }
-        
+
         // Retreive the IM IDs of nodes that have already been fully stored
         List<Integer> nodesAlreadyStored = new LinkedList<Integer>();
         try (Session session = driver.session()) {
@@ -143,7 +143,7 @@ public class Neo4jLoader {
                 // display the node with labels
                 System.out.println("--------------------------------------------------------");
                 System.out.println(getFullNodeLabel(nodeDescriptor));
-                
+
                 // display the attributes
                 Set<AttributeDescriptor> attrDescriptors = nodeDescriptor.getAllAttributeDescriptors();
                 if (attrDescriptors.size()>1) {
@@ -189,7 +189,7 @@ public class Neo4jLoader {
                     if (keep) collDescriptors.put(collName, cd);
                 }
                 if (collDescriptors.size()>0) System.out.println("Collections:"+collDescriptors.keySet());
-            
+
                 // query nodes of this class
                 nodeQuery.clearView();
                 nodeQuery.addView(nodeClass+".id"); // every object has an IM id
@@ -205,7 +205,7 @@ public class Neo4jLoader {
 
                     if (verbose) System.out.print(nodeClass+":"+id+":");
                     nodeCount++;
-			
+
                     // MERGE this node by its id
                     String nodeLabel = getFullNodeLabel(nodeDescriptor);
                     String merge = "MERGE (n:"+nodeLabel+" {id:"+id+"})";
@@ -282,7 +282,7 @@ public class Neo4jLoader {
                             }
                         }
                     }
-			
+
                     // MERGE this node's collections by id, one at a time
                     for (String collName : collDescriptors.keySet()) {
                         CollectionDescriptor cd = collDescriptors.get(collName);
@@ -337,12 +337,12 @@ public class Neo4jLoader {
                             tx.close();
                         }
                     }
-                    
+
                     if (verbose) System.out.println("");
-                    
+
                 }
             }
-            
+
         // Close connections
         driver.close();
 
@@ -381,7 +381,7 @@ public class Neo4jLoader {
                     String val = escapeForNeo4j(row[i++].toString());
                     terms++;
                     if (terms>1) match += ",";
-                    if (attrType.equals("java.lang.String") || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
+                    if (attrType.equals("java.lang.String") || attrType.equals("java.util.Date") || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
                         match += "n."+attrName+"=\""+val+"\"";
                     } else {
                         match += "n."+attrName+"="+val;
