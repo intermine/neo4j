@@ -30,7 +30,7 @@ public class TestSchemaGenerator {
         Driver driver = GraphDatabase.driver(neo4jUrl, AuthTokens.basic(neo4jUser, neo4jPassword));
 
         // Generate and store the schema of the database
-        Neo4jSchemaGenerator.generateAndStoreSchema(driver);
+        Neo4jSchemaGenerator.generateSchema(driver);
 
 
         driver.close();

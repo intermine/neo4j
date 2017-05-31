@@ -17,8 +17,8 @@ public class Neo4jSchemaGenerator {
      * Creates a Metagraph which maps all the nodes and relationships of the database.
      * @param driver Neo4j Java Driver instance.
      */
-    public static void generateAndStoreSchema(Driver driver){
-        // Create three initial nodes of the Metagraph : Root, Node Owner & Rel Owner.
+    public static void generateSchema(Driver driver){
+        // Create three initial nodes of the Metagraph : Root, NodeDescriptor Owner & Rel Owner.
         createInitialNodes(driver);
 
         // Creates Representative NodeType & RelType nodes for each relationship & node and
@@ -30,7 +30,7 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Create three initial nodes of the Metagraph : Root, Node Owner & Rel Owner.
+     * Create three initial nodes of the Metagraph : Root, NodeDescriptor Owner & Rel Owner.
      * @param driver Neo4j Java Driver instance.
      */
     private static void createInitialNodes(Driver driver){
@@ -44,7 +44,7 @@ public class Neo4jSchemaGenerator {
                 tx.close();
 
                 // Log the progress
-                System.out.println("Schema Progress : Initial Nodes Created - Root Node, NodeTypeOwner & RelTypeOwner.");
+                System.out.println("Schema Progress : Initial Nodes Created - Root NodeDescriptor, NodeTypeOwner & RelTypeOwner.");
             }
         }
     }
