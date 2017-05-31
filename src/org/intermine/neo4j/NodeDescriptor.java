@@ -1,6 +1,6 @@
 package org.intermine.neo4j;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Describes a NodeType node of the Neo4j metagraph.
@@ -8,10 +8,11 @@ import java.util.List;
  * @author Yash Sharma
  */
 public class NodeDescriptor {
-    private List<String> labels;
-    private List<String> properties;
 
-    public NodeDescriptor(List<String> labels, List<String> properties) {
+    private Set<String> labels;
+    private Set<String> properties;
+
+    public NodeDescriptor(Set<String> labels, Set<String> properties) {
         this.labels = labels;
         this.properties = properties;
     }
@@ -21,19 +22,19 @@ public class NodeDescriptor {
         this.properties = null;
     }
 
-    public List<String> getLabels() {
+    public Set<String> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<String> labels) {
+    public void setLabels(Set<String> labels) {
         this.labels = labels;
     }
 
-    public List<String> getProperties() {
+    public Set<String> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<String> properties) {
+    public void setProperties(Set<String> properties) {
         this.properties = properties;
     }
 

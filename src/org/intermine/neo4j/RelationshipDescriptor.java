@@ -1,6 +1,7 @@
 package org.intermine.neo4j;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Describes a RelType node of the Neo4j metagraph.
@@ -8,10 +9,11 @@ import java.util.List;
  * @author Yash Sharma
  */
 public class RelationshipDescriptor {
-    private String type;
-    private List<String> properties;
 
-    public RelationshipDescriptor(String type, List<String> properties) {
+    private String type;
+    private Set<String> properties;
+
+    public RelationshipDescriptor(String type, Set<String> properties) {
         this.type = type;
         this.properties = properties;
     }
@@ -29,11 +31,11 @@ public class RelationshipDescriptor {
         this.type = type;
     }
 
-    public List<String> getProperties() {
+    public Set<String> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<String> properties) {
+    public void setProperties(Set<String> properties) {
         this.properties = properties;
     }
 
