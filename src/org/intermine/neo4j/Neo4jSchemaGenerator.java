@@ -69,6 +69,8 @@ public class Neo4jSchemaGenerator {
                 // And add required relationships.
                 while (result.hasNext()) {
                     Record record = result.next();
+                    System.out.println("Something");
+                    System.out.println(record.get("something"));
                     System.out.println("------------------Record------------------");
                     System.out.println(record.toString());
                     Map<String, Object> params = getQueryParams(record);
@@ -80,6 +82,41 @@ public class Neo4jSchemaGenerator {
 
                 // Log the progress
                 System.out.println("Schema Progress : Mapped Connected Nodes.");
+            }
+        }
+    }
+
+    /**
+     * Maps all the disconnected nodes of the database to the schema.
+     * @param driver Neo4j Java Driver instance.
+     */
+    private static void mapDisconnectedNodes(Driver driver){
+        try (Session session = driver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                // For all disconnected nodes which are not in the metagraph,
+                // return the set of labels & properties of these nodes
+                String readQuery = "match (n)\n" +
+                        "with n\n" +
+                        "optional match (n)-[r]-()\n" +
+                        "with n, count(r) as c\n" +
+                        "where c=0\n" +
+                        "return labels(n), keys(n)";
+                StatementResult result = tx.run(readQuery);
+
+                // For each node store NodeType and add required relationships.
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    System.out.println("------------------Record------------------");
+                    System.out.println(record.toString());
+                    Map<String, Object> params = getQueryParams(record);
+                    String writeQuery = generateDisconnectedWriteQuery(record);
+                    tx.run(writeQuery, params);
+                }
+                tx.success();
+                tx.close();
+
+                // Log the progress
+                System.out.println("Schema Progress : Mapped Disconnected Nodes.");
             }
         }
     }
@@ -131,72 +168,6 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Takes a list of objects, converts it into a list of Strings then returns the list after sorting.
-     * @param listObjects A list of objects.
-     * @return Sorted list of strings.
-     */
-    private static List<String> processList(List<Object> listObjects){
-        List<String> listStrings = new ArrayList<>(listObjects.size());
-        for(Object object: listObjects){
-            listStrings.add(object.toString());
-        }
-        Collections.sort(listStrings);
-        return listStrings;
-    }
-
-    /**
-     * Creates a HashMap containing all the parameters to be passed to the write cypher query.
-     * @param record A record containing one record of the read cypher query.
-     * @return A HashMap containing all the parameters.
-     */
-    private static HashMap<String, Object> getQueryParams(Record record){
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("relType", record.get("type(r)").asString());
-        params.put("relKeys", processList(record.get("keys(r)").asList()));
-        params.put("startNodeLabels", processList(record.get("labels(n)").asList()));
-        params.put("startNodeKeys", processList(record.get("keys(n)").asList()));
-        params.put("endNodeLabels", processList(record.get("labels(m)").asList()));
-        params.put("endNodeKeys", processList(record.get("keys(m)").asList()));
-
-        return params;
-    }
-
-    /**
-     * Maps all the disconnected nodes of the database to the schema.
-     * @param driver Neo4j Java Driver instance.
-     */
-    private static void mapDisconnectedNodes(Driver driver){
-        try (Session session = driver.session()) {
-            try (Transaction tx = session.beginTransaction()) {
-                // For all disconnected nodes which are not in the metagraph,
-                // return the set of labels & properties of these nodes
-                String readQuery = "match (n)\n" +
-                        "with n\n" +
-                        "optional match (n)-[r]-()\n" +
-                        "with n, count(r) as c\n" +
-                        "where c=0\n" +
-                        "return labels(n), keys(n)";
-                StatementResult result = tx.run(readQuery);
-
-                // For each node store NodeType and add required relationships.
-                while (result.hasNext()) {
-                    Record record = result.next();
-                    System.out.println("------------------Record------------------");
-                    System.out.println(record.toString());
-                    Map<String, Object> params = getDisconnectedQueryParams(record);
-                    String writeQuery = generateDisconnectedWriteQuery(record);
-                    tx.run(writeQuery, params);
-                }
-                tx.success();
-                tx.close();
-
-                // Log the progress
-                System.out.println("Schema Progress : Mapped Disconnected Nodes.");
-            }
-        }
-    }
-
-    /**
      * Generates a write cypher query for mapping disconnected nodes based on the data provided.
      * @param record A record containing one record of the read cypher query.
      * @return A string containing the cypher query.
@@ -224,14 +195,52 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
+     * Takes a list of objects, converts it into a list of Strings then returns the list after sorting.
+     * @param listObjects A list of objects.
+     * @return Sorted list of strings.
+     */
+    private static List<String> processList(List<Object> listObjects){
+        List<String> listStrings = new ArrayList<>(listObjects.size());
+        for(Object object: listObjects){
+            listStrings.add(object.toString());
+        }
+        Collections.sort(listStrings);
+        return listStrings;
+    }
+
+    /**
      * Creates a HashMap containing all the parameters to be passed to the write cypher query.
      * @param record A record containing one record of the read cypher query.
      * @return A HashMap containing all the parameters.
      */
-    private static HashMap<String, Object> getDisconnectedQueryParams(Record record){
+    private static HashMap<String, Object> getQueryParams(Record record){
+        Value startNodeLabels = record.get("labels(n)");
+        Value startNodeKeys = record.get("keys(n)");
+        Value endNodeLabels = record.get("labels(m)");
+        Value endNodeKeys = record.get("keys(m)");
+        Value relType = record.get("type(r)");
+        Value relKeys = record.get("keys(r)");
+
         HashMap<String, Object> params = new HashMap<>();
-        params.put("startNodeLabels", processList(record.get("labels(n)").asList()));
-        params.put("startNodeKeys", processList(record.get("keys(n)").asList()));
+
+        if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
+            params.put("startNodeLabels", processList(startNodeLabels.asList()));
+        }
+        if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
+            params.put("startNodeKeys", processList(startNodeKeys.asList()));
+        }
+        if (!endNodeLabels.isNull() && !endNodeLabels.isEmpty()){
+            params.put("endNodeLabels", processList(endNodeLabels.asList()));
+        }
+        if (!endNodeKeys.isNull() && !endNodeKeys.isEmpty()){
+            params.put("endNodeKeys", processList(endNodeKeys.asList()));
+        }
+        if (!relType.isNull()){
+            params.put("relType", relType.asString());
+        }
+        if (!relKeys.isNull() && !relKeys.isEmpty()){
+            params.put("relKeys", processList(relKeys.asList()));
+        }
 
         return params;
     }

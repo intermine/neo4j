@@ -14,7 +14,7 @@ import java.util.Properties;
  *
  * @author Yash Sharma
  */
-public class Neo4jQueryTester {
+public class TestSchemaGenerator {
 
     static final String PROPERTIES_FILE = "neo4jloader.properties";
 
