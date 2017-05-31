@@ -1,5 +1,5 @@
-package org.intermine.neo4j;
-
+import org.intermine.neo4j.Model;
+import org.intermine.neo4j.Neo4jSchemaGenerator;
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.GraphDatabase;
@@ -31,7 +31,8 @@ public class TestSchemaGenerator {
 
         // Generate and store the schema of the database
         Neo4jSchemaGenerator.generateSchema(driver);
-
+        Model model = Neo4jSchemaGenerator.getModel(driver);
+        System.out.println(model);
 
         driver.close();
     }

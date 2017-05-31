@@ -31,4 +31,17 @@ public class Model {
         this.startNodes = null;
         this.endNodes = null;
     }
+
+    public String toJSON(){
+        // TO DO : Write this method.
+        return "";
+    }
+
+    @Override
+    public String toString(){
+        return "Nodes :\n" + nodes.toString() + "\n\n" +
+                "Relationships :\n" + relationships.toString() + "\n\n" +
+                "Start Nodes :\n" + startNodes.toString() + "\n\n" +
+                "End Nodes :\n" + endNodes.toString() + "\n\n";
+    }
 }

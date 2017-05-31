@@ -1,6 +1,6 @@
 package org.intermine.neo4j;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -20,7 +20,7 @@ public class RelationshipDescriptor {
 
     public RelationshipDescriptor() {
         this.type = null;
-        this.properties = null;
+        this.properties = new HashSet<>();
     }
 
     public String getType() {
@@ -45,5 +45,13 @@ public class RelationshipDescriptor {
 
     public void removeProperty(String property){
         this.properties.remove(property);
+    }
+
+    @Override
+    public String toString() {
+        return "RelationshipDescriptor{" +
+                "type='" + type + '\'' +
+                ", properties=" + properties +
+                '}';
     }
 }

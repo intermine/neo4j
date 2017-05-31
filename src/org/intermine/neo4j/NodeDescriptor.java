@@ -1,5 +1,6 @@
 package org.intermine.neo4j;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -17,9 +18,17 @@ public class NodeDescriptor {
         this.properties = properties;
     }
 
+    @Override
+    public String toString() {
+        return "NodeDescriptor{" +
+                "labels=" + labels +
+                ", properties=" + properties +
+                '}';
+    }
+
     public NodeDescriptor() {
-        this.labels = null;
-        this.properties = null;
+        this.labels = new HashSet<>();
+        this.properties = new HashSet<>();
     }
 
     public Set<String> getLabels() {

@@ -69,8 +69,6 @@ public class Neo4jSchemaGenerator {
                 // And add required relationships.
                 while (result.hasNext()) {
                     Record record = result.next();
-                    System.out.println("Something");
-                    System.out.println(record.get("something"));
                     System.out.println("------------------Record------------------");
                     System.out.println(record.toString());
                     Map<String, Object> params = getQueryParams(record);
@@ -138,24 +136,24 @@ public class Neo4jSchemaGenerator {
                         "(relOwner:Metagraph { metaType: 'RelTypeOwner' }) " +
                         "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType'";
         if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
-            query = query + ", Labels: $startNodeLabels";
+            query = query + ", labels: $startNodeLabels";
         }
         if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
-            query = query + ", Properties: $startNodeKeys";
+            query = query + ", properties: $startNodeKeys";
         }
         query = query + "}) MERGE (nodeOwner)-[:OWNS]->(m:Metagraph { metaType: 'NodeType'";
         if (!endNodeLabels.isNull() && !endNodeLabels.isEmpty()){
-            query = query + ", Labels: $endNodeLabels";
+            query = query + ", labels: $endNodeLabels";
         }
         if (!endNodeKeys.isNull() && !endNodeKeys.isEmpty()){
-            query = query + ", Properties: $endNodeKeys";
+            query = query + ", properties: $endNodeKeys";
         }
         query = query + "}) MERGE (relOwner)-[:OWNS]->(r:Metagraph { metaType: 'RelType'";
         if (!relType.isNull()){
             query = query + ", type: $relType";
         }
         if (!relKeys.isNull() && !relKeys.isEmpty()){
-            query = query + ", Properties: $relKeys";
+            query = query + ", properties: $relKeys";
         }
         query = query + "}) MERGE (n)<-[:StartNodeType]-(r)-[:EndNodeType]->(m)";
 
@@ -179,10 +177,10 @@ public class Neo4jSchemaGenerator {
         String query = "MATCH (nodeOwner:Metagraph { metaType: 'NodeTypeOwner' }) " +
                 "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType'";
         if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
-            query = query + ", Labels: $startNodeLabels";
+            query = query + ", labels: $startNodeLabels";
         }
         if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
-            query = query + ", Properties: $startNodeKeys";
+            query = query + ", properties: $startNodeKeys";
         }
         query = query + "})";
 
