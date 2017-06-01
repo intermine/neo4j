@@ -1,4 +1,4 @@
-package org.intermine.neo4j;
+package org.intermine.neo4j.metadata;
 
 import java.util.HashSet;
 import java.util.Set;
