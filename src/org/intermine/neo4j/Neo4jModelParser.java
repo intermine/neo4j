@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -34,20 +36,27 @@ import org.intermine.metadata.SAXParser;
 public class Neo4jModelParser {
 
     // classes, attributes, references and collections to ignore during Neo4j loading
-    Set<String> ignoredClasses;     // e.g. "Sequence"
-    Set<String> ignoredAttributes;  // e.g. "BioEntity.chadoFeatureId"
-    Set<String> ignoredReferences;  // e.g. "SequenceFeature.chromosomeLocation"
-    Set<String> ignoredCollections; // e.g. "GOAnnotation.transcripts"
+    Set<String> ignoredClasses;           // e.g. "Sequence"
+    Set<String> ignoredAttributes;        // e.g. "BioEntity.chadoFeatureId"
+    Set<String> ignoredReferences;        // e.g. "SequenceFeature.chromosomeLocation"
+    Set<String> ignoredCollections;       // e.g. "GOAnnotation.transcripts"
+
+    // the Neo4j relationship types corresponding to classes that become relationships
+    Map<String,String> relationshipTypes; // e.g. "Location" -> "LOCATED_ON"
     
     /**
      * Constructor
      */
     public Neo4jModelParser() {
-        // create our sets
+        // create our ignored sets
         ignoredClasses = new LinkedHashSet<String>();
         ignoredAttributes = new LinkedHashSet<String>();
         ignoredReferences = new LinkedHashSet<String>();
         ignoredCollections = new LinkedHashSet<String>();
+
+        // relationship types
+        relationshipTypes = new LinkedHashMap<String,String>();
+        
         // initialization
         ignoredClasses.add("InterMineObject"); // doesn't appear in XML files but most certainly should be ignored!
     }
@@ -74,15 +83,21 @@ public class Neo4jModelParser {
 
         // output the model with Neo4j notations
         for (ClassDescriptor classDescriptor : model.getClassDescriptors()) {
-            boolean ignored = nmp.isIgnored(classDescriptor);
-            if (ignored) {
+            boolean isIgnored = nmp.isIgnored(classDescriptor);
+            boolean isRelationship = nmp.isRelationship(classDescriptor);
+            if (isRelationship) {
+                System.out.print("R ");
+            } else if (isIgnored) {
                 System.out.print("X ");
             } else {
                 System.out.print("+ ");
             }
             System.out.print(classDescriptor.getSimpleName());
+            if (isRelationship) {
+                System.out.print(" --> "+nmp.getRelationshipType(classDescriptor));
+            }
             System.out.println("");
-            if (!ignored) {
+            if (!isIgnored) {
                 // show attributes
                 Set<AttributeDescriptor> attrDescriptors = classDescriptor.getAttributeDescriptors();
                 for (AttributeDescriptor ad : attrDescriptors) {
@@ -114,6 +129,38 @@ public class Neo4jModelParser {
      */
     public boolean isIgnored(ClassDescriptor cd) {
         return ignoredClasses.contains(cd.getSimpleName());
+    }
+
+    /**
+     * Return true if the provided class is meant to be a Neo4j relationship
+     *
+     * @param cd the ClassDescriptor
+     * @return true if the class is to be a Neo4j relationship
+     */
+    public boolean isRelationship(ClassDescriptor cd) {
+        return relationshipTypes.containsKey(cd.getSimpleName());
+    }
+
+    /**
+     * Return the relationship type for the given class, if it is to be a Neo4j relationship; null otherwise.
+     * @param cd the ClassDescriptor
+     * @return the relationship type, or null if the given class is not meant to be a Neo4j relationship
+     */
+    public String getRelationshipType(ClassDescriptor cd) {
+        if (relationshipTypes.containsKey(cd.getSimpleName())) {
+            return(relationshipTypes.get(cd.getSimpleName()));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Return the full map of relationship types
+     *
+     * @return a string-string map of classes-relationship types
+     */
+    public Map<String,String> getRelationshipTypes() {
+        return relationshipTypes;
     }
 
     /**
@@ -160,6 +207,17 @@ public class Neo4jModelParser {
     public void process(Reader reader) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
         // parse the file for Neo4j relevant stuff
         SAXParser.parse(new InputSource(reader), new ModelHandler());
+    }
+
+    /**
+     * Run process() on the data model file given in a Neo4jLoaderProperties
+     *
+     * @param an instantiated Neo4jLoaderProperties object
+     * @return an InterMine Model
+     * @throws ModelParserException if something goes wrong with parsing the class descriptors.
+     */
+    public void process(Neo4jLoaderProperties props) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
+        process(new InputStreamReader(new FileInputStream(props.dataModelFilename)));
     }
 
     /**
@@ -210,7 +268,13 @@ public class Neo4jModelParser {
                 String supers = attrs.getValue("extends");
                 cls = new SkeletonClass(name, supers);
                 boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
-                if (neo4jIgnore) ignoredClasses.add(name);
+                String neo4jRelationship = attrs.getValue("neo4j-relationship");
+                if (neo4jIgnore) {
+                    ignoredClasses.add(name);
+                } else if (!StringUtils.isEmpty(neo4jRelationship)) {
+                    ignoredClasses.add(name);
+                    relationshipTypes.put(name, neo4jRelationship);
+                }
 
             } else if ("attribute".equals(qName)) {
 

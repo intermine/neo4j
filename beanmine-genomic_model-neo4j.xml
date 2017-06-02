@@ -1,15 +1,5 @@
 <!--
-    ignored classes: set neo4j-ignore="true"
-    InterMineObject,BioEntity,SequenceFeature,OntologyTermSynonym,Homologue,LinkageGroupPosition,LinkageGroupRange,Location,Sequence,Transcript,ProteinHmmMatch,GOAnnotation,
-    OntologyAnnotation,OntologyRelation
-    
-    ignored references:
-    ExpressionSample.source,ExpressionValue.mRNA,ProteinMatch.protein,LinkageGroup.geneticMap,ConsensusRegion.geneFamily,ProteinHmmMatch.proteinDomain,GeneFlankingRegion.gene,
-    Gene.chromosome,Exon.gene,MRNA.gene,MRNA.protein,CDS.gene,Gene.upstreamIntergenicRegion,Gene.downstreamIntergenicRegion
-    
-    ignored collections:
-    Intron.genes,GeneticMarker.QTLs,Gene.spanningQTLs,Gene.ontologyAnnotations,Protein.genes,Gene.pathways,Protein.pathways,ProteinDomain.proteins,Author.publications,
-    Gene.goAnnotation,Gene.childFeatures,Gene.overlappingFeatures,GeneFamily.genes,LinkageGroup.QTLs,LinkageGroup.geneticMarkers
+    TO DO:
     
     classes that become neo4j relationships:
     Homologue,LinkageGroupPosition,LinkageGroupRange,Location,OntologyAnnotation,GOAnnotation,OntologyRelation
@@ -31,7 +21,7 @@
   </class>
   <class name="ChromosomalDuplication" extends="ChromosomeStructureVariation" is-interface="true"></class>
   <class name="ThreePrimeUTR" extends="UTR" is-interface="true"></class>
-  <class name="OntologyAnnotation" is-interface="true" neo4j-ignore="true">
+  <class name="OntologyAnnotation" is-interface="true" neo4j-relationship="annotation">
     <attribute name="qualifier" type="java.lang.String"/>
     <reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations"/>
     <reference name="subject" referenced-type="BioEntity" reverse-reference="ontologyAnnotations"/>
@@ -105,7 +95,7 @@
     <attribute name="primaryIdentifier" type="java.lang.String"/>
     <attribute name="secondaryIdentifier" type="java.lang.String"/>
     <reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
-    <reference name="organism" referenced-type="Organism"/>
+    <reference name="organism" referenced-type="Organism" neo4j-ignore="true"/>
     <reference name="geneticMap" referenced-type="GeneticMap" reverse-reference="linkageGroups"/>
     <collection name="geneticMarkers" referenced-type="GeneticMarker" neo4j-ignore="true"/>
     <collection name="QTLs" referenced-type="QTL" neo4j-ignore="true"/>
@@ -113,7 +103,7 @@
   <class name="MicroarrayOligo" extends="Oligo" is-interface="true"></class>
   <class name="PCRProduct" extends="SequenceFeature" is-interface="true"></class>
   <class name="ChromosomalTranslocation" extends="ChromosomeStructureVariation" is-interface="true"></class>
-  <class name="Location" is-interface="true" neo4j-ignore="true">
+  <class name="Location" is-interface="true" neo4j-relationship="location">
     <attribute name="strand" type="java.lang.String"/>
     <attribute name="start" type="java.lang.Integer"/>
     <attribute name="end" type="java.lang.Integer"/>
@@ -155,7 +145,7 @@
   </class>
   <class name="MiRNA" extends="NcRNA" is-interface="true"></class>
   <class name="ForwardPrimer" extends="Primer" is-interface="true"></class>
-  <class name="OntologyRelation" is-interface="true" neo4j-ignore="true">
+  <class name="OntologyRelation" is-interface="true" neo4j-relationship="relation">
     <attribute name="redundant" type="java.lang.Boolean"/>
     <attribute name="direct" type="java.lang.Boolean"/>
     <attribute name="relationship" type="java.lang.String"/>
@@ -186,7 +176,7 @@
     <reference name="proteinDomain" referenced-type="ProteinDomain" reverse-reference="proteinHmmMatches"/>
     <reference name="proteinDomainLocation" referenced-type="Location" neo4j-ignore="true"/>
   </class>
-  <class name="LinkageGroupPosition" is-interface="true" neo4j-ignore="true">
+  <class name="LinkageGroupPosition" is-interface="true" neo4j-relationship="linkageGroupPosition">
     <attribute name="position" type="java.lang.Double"/>
     <reference name="linkageGroup" referenced-type="LinkageGroup"/>
   </class>
@@ -210,7 +200,7 @@
     <attribute name="studyTreatment" type="java.lang.String"/>
     <attribute name="peak" type="java.lang.Double"/>
     <reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
-    <reference name="organism" referenced-type="Organism"/>
+    <reference name="organism" referenced-type="Organism" neo4j-ignore="true"/>
     <collection name="associatedGeneticMarkers" referenced-type="GeneticMarker" reverse-reference="QTLs" neo4j-ignore="true"/>
     <collection name="linkageGroupRanges" referenced-type="LinkageGroupRange" neo4j-ignore="true"/>
     <collection name="spannedGenes" referenced-type="Gene" reverse-reference="spanningQTLs" neo4j-ignore="true"/>
@@ -229,7 +219,7 @@
     <collection name="homologues" referenced-type="Homologue" reverse-reference="gene" neo4j-ignore="true"/>
     <collection name="exons" referenced-type="Exon" reverse-reference="gene" neo4j-ignore="true"/>
     <collection name="spanningQTLs" referenced-type="QTL" reverse-reference="spannedGenes"/>
-    <collection name="pathways" referenced-type="Pathway" reverse-reference="genes"/>
+    <collection name="pathways" referenced-type="Pathway" reverse-reference="genes" neo4j-ignore="true"/>
     <collection name="UTRs" referenced-type="UTR" reverse-reference="gene" neo4j-ignore="true"/>
     <collection name="transcripts" referenced-type="Transcript" reverse-reference="gene" neo4j-ignore="true"/>
     <collection name="alleles" referenced-type="Allele" reverse-reference="gene" neo4j-ignore="true"/>
@@ -252,7 +242,7 @@
   </class>
   <class name="GOTerm" extends="OntologyTerm" is-interface="true"></class>
   <class name="Organism" is-interface="true">
-    <attribute name="chadoId" type="java.lang.Integer"/>
+    <attribute name="chadoId" type="java.lang.Integer" neo4j-ignore="true"/>
     <attribute name="comment" type="java.lang.String"/>
     <attribute name="species" type="java.lang.String"/>
     <attribute name="genus" type="java.lang.String"/>
@@ -269,7 +259,7 @@
     <reference name="publication" referenced-type="Publication"/>
     <collection name="samples" referenced-type="ExpressionSample" reverse-reference="source" neo4j-ignore="true"/>
   </class>
-  <class name="GOAnnotation" extends="OntologyAnnotation" is-interface="true" neo4j-ignore="true">
+  <class name="GOAnnotation" extends="OntologyAnnotation" is-interface="true" neo4j-relationship="annotation">
     <attribute name="annotationExtension" type="java.lang.String"/>
     <collection name="evidence" referenced-type="GOEvidence"/>
   </class>
@@ -286,7 +276,7 @@
     <attribute name="length" type="java.lang.Integer"/>
     <attribute name="note" type="java.lang.String"/>
     <attribute name="reactomeName" type="java.lang.String"/>
-    <reference name="supercontig" referenced-type="Chromosome"/>
+    <reference name="supercontig" referenced-type="Chromosome" neo4j-ignore="true"/>
     <reference name="consensusRegion" referenced-type="ConsensusRegion" neo4j-ignore="true"/>
     <reference name="supercontigLocation" referenced-type="Location" neo4j-ignore="true"/>
     <reference name="chromosomeLocation" referenced-type="Location" neo4j-ignore="true"/>
@@ -297,7 +287,7 @@
     <collection name="genes" referenced-type="Gene" reverse-reference="proteins"/>
     <collection name="proteinMatches" referenced-type="ProteinMatch" reverse-reference="protein" neo4j-ignore="true"/>
     <collection name="pathways" referenced-type="Pathway" reverse-reference="proteins"/>
-    <collection name="proteinDomains" referenced-type="ProteinDomain" reverse-reference="proteins" neo4j-ignore="true"/>
+    <collection name="proteinDomains" referenced-type="ProteinDomain" reverse-reference="proteins"/>
     <collection name="transcripts" referenced-type="Transcript" reverse-reference="protein" neo4j-ignore="true"/>
   </class>
   <class name="SequenceFeature" extends="BioEntity" is-interface="true" neo4j-ignore="true">
@@ -334,8 +324,8 @@
     <attribute name="curated" type="java.lang.Boolean"/>
     <attribute name="name" type="java.lang.String"/>
     <attribute name="shortName" type="java.lang.String"/>
-    <collection name="genes" referenced-type="Gene" reverse-reference="pathways"/>
-    <collection name="proteins" referenced-type="Protein" reverse-reference="pathways"/>
+    <collection name="genes" referenced-type="Gene" reverse-reference="pathways" neo4j-ignore="true"/>
+    <collection name="proteins" referenced-type="Protein" reverse-reference="pathways" neo4j-ignore="true"/>
     <collection name="dataSets" referenced-type="DataSet"/>
   </class>
   <class name="Comment" is-interface="true">
@@ -370,7 +360,7 @@
     <attribute name="interproName" type="java.lang.String"/>
     <reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
     <collection name="proteinHmmMatches" referenced-type="ProteinHmmMatch" reverse-reference="proteinDomain" neo4j-ignore="true"/>
-    <collection name="proteins" referenced-type="Protein" reverse-reference="proteinDomains"/>
+    <collection name="proteins" referenced-type="Protein" reverse-reference="proteinDomains" neo4j-ignore="true"/>
   </class>
   <class name="ProteinMatch" extends="BioEntity" is-interface="true">
     <attribute name="signatureDesc" type="java.lang.String"/>
@@ -385,7 +375,7 @@
     <reference name="proteinLocation" referenced-type="Location" neo4j-ignore="true"/>
   </class>
   <class name="FivePrimeUTR" extends="UTR" is-interface="true"></class>
-  <class name="LinkageGroupRange" is-interface="true" neo4j-ignore="true">
+  <class name="LinkageGroupRange" is-interface="true" neo4j-relationship="linkageGroupRange">
     <attribute name="begin" type="java.lang.Double"/>
     <attribute name="end" type="java.lang.Double"/>
     <attribute name="length" type="java.lang.Double"/>

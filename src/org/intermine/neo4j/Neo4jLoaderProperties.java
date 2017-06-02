@@ -24,14 +24,13 @@ public class Neo4jLoaderProperties {
 
     public static final String DEFAULT_PROPERTIES_FILE = "neo4jloader.properties";
 
-    // NOTE: leaving public to avoid writing getters and setters for now
-    public String intermineServiceUrl;
-    public String neo4jUrl;
-    public String neo4jUser;
-    public String neo4jPassword;
-    public boolean verbose;
-    public int maxRows;
-    public String dataModelFilename;
+    String intermineServiceUrl;
+    String neo4jUrl;
+    String neo4jUser;
+    String neo4jPassword;
+    boolean verbose;
+    int maxRows;
+    String dataModelFilename;
 
     /**
      * Default constructor, loads properties from DEFAULT_PROPERTIES_FILE
