@@ -37,7 +37,7 @@ import org.neo4j.driver.v1.Transaction;
 
 /**
  * Query an InterMine model, and load it and its data into a Neo4j database, along with the relationships derived from relations and collections.
- * 
+ *
  * @author Sam Hokin
  */
 public class Neo4jLoader {
@@ -78,7 +78,7 @@ public class Neo4jLoader {
         PathQuery refQuery = new PathQuery(model);
         PathQuery collQuery = new PathQuery(model);
         PathQuery attrQuery = new PathQuery(model);
-        
+
         // Put the desired class descriptors into a map so we can grab them by class name if we want; alphabetical by class simple name
         Map<String,ClassDescriptor> nodeDescriptors = new TreeMap<String,ClassDescriptor>();
         for (ClassDescriptor cd : model.getClassDescriptors()) {
@@ -120,6 +120,7 @@ public class Neo4jLoader {
                 for (AttributeDescriptor ad : nodeDescriptor.getAllAttributeDescriptors()) {
                     String attrName = ad.getName();
                     if (!nmp.isIgnored(ad)) attrDescriptors.put(attrName, ad);
+
                 }
                 System.out.println("Attributes:"+attrDescriptors.keySet());
 
@@ -137,6 +138,7 @@ public class Neo4jLoader {
                     String collName = cd.getName();
                     if (!nmp.isIgnored(cd)) collDescriptors.put(collName, cd);
                 }
+
                 System.out.println("Collections:"+collDescriptors.keySet());
             
                 // query nodes of this class
@@ -154,7 +156,7 @@ public class Neo4jLoader {
 
                     if (props.verbose) System.out.print(nodeClass+":"+id+":");
                     nodeCount++;
-			
+
                     // MERGE this node by its id
                     String nodeLabel = getFullNodeLabel(nodeDescriptor);
                     String merge = "MERGE (n:"+nodeLabel+" {id:"+id+"})";
@@ -223,7 +225,7 @@ public class Neo4jLoader {
                             }
                         }
                     }
-			
+
                     // MERGE this node's collections by id, one at a time
                     for (String collName : collDescriptors.keySet()) {
                         CollectionDescriptor cd = collDescriptors.get(collName);
@@ -278,7 +280,7 @@ public class Neo4jLoader {
                     
                 }
             }
-            
+
         // Close connections
         driver.close();
 
@@ -328,6 +330,7 @@ public class Neo4jLoader {
                         } else {
                             match += "n."+attrName+"="+val;
                         }
+
                     }
                 }
                 if (terms>0) {
