@@ -5,8 +5,8 @@ import org.neo4j.driver.v1.*;
 import java.util.*;
 
 /**
- * Generates schema of a given Neo4j database and stores it in the database itself.
- * All nodes of describing the schema are assigned a "Metagraph" label.
+ * Generates schema/metagraph of a given Neo4j graph database and stores it inside the database itself.
+ * All nodes of of the metagraph are assigned a "Metagraph" label.
  * Metagraph structure described at https://gist.github.com/yasharmaster/8071e53c500081660b9e5c203b913b6d
  *
  * @author Yash Sharma
@@ -29,18 +29,23 @@ public class Neo4jSchemaGenerator {
     private static void mapNodes(Driver driver){
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
+                // For each node in the database that does not belong to the metagraph and has
+                // at least one label, check if its corresponding NodeType node is present.
+                // If not, then add a new one. Determine the Union of the properties set of the NodeType
+                // node & all the properties of the current node and store it in the NodeType node.
                 String query = "MATCH (n)\n" +
-                                "WHERE NOT n:Metagraph\n" +
+                                "WHERE NOT n:Metagraph AND size(labels(n))>0\n" +
                                 "WITH labels(n) as LABELS, keys(n) as KEYS\n" +
                                 "MERGE (m:Metagraph {metaType: 'NodeType', labels: LABELS})\n" +
                                 "SET m.properties =\n" +
                                 "CASE m.properties\n" +
                                 "\tWHEN NULL THEN KEYS\n" +
-                                "    ELSE apoc.coll.union(m.properties, KEYS)\n" +
+                                "\tELSE apoc.coll.union(m.properties, KEYS)\n" +
                                 "END\n";
                 tx.run(query);
                 tx.success();
                 tx.close();
+
                 // Log the progress
                 System.out.println("Schema Progress : All nodes mapped.");
             }
@@ -55,6 +60,11 @@ public class Neo4jSchemaGenerator {
     private static void mapRelationships(Driver driver){
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
+                // For each connected pair of nodes and the corresponding relationship in the database
+                // that do not belong to the metagraph, check if the corresponding NodeType & RelType
+                // nodes are present. If not, then add a new ones. Add StartNodeType & EndNodeType
+                // relations. Determine the Union of the properties set of the RelType node & all the
+                // properties of the current relationship and store it in the RelType node.
                 String query = "MATCH (n)-[r]->(m)\n" +
                                 "WHERE NOT n:Metagraph AND NOT m:Metagraph\n" +
                                 "WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels\n" +
@@ -62,13 +72,17 @@ public class Neo4jSchemaGenerator {
                                 "MERGE (b:Metagraph {metaType:'NodeType', labels: end_labels})\n" +
                                 "MERGE (a)<-[:StartNodeType]-(rel:Metagraph {metaType: 'RelType', type:rel_type })-[:EndNodeType]->(b)\n" +
                                 "SET rel.properties =\n" +
-                                "CASE rel_keys\n" +
-                                "\tWHEN NULL THEN []\n" +
-                                "    ELSE rel_keys\n" +
+                                "CASE \n" +
+                                "\tWHEN rel.properties IS NULL AND rel_keys IS NULL THEN []\n" +
+                                "\tWHEN rel.properties IS NULL AND rel_keys IS NOT NULL THEN rel_keys\n" +
+                                "\tWHEN rel.properties IS NOT NULL AND rel_keys IS NULL THEN rel.properties\n" +
+                                "\tWHEN rel.properties IS NOT NULL AND rel_keys IS NOT NULL THEN " +
+                                "apoc.coll.union(rel.properties, rel_keys)\n" +
                                 "END\n";
                 tx.run(query);
                 tx.success();
                 tx.close();
+
                 // Log the progress
                 System.out.println("Schema Progress : All relationships mapped.");
             }
@@ -95,8 +109,23 @@ public class Neo4jSchemaGenerator {
      * @return A NodeDescriptor object based on the record.
      */
     private static NodeDescriptor getNodeDescriptor(Record record){
-        Set<String> labels = new HashSet<>(processList(record.get("labels").asList()));
-        Set<String> properties = new HashSet<>(processList(record.get("properties").asList()));
+        Value labelsValue = record.get("labels");
+        Set<String> labels;
+        if(!labelsValue.isNull() && !labelsValue.isEmpty()){
+            labels = new HashSet<>(processList(labelsValue.asList()));
+        }
+        else{
+            labels = new HashSet<>();
+        }
+
+        Value propertiesValue = record.get("properties");
+        Set<String> properties;
+        if(!propertiesValue.isNull() && !propertiesValue.isEmpty()){
+            properties = new HashSet<>(processList(propertiesValue.asList()));
+        }
+        else{
+            properties = new HashSet<>();
+        }
 
         return new NodeDescriptor(labels, properties);
     }
@@ -148,23 +177,26 @@ public class Neo4jSchemaGenerator {
 
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
+                // Find details of all the NodeType nodes
                 String query = "MATCH (n:Metagraph {metaType : 'NodeType'}) " +
                         "RETURN DISTINCT n.labels as labels, n.properties as properties";
                 StatementResult result = tx.run(query);
 
-                // For each node create a NodeDescriptor
+                // For each NodeType create a NodeDescriptor
                 while (result.hasNext()) {
                     Record record = result.next();
                     nodes.add(getNodeDescriptor(record));
                 }
 
+                // Find details of all the RelType nodes and their Start & End NodeType nodes
                 query = "MATCH (startNode:Metagraph)<-[:StartNodeType]-" +
                         "(n:Metagraph {metaType : 'RelType'})-[:EndNodeType]->" +
                         "(endNode:Metagraph) RETURN DISTINCT startNode.labels as startLabels, " +
                         "endNode.labels as endLabels, n.type as type, n.properties as properties";
                 result = tx.run(query);
 
-                // For relationship, create a RelationshipDescriptor and store start and end nodes
+                // For relationship, create a RelationshipDescriptor and
+                // store the labels of Start & End nodes.
                 while (result.hasNext()) {
                     Record record = result.next();
                     relationships.add(getRelationshipDescriptor(record));
@@ -182,7 +214,6 @@ public class Neo4jSchemaGenerator {
                 System.out.println("Model successfully extracted from the database.");
             }
         }
-        Model model = new Model(nodes, relationships, startNodes, endNodes);
-        return model;
+        return new Model(nodes, relationships, startNodes, endNodes);
     }
 }
