@@ -18,178 +18,61 @@ public class Neo4jSchemaGenerator {
      * @param driver Neo4j Java Driver instance.
      */
     public static void generateSchema(Driver driver){
-        // Create three initial nodes of the Metagraph : Root, NodeDescriptor Owner & Rel Owner.
-        createInitialNodes(driver);
-
-        // Creates Representative NodeType & RelType nodes for each relationship & node and
-        // Add required relationships between them.
-        mapConnectedNodes(driver);
-
-        // Create Representative (Admin) nodes for all disconnected nodes.
-        mapDisconnectedNodes(driver);
+        mapNodes(driver);
+        mapRelationships(driver);
     }
 
     /**
-     * Create three initial nodes of the Metagraph : Root, NodeDescriptor Owner & Rel Owner.
+     * Creates NodeType nodes for every type of node that exist in the database.
      * @param driver Neo4j Java Driver instance.
      */
-    private static void createInitialNodes(Driver driver){
+    private static void mapNodes(Driver driver){
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
-                String query = "MERGE (m:Metagraph { metaType: 'NodeTypeOwner' })" +
-                                "<-[:OWNS]-(o:Metagraph { metaType: 'RootOwner' })-[:OWNS]->" +
-                                "(n:Metagraph { metaType: 'RelTypeOwner' })";
+                String query = "MATCH (n)\n" +
+                                "WHERE NOT n:Metagraph\n" +
+                                "WITH labels(n) as LABELS, keys(n) as KEYS\n" +
+                                "MERGE (m:Metagraph {metaType: 'NodeType', labels: LABELS})\n" +
+                                "SET m.properties =\n" +
+                                "CASE m.properties\n" +
+                                "\tWHEN NULL THEN KEYS\n" +
+                                "    ELSE apoc.coll.union(m.properties, KEYS)\n" +
+                                "END\n";
                 tx.run(query);
                 tx.success();
                 tx.close();
-
                 // Log the progress
-                System.out.println("Schema Progress : Initial Nodes Created - Root NodeDescriptor, NodeTypeOwner & RelTypeOwner.");
+                System.out.println("Schema Progress : All nodes mapped.");
             }
         }
     }
 
     /**
-     * Maps all the connected nodes of the database to the schema.
+     * Creates RelType nodes for every type of relationship that exist in the database.
+     * Also set StartNodeType & EndNodeType relationship for each such node.
      * @param driver Neo4j Java Driver instance.
      */
-    private static void mapConnectedNodes(Driver driver){
+    private static void mapRelationships(Driver driver){
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
-                // For all connected pair of nodes which are not in the metagraph,
-                // return the set of labels & properties of the nodes
-                // and the type & properties of their relationship.
-                String readQuery = "MATCH (n)-[r]->(m) " +
-                                    "WHERE NOT n:Metagraph AND NOT m:Metagraph " +
-                                    "RETURN DISTINCT labels(n), keys(n), " +
-                                    "type(r), keys(r), labels(m), keys(m)";
-                StatementResult result = tx.run(readQuery);
-
-                // For each node and relationship store NodeType and RelTpe nodes respectively,
-                // And add required relationships.
-                while (result.hasNext()) {
-                    Record record = result.next();
-                    System.out.println("------------------Record------------------");
-                    System.out.println(record.toString());
-                    Map<String, Object> params = getQueryParams(record);
-                    String writeQuery = generateWriteQuery(record);
-                    tx.run(writeQuery, params);
-                }
+                String query = "MATCH (n)-[r]->(m)\n" +
+                                "WHERE NOT n:Metagraph AND NOT m:Metagraph\n" +
+                                "WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels\n" +
+                                "MERGE (a:Metagraph {metaType:'NodeType', labels: start_labels})\n" +
+                                "MERGE (b:Metagraph {metaType:'NodeType', labels: end_labels})\n" +
+                                "MERGE (a)<-[:StartNodeType]-(rel:Metagraph {metaType: 'RelType', type:rel_type })-[:EndNodeType]->(b)\n" +
+                                "SET rel.properties =\n" +
+                                "CASE rel_keys\n" +
+                                "\tWHEN NULL THEN []\n" +
+                                "    ELSE rel_keys\n" +
+                                "END\n";
+                tx.run(query);
                 tx.success();
                 tx.close();
-
                 // Log the progress
-                System.out.println("Schema Progress : Mapped Connected Nodes.");
+                System.out.println("Schema Progress : All relationships mapped.");
             }
         }
-    }
-
-    /**
-     * Maps all the disconnected nodes of the database to the schema.
-     * @param driver Neo4j Java Driver instance.
-     */
-    private static void mapDisconnectedNodes(Driver driver){
-        try (Session session = driver.session()) {
-            try (Transaction tx = session.beginTransaction()) {
-                // For all disconnected nodes which are not in the metagraph,
-                // return the set of labels & properties of these nodes
-                String readQuery = "match (n)\n" +
-                        "with n\n" +
-                        "optional match (n)-[r]-()\n" +
-                        "with n, count(r) as c\n" +
-                        "where c=0\n" +
-                        "return labels(n), keys(n)";
-                StatementResult result = tx.run(readQuery);
-
-                // For each node store NodeType and add required relationships.
-                while (result.hasNext()) {
-                    Record record = result.next();
-                    System.out.println("------------------Record------------------");
-                    System.out.println(record.toString());
-                    Map<String, Object> params = getQueryParams(record);
-                    String writeQuery = generateDisconnectedWriteQuery(record);
-                    tx.run(writeQuery, params);
-                }
-                tx.success();
-                tx.close();
-
-                // Log the progress
-                System.out.println("Schema Progress : Mapped Disconnected Nodes.");
-            }
-        }
-    }
-
-    /**
-     * Generates a write cypher query for mapping connected nodes based on the data provided.
-     * @param record A record containing one record of the read cypher query.
-     * @return A string containing the cypher query.
-     */
-    private static String generateWriteQuery(Record record){
-        Value startNodeLabels = record.get("labels(n)");
-        Value startNodeKeys = record.get("keys(n)");
-        Value endNodeLabels = record.get("labels(m)");
-        Value endNodeKeys = record.get("keys(m)");
-        Value relType = record.get("type(r)");
-        Value relKeys = record.get("keys(r)");
-
-        String query = "MATCH (nodeOwner:Metagraph { metaType: 'NodeTypeOwner' }), " +
-                        "(relOwner:Metagraph { metaType: 'RelTypeOwner' }) " +
-                        "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType'";
-        if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
-            query = query + ", labels: $startNodeLabels";
-        }
-        if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
-            query = query + ", properties: $startNodeKeys";
-        }
-        query = query + "}) MERGE (nodeOwner)-[:OWNS]->(m:Metagraph { metaType: 'NodeType'";
-        if (!endNodeLabels.isNull() && !endNodeLabels.isEmpty()){
-            query = query + ", labels: $endNodeLabels";
-        }
-        if (!endNodeKeys.isNull() && !endNodeKeys.isEmpty()){
-            query = query + ", properties: $endNodeKeys";
-        }
-        query = query + "}) MERGE (relOwner)-[:OWNS]->(r:Metagraph { metaType: 'RelType'";
-        if (!relType.isNull()){
-            query = query + ", type: $relType";
-        }
-        if (!relKeys.isNull() && !relKeys.isEmpty()){
-            query = query + ", properties: $relKeys";
-        }
-        query = query + "}) MERGE (n)<-[:StartNodeType]-(r)-[:EndNodeType]->(m)";
-
-        //Print the generated query
-        System.out.println("-------------------Query------------------");
-        System.out.println(query);
-        System.out.println("------------------------------------------");
-
-        return query;
-    }
-
-    /**
-     * Generates a write cypher query for mapping disconnected nodes based on the data provided.
-     * @param record A record containing one record of the read cypher query.
-     * @return A string containing the cypher query.
-     */
-    private static String generateDisconnectedWriteQuery(Record record){
-        Value startNodeLabels = record.get("labels(n)");
-        Value startNodeKeys = record.get("keys(n)");
-
-        String query = "MATCH (nodeOwner:Metagraph { metaType: 'NodeTypeOwner' }) " +
-                "MERGE (nodeOwner)-[:OWNS]->(n:Metagraph { metaType: 'NodeType'";
-        if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
-            query = query + ", labels: $startNodeLabels";
-        }
-        if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
-            query = query + ", properties: $startNodeKeys";
-        }
-        query = query + "})";
-
-        //Print the generated query
-        System.out.println("-------------------Query------------------");
-        System.out.println(query);
-        System.out.println("------------------------------------------");
-
-        return query;
     }
 
     /**
@@ -204,43 +87,6 @@ public class Neo4jSchemaGenerator {
         }
         Collections.sort(listStrings);
         return listStrings;
-    }
-
-    /**
-     * Creates a HashMap containing all the parameters to be passed to the write cypher query.
-     * @param record A record containing one record of the read cypher query.
-     * @return A HashMap containing all the parameters.
-     */
-    private static HashMap<String, Object> getQueryParams(Record record){
-        Value startNodeLabels = record.get("labels(n)");
-        Value startNodeKeys = record.get("keys(n)");
-        Value endNodeLabels = record.get("labels(m)");
-        Value endNodeKeys = record.get("keys(m)");
-        Value relType = record.get("type(r)");
-        Value relKeys = record.get("keys(r)");
-
-        HashMap<String, Object> params = new HashMap<>();
-
-        if (!startNodeLabels.isNull() && !startNodeLabels.isEmpty()){
-            params.put("startNodeLabels", processList(startNodeLabels.asList()));
-        }
-        if (!startNodeKeys.isNull() && !startNodeKeys.isEmpty()){
-            params.put("startNodeKeys", processList(startNodeKeys.asList()));
-        }
-        if (!endNodeLabels.isNull() && !endNodeLabels.isEmpty()){
-            params.put("endNodeLabels", processList(endNodeLabels.asList()));
-        }
-        if (!endNodeKeys.isNull() && !endNodeKeys.isEmpty()){
-            params.put("endNodeKeys", processList(endNodeKeys.asList()));
-        }
-        if (!relType.isNull()){
-            params.put("relType", relType.asString());
-        }
-        if (!relKeys.isNull() && !relKeys.isEmpty()){
-            params.put("relKeys", processList(relKeys.asList()));
-        }
-
-        return params;
     }
 
     /**
@@ -261,8 +107,8 @@ public class Neo4jSchemaGenerator {
      * @return A RelationshipDescriptor object based on the record.
      */
     private static RelationshipDescriptor getRelationshipDescriptor(Record record){
-        String type = record.get("relType").asString();
-        Value value = record.get("relProperties");
+        String type = record.get("type").asString();
+        Value value = record.get("properties");
         Set<String> properties;
         if(!value.isNull() && !value.isEmpty()){
             properties = new HashSet<>(processList(value.asList()));
@@ -270,12 +116,12 @@ public class Neo4jSchemaGenerator {
         else{
             properties = new HashSet<>();
         }
+
         return new RelationshipDescriptor(type, properties);
     }
 
     /**
      * Adds a set to the map of set of sets.
-     *
      */
     private static void addSetToMap(Map<String, Set<Set<String>>> map, String key, Set<String> set){
         if(map.containsKey(key)){
@@ -315,14 +161,14 @@ public class Neo4jSchemaGenerator {
                 query = "MATCH (startNode:Metagraph)<-[:StartNodeType]-" +
                         "(n:Metagraph {metaType : 'RelType'})-[:EndNodeType]->" +
                         "(endNode:Metagraph) RETURN DISTINCT startNode.labels as startLabels, " +
-                        "endNode.labels as endLabels, n.type as relType, n.properties as relProperties";
+                        "endNode.labels as endLabels, n.type as type, n.properties as properties";
                 result = tx.run(query);
 
                 // For relationship, create a RelationshipDescriptor and store start and end nodes
                 while (result.hasNext()) {
                     Record record = result.next();
                     relationships.add(getRelationshipDescriptor(record));
-                    String key = record.get("relType").asString();
+                    String key = record.get("type").asString();
                     Set<String> startSet = new HashSet<>(processList(record.get("startLabels").asList()));
                     Set<String> endSet = new HashSet<>(processList(record.get("endLabels").asList()));
                     addSetToMap(startNodes, key, startSet);
