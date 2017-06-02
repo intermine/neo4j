@@ -1,7 +1,5 @@
 package org.intermine.neo4j;
 
-import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -13,13 +11,15 @@ import java.util.TreeSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.Properties;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import org.intermine.metadata.AttributeDescriptor;
 import org.intermine.metadata.ClassDescriptor;
 import org.intermine.metadata.CollectionDescriptor;
 import org.intermine.metadata.ConstraintOp;
-import org.intermine.metadata.InterMineModelParser;
 import org.intermine.metadata.ReferenceDescriptor;
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
@@ -27,38 +27,28 @@ import org.intermine.pathquery.Constraints;
 import org.intermine.pathquery.OrderDirection;
 import org.intermine.pathquery.PathConstraintAttribute;
 import org.intermine.pathquery.PathQuery;
-import org.intermine.webservice.client.core.ServiceFactory;
 import org.intermine.webservice.client.services.QueryService;
 
-import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
-import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.util.Pair;
-
-import static org.neo4j.driver.v1.Values.parameters;
 
 /**
  * Query an InterMine model, and load it and its data into a Neo4j database, along with the relationships derived from relations and collections.
- * Connection and other properties are given in neo4jloader.properties.
  *
  * @author Sam Hokin
  */
 public class Neo4jLoader {
 
-    static final String PROPERTIES_FILE = "neo4jloader.properties";
-
     /**
      * @param args command line arguments
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, ModelParserException {
+    public static void main(String[] args) throws IOException, ModelParserException, SAXException, ParserConfigurationException {
 
-        // optional comma-separated list of classes to load; overrides loading of ALL classes other than those ignored
+        // optional comma-separated list of classes to load; overrides loading of ALL classes (other than those ignored)
         List<String> loadedClasses = new LinkedList<String>();
         if (args.length>0) {
             String[] parts = args[0].split(",");
@@ -67,39 +57,21 @@ public class Neo4jLoader {
             }
         }
 
-        // Load parameters from neo4jloader.properties
-        Properties props = new Properties();
-        props.load(new FileInputStream(PROPERTIES_FILE));
-        String intermineServiceUrl = props.getProperty("intermine.service.url");
-        String neo4jUrl = props.getProperty("neo4j.url");
-        String neo4jUser = props.getProperty("neo4j.user");
-        String neo4jPassword = props.getProperty("neo4j.password");
-        boolean verbose = Boolean.parseBoolean(props.getProperty("verbose"));
-        int maxRows = Integer.parseInt(props.getProperty("max.rows"));
-        String dataModelFilename = props.getProperty("data.model.file");
-
-        // classes to ignore, usually superclasses or maybe just classes you don't want
-        List<String> ignoredClasses = new LinkedList<String>();
-        if (props.getProperty("ignored.classes")!=null) ignoredClasses = Arrays.asList(props.getProperty("ignored.classes").trim().split(","));
-
-        // references to ignore, typically reverse-reference
-        List<String> ignoredReferences = new LinkedList<String>();
-        if (props.getProperty("ignored.references")!=null) ignoredReferences = Arrays.asList(props.getProperty("ignored.references").trim().split(","));
-
-        // collections to ignore, typically reverse-reference
-        List<String> ignoredCollections = new LinkedList<String>();
-        if (props.getProperty("ignored.collections")!=null) ignoredCollections = Arrays.asList(props.getProperty("ignored.collections").trim().split(","));
-
-        // list of IM IDs of nodes that have had their attributes stored HERE
-        List<Integer> nodesWithAttributesStored = new LinkedList<Integer>();
+        // get the properties from the default file
+        Neo4jLoaderProperties props = new Neo4jLoaderProperties();
+        
+        // Neo4j setup
+        Driver driver = props.getGraphDatabaseDriver();
 
         // InterMine setup
-        ServiceFactory factory = new ServiceFactory(intermineServiceUrl);
-        QueryService service = factory.getQueryService();
+        QueryService service = props.getQueryService();
 
-        // load local model XML file, which contains additional info for IM->Neo4j
-        InterMineModelParser immp = new InterMineModelParser();
-        Model model = immp.process(new InputStreamReader(new FileInputStream(dataModelFilename)));
+        // load the class, attribute, reference and collection instructions for Neo4j
+        Neo4jModelParser nmp = new Neo4jModelParser();
+        nmp.process(props);
+
+        // load InterMine model from the local XML file
+        Model model = props.getModel();
 
         // PathQuery objects used in various places
         PathQuery nodeQuery = new PathQuery(model);
@@ -107,17 +79,16 @@ public class Neo4jLoader {
         PathQuery collQuery = new PathQuery(model);
         PathQuery attrQuery = new PathQuery(model);
 
-        // Neo4j setup
-        Driver driver = GraphDatabase.driver(neo4jUrl, AuthTokens.basic(neo4jUser, neo4jPassword));
-
         // Put the desired class descriptors into a map so we can grab them by class name if we want; alphabetical by class simple name
         Map<String,ClassDescriptor> nodeDescriptors = new TreeMap<String,ClassDescriptor>();
         for (ClassDescriptor cd : model.getClassDescriptors()) {
-            String nodeClass = cd.getSimpleName();
-            if (loadedClasses.size()>0 && loadedClasses.contains(nodeClass)) {
-                nodeDescriptors.put(nodeClass, cd);
-            } else if (loadedClasses.size()==0 && !ignoredClasses.contains(nodeClass)) {
-                nodeDescriptors.put(nodeClass, cd);
+            if (!nmp.isIgnored(cd)) {
+                String nodeClass = cd.getSimpleName();
+                if (loadedClasses.size()>0 && loadedClasses.contains(nodeClass)) {
+                    nodeDescriptors.put(nodeClass, cd);
+                } else if (loadedClasses.size()==0) {
+                    nodeDescriptors.put(nodeClass, cd);
+                }
             }
         }
 
@@ -135,7 +106,7 @@ public class Neo4jLoader {
             }
         }
 
-        // Loop over IM model and load the node, properties and relations with their corresponding reference and collections nodes (with only attributes)
+        // Loop over IM classes and load the node, properties and relations with their corresponding reference and collections nodes (with only attributes)
         for (String nodeClass : nodeDescriptors.keySet()) {
 
                 ClassDescriptor nodeDescriptor = nodeDescriptors.get(nodeClass);
@@ -143,59 +114,39 @@ public class Neo4jLoader {
                 // display the node with labels
                 System.out.println("--------------------------------------------------------");
                 System.out.println(getFullNodeLabel(nodeDescriptor));
+                
+                // load the attributes, except those flagged to be ignored, into a map and display
+                HashMap<String,AttributeDescriptor> attrDescriptors = new HashMap<String,AttributeDescriptor>();
+                for (AttributeDescriptor ad : nodeDescriptor.getAllAttributeDescriptors()) {
+                    String attrName = ad.getName();
+                    if (!nmp.isIgnored(ad)) attrDescriptors.put(attrName, ad);
 
-                // display the attributes
-                Set<AttributeDescriptor> attrDescriptors = nodeDescriptor.getAllAttributeDescriptors();
-                if (attrDescriptors.size()>1) {
-                    Set<String> attrNames = new HashSet<String>(); // just for output
-                    for (AttributeDescriptor ad : attrDescriptors) {
-                        attrNames.add(ad.getName());
-                    }
-                    System.out.println("Attributes:"+attrNames);
                 }
+                System.out.println("Attributes:"+attrDescriptors.keySet());
 
-                // load the references, except ignored classes and ignored references, into a map, and display
+                // load the references, except those flagged to be ignored, into a map, and display
                 HashMap<String,ReferenceDescriptor> refDescriptors = new HashMap<String,ReferenceDescriptor>();
                 for (ReferenceDescriptor rd : nodeDescriptor.getAllReferenceDescriptors()) {
                     String refName = rd.getName();
-                    ClassDescriptor refClassDescriptor = rd.getReferencedClassDescriptor();
-                    String refClass = refClassDescriptor.getSimpleName();
-                    boolean keep = true;
-                    keep = keep && !ignoredClasses.contains(refClass);
-                    keep = keep && !ignoredReferences.contains(nodeClass+"."+refName);
-                    // eliminate ignored superclasses as well
-                    for (ClassDescriptor superclassDescriptor : refClassDescriptor.getAllSuperDescriptors()) {
-                        String superclassName = superclassDescriptor.getSimpleName();
-                        keep = keep && !ignoredReferences.contains(superclassName+"."+refName);
-                    }
-                    if (keep) refDescriptors.put(refName, rd);
+                    if (!nmp.isIgnored(rd)) refDescriptors.put(refName, rd);
                 }
-                if (refDescriptors.size()>0) System.out.println("References:"+refDescriptors.keySet());
+                System.out.println("References:"+refDescriptors.keySet());
 
-                // get the collections, except ignored classes, into a map, and display
+                // get the collections, except those flagged to be ignored, into a map, and display
                 HashMap<String,CollectionDescriptor> collDescriptors = new HashMap<String,CollectionDescriptor>();
                 for (CollectionDescriptor cd : nodeDescriptor.getAllCollectionDescriptors()) {
                     String collName = cd.getName();
-                    ClassDescriptor collClassDescriptor = cd.getReferencedClassDescriptor();
-                    String collClass = collClassDescriptor.getSimpleName();
-                    boolean keep = true;
-                    keep = keep && !ignoredClasses.contains(collClass);
-                    keep = keep && !ignoredCollections.contains(nodeClass+"."+collName);
-                    // eliminate ignored superclasses as well
-                    for (ClassDescriptor superclassDescriptor : collClassDescriptor.getAllSuperDescriptors()) {
-                        String superclassName = superclassDescriptor.getSimpleName();
-                        keep = keep && !ignoredCollections.contains(superclassName+"."+collName);
-                    }
-                    if (keep) collDescriptors.put(collName, cd);
+                    if (!nmp.isIgnored(cd)) collDescriptors.put(collName, cd);
                 }
-                if (collDescriptors.size()>0) System.out.println("Collections:"+collDescriptors.keySet());
 
+                System.out.println("Collections:"+collDescriptors.keySet());
+            
                 // query nodes of this class
                 nodeQuery.clearView();
                 nodeQuery.addView(nodeClass+".id"); // every object has an IM id
                 int nodeCount = 0;
                 Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
-                while (rows.hasNext() && (maxRows==0 || nodeCount<maxRows)) {
+                while (rows.hasNext() && (props.maxRows==0 || nodeCount<props.maxRows)) {
 
                     Object[] row = rows.next().toArray();
                     int id = Integer.parseInt(row[0].toString());
@@ -203,7 +154,7 @@ public class Neo4jLoader {
                     // abort this node if it's already stored
                     if (nodesAlreadyStored.contains(id)) continue;
 
-                    if (verbose) System.out.print(nodeClass+":"+id+":");
+                    if (props.verbose) System.out.print(nodeClass+":"+id+":");
                     nodeCount++;
 
                     // MERGE this node by its id
@@ -217,11 +168,8 @@ public class Neo4jLoader {
                         }
                     }
 
-                    // SET this nodes attributes if not already stored
-                    if (!nodesWithAttributesStored.contains(id)) {
-                        populateIdClassAttributes(service, driver, attrQuery, id, nodeLabel, nodeDescriptor);
-                        nodesWithAttributesStored.add(id);
-                    }
+                    // SET this nodes attributes
+                    populateIdClassAttributes(service, driver, attrQuery, id, nodeLabel, nodeDescriptor, nmp);
 
                     // CREATE unique CONSTRAINT on these individual node types
                     if (nodeCount==1) {
@@ -263,11 +211,6 @@ public class Neo4jLoader {
                                             tx.close();
                                         }
                                     }
-                                    // set this reference node's attributes
-                                    if (!nodesWithAttributesStored.contains(idr)) {
-                                        populateIdClassAttributes(service, driver, attrQuery, idr, refLabel, rcd);
-                                        nodesWithAttributesStored.add(idr);
-                                    }
                                     // merge this node-->ref relationship
                                     String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+refName+"]->(r)";
                                     try (Session session = driver.session()) {
@@ -277,7 +220,7 @@ public class Neo4jLoader {
                                             tx.close();
                                         }
                                     }
-                                    if (verbose) System.out.print("r");
+                                    if (props.verbose) System.out.print("r");
                                 }
                             }
                         }
@@ -295,7 +238,7 @@ public class Neo4jLoader {
                         collQuery.addConstraint(new PathConstraintAttribute(nodeClass+".id", ConstraintOp.EQUALS, String.valueOf(id)));
                         Iterator<List<Object>> rs = service.getRowListIterator(collQuery);
                         int collCount = 0;
-                        while (rs.hasNext() && (maxRows==0 || collCount<maxRows)) {
+                        while (rs.hasNext() && (props.maxRows==0 || collCount<props.maxRows)) {
                             collCount++;
                             Object[] r = rs.next().toArray();
                             int idn = Integer.parseInt(r[0].toString());      // node id
@@ -310,11 +253,6 @@ public class Neo4jLoader {
                                         tx.close();
                                     }
                                 }
-                                // set this collection node's attributes
-                                if (!nodesWithAttributesStored.contains(idc)) {
-                                    populateIdClassAttributes(service, driver, attrQuery, idc, collLabel, ccd);
-                                    nodesWithAttributesStored.add(idc);
-                                }
                                 // merge this node-->coll relationship
                                 String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collName+"]->(c)";
                                 try (Session session = driver.session()) {
@@ -325,7 +263,7 @@ public class Neo4jLoader {
                                     }
                                 }
                             }
-                            if (verbose) System.out.print("c");
+                            if (props.verbose) System.out.print("c");
                         }
                     }
 
@@ -337,9 +275,9 @@ public class Neo4jLoader {
                             tx.close();
                         }
                     }
-
-                    if (verbose) System.out.println("");
-
+                    
+                    if (props.verbose) System.out.println("");
+                    
                 }
             }
 
@@ -349,7 +287,8 @@ public class Neo4jLoader {
     }
 
     /**
-     * Populate the node attributes for a given IM class and ID
+     * Populate a node's attributes for a given IM class, ID and instantiated Neo4jModelParser (to determine which attributes to ignore).
+     *
      * @param service the InterMine QueryService
      * @param driver the Neo4j driver
      * @param attrQuery a PathQuery for querying attributes
@@ -357,16 +296,20 @@ public class Neo4jLoader {
      * @param nodeLabel the node label to use in the MATCH (may differ from className because of replacement)
      * @param cd the ClassDescriptor for this InterMine object
      */
-    static void populateIdClassAttributes(QueryService service, Driver driver, PathQuery attrQuery, int id, String nodeLabel, ClassDescriptor cd) {
+    static void populateIdClassAttributes(QueryService service, Driver driver, PathQuery attrQuery, int id, String nodeLabel, ClassDescriptor cd, Neo4jModelParser nmp) {
         String className = cd.getSimpleName();
         Set<AttributeDescriptor> attrDescriptors = cd.getAllAttributeDescriptors();
-        if (attrDescriptors.size()>1) {
-            attrQuery.clearView();
-            attrQuery.clearConstraints();
-            for (AttributeDescriptor ad : attrDescriptors) {
+        attrQuery.clearView();
+        attrQuery.clearConstraints();
+        int count = 0;
+        for (AttributeDescriptor ad : attrDescriptors) {
+            if (!nmp.isIgnored(ad)) {
                 String attrName = ad.getName();
                 attrQuery.addView(className+"."+attrName);
+                count++;
             }
+        }
+        if (count>0) {
             attrQuery.addConstraint(new PathConstraintAttribute(className+".id", ConstraintOp.EQUALS, String.valueOf(id)));
             Iterator<List<Object>> rows = service.getRowListIterator(attrQuery);
             while (rows.hasNext()) {
@@ -376,15 +319,18 @@ public class Neo4jLoader {
                 int i = 0;
                 int terms = 0;
                 for (AttributeDescriptor ad : attrDescriptors) {
-                    String attrName = ad.getName();
-                    String attrType = ad.getType();
-                    String val = escapeForNeo4j(row[i++].toString());
-                    terms++;
-                    if (terms>1) match += ",";
-                    if (attrType.equals("java.lang.String") || attrType.equals("java.util.Date") || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
-                        match += "n."+attrName+"=\""+val+"\"";
-                    } else {
-                        match += "n."+attrName+"="+val;
+                    if (!nmp.isIgnored(ad)) {
+                        String attrName = ad.getName();
+                        String attrType = ad.getType();
+                        String val = escapeForNeo4j(row[i++].toString());
+                        terms++;
+                        if (terms>1) match += ",";
+                        if (attrType.equals("java.lang.String") || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
+                            match += "n."+attrName+"=\""+val+"\"";
+                        } else {
+                            match += "n."+attrName+"="+val;
+                        }
+
                     }
                 }
                 if (terms>0) {
