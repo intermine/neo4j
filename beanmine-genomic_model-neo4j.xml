@@ -1,19 +1,11 @@
-<!--
-    TO DO:
-    
-    classes that become neo4j relationships:
-    Homologue,LinkageGroupPosition,LinkageGroupRange,Location,OntologyAnnotation,GOAnnotation,OntologyRelation
-    
-    corresponding neo4j relationship types:
-    homologue,linkageGroupPosition,linkageGroupRange,location,annotation,annotation,relation
--->
+<!-- modified InterMine model XML with Neo4j loading instructions added -->
 
 <model name="genomic" package="org.intermine.model.bio">
 
   <class name="InterMineObject" is-interface="true" neo4j-ignore="true"/>
   
   <class name="Intron" extends="SequenceFeature" is-interface="true">
-    <collection name="transcripts" referenced-type="Transcript" reverse-reference="introns"/>
+    <collection name="transcripts" referenced-type="Transcript" reverse-reference="introns" neo4j-ignore="true"/>
     <collection name="genes" referenced-type="Gene" reverse-reference="introns"/>
   </class>
   <class name="Allele" extends="SequenceCollection" is-interface="true">
@@ -86,7 +78,7 @@
     <collection name="expressionValues" referenced-type="ExpressionValue" reverse-reference="mRNA" neo4j-ignore="true"/>
   </class>
   <class name="IntergenicRegion" extends="SequenceFeature" is-interface="true">
-    <collection name="adjacentGenes" referenced-type="Gene"/>
+    <collection name="adjacentGenes" referenced-type="Gene" neo4j-ignore="true"/>
   </class>
   <class name="LinkageGroup" is-interface="true">
     <attribute name="chadoFeatureId" type="java.lang.Integer" neo4j-ignore="true"/>
@@ -132,7 +124,7 @@
     <reference name="organism" referenced-type="Organism"/>
     <collection name="locations" referenced-type="Location" reverse-reference="feature" neo4j-ignore="true"/>
     <collection name="publications" referenced-type="Publication" reverse-reference="bioEntities"/>
-    <collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="subject"/>
+    <collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="subject" neo4j-ignore="true"/>
     <collection name="synonyms" referenced-type="Synonym" reverse-reference="subject"/>
     <collection name="crossReferences" referenced-type="CrossReference" reverse-reference="subject"/>
     <collection name="dataSets" referenced-type="DataSet" reverse-reference="bioEntities"/>
@@ -233,8 +225,8 @@
     <attribute name="name" type="java.lang.String"/>
     <attribute name="namespace" type="java.lang.String"/>
     <reference name="ontology" referenced-type="Ontology"/>
-    <collection name="relations" referenced-type="OntologyRelation"/>
-    <collection name="synonyms" referenced-type="OntologyTermSynonym"/>
+    <collection name="relations" referenced-type="OntologyRelation" neo4j-ignore="true"/>
+    <collection name="synonyms" referenced-type="OntologyTermSynonym" neo4j-ignore="true"/>
     <collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="ontologyTerm" neo4j-ignore="true"/>
     <collection name="parents" referenced-type="OntologyTerm"/>
     <collection name="dataSets" referenced-type="DataSet"/>
@@ -300,8 +292,8 @@
     <reference name="supercontig" referenced-type="Supercontig" neo4j-ignore="true"/>
     <reference name="sequence" referenced-type="Sequence"/>
     <reference name="chromosome" referenced-type="Chromosome" neo4j-ignore="true"/>
-    <collection name="overlappingFeatures" referenced-type="SequenceFeature"/>
-    <collection name="childFeatures" referenced-type="SequenceFeature"/>
+    <collection name="overlappingFeatures" referenced-type="SequenceFeature" neo4j-ignore="true"/>
+    <collection name="childFeatures" referenced-type="SequenceFeature" neo4j-ignore="true"/>
   </class>
   <class name="Homologue" is-interface="true" neo4j-ignore="true">
     <attribute name="type" type="java.lang.String"/>
@@ -381,11 +373,11 @@
     <attribute name="length" type="java.lang.Double"/>
     <reference name="linkageGroup" referenced-type="LinkageGroup"/>
   </class>
-  <class name="Transcript" extends="SequenceFeature" is-interface="true">
+  <class name="Transcript" extends="SequenceFeature" is-interface="true" neo4j-ignore="true">
     <reference name="gene" referenced-type="Gene" reverse-reference="transcripts"/>
     <reference name="protein" referenced-type="Protein" reverse-reference="transcripts"/>
-    <collection name="introns" referenced-type="Intron" reverse-reference="transcripts"/>
-    <collection name="exons" referenced-type="Exon" reverse-reference="transcripts"/>
+    <collection name="introns" referenced-type="Intron" reverse-reference="transcripts" neo4j-ignore="true"/>
+    <collection name="exons" referenced-type="Exon" reverse-reference="transcripts" neo4j-ignore="true"/>
     <collection name="CDSs" referenced-type="CDS" reverse-reference="transcript" neo4j-ignore="true"/>
     <collection name="UTRs" referenced-type="UTR" reverse-reference="transcripts"/>
   </class>

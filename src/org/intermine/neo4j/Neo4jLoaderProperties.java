@@ -28,9 +28,10 @@ public class Neo4jLoaderProperties {
     String neo4jUrl;
     String neo4jUser;
     String neo4jPassword;
-    boolean verbose;
-    int maxRows;
     String dataModelFilename;
+    int maxRows;
+    int maxSequenceLength;
+    boolean verbose;
 
     /**
      * Default constructor, loads properties from DEFAULT_PROPERTIES_FILE
@@ -54,13 +55,22 @@ public class Neo4jLoaderProperties {
      * Set the various properties from a Properties object
      */
     void load(Properties props) throws FileNotFoundException, IOException {
+        // strings
         intermineServiceUrl = props.getProperty("intermine.service.url");
         neo4jUrl = props.getProperty("neo4j.url");
         neo4jUser = props.getProperty("neo4j.user");
         neo4jPassword = props.getProperty("neo4j.password");
-        verbose = Boolean.parseBoolean(props.getProperty("verbose"));
-        maxRows = Integer.parseInt(props.getProperty("max.rows"));
         dataModelFilename = props.getProperty("data.model.file");
+
+        // ints
+        String maxRowsString = props.getProperty("max.rows");
+        if (maxRowsString!=null) maxRows = Integer.parseInt(maxRowsString);
+        String maxSequenceLengthString = props.getProperty("max.sequence.length");
+        if (maxSequenceLengthString!=null) maxSequenceLength = Integer.parseInt(maxSequenceLengthString);
+
+        // booleans
+        String verboseString = props.getProperty("verbose");
+        if (verboseString!=null) verbose = Boolean.parseBoolean(verboseString);
     }
 
     /**
@@ -82,6 +92,13 @@ public class Neo4jLoaderProperties {
      */
     public Model getModel() throws FileNotFoundException, ModelParserException {
         return new InterMineModelParser().process(new InputStreamReader(new FileInputStream(dataModelFilename)));
+    }
+
+    /**
+     * Return maxSequenceLength
+     */
+    public int getMaxSequenceLength() {
+        return maxSequenceLength;
     }
 
 }
