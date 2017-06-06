@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * Generates schema/metagraph of a given Neo4j graph database and stores it inside the database itself.
- * All nodes of of the metagraph are assigned a "Metagraph" label.
+ * All nodes of the metagraph are assigned a "Metagraph" label.
  * Metagraph structure described at https://gist.github.com/yasharmaster/8071e53c500081660b9e5c203b913b6d
  *
  * @author Yash Sharma
@@ -36,7 +36,7 @@ public class Neo4jSchemaGenerator {
                 String query = "MATCH (n)\n" +
                                 "WHERE NOT n:Metagraph AND size(labels(n))>0\n" +
                                 "WITH labels(n) as LABELS, keys(n) as KEYS\n" +
-                                "MERGE (m:Metagraph {metaType: 'NodeType', labels: LABELS})\n" +
+                                "MERGE (m:Metagraph:NodeType {labels: LABELS})\n" +
                                 "SET m.properties =\n" +
                                 "CASE m.properties\n" +
                                 "\tWHEN NULL THEN KEYS\n" +
@@ -68,9 +68,9 @@ public class Neo4jSchemaGenerator {
                 String query = "MATCH (n)-[r]->(m)\n" +
                                 "WHERE NOT n:Metagraph AND NOT m:Metagraph\n" +
                                 "WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels\n" +
-                                "MERGE (a:Metagraph {metaType:'NodeType', labels: start_labels})\n" +
-                                "MERGE (b:Metagraph {metaType:'NodeType', labels: end_labels})\n" +
-                                "MERGE (a)<-[:StartNodeType]-(rel:Metagraph {metaType: 'RelType', type:rel_type })-[:EndNodeType]->(b)\n" +
+                                "MERGE (a:Metagraph:NodeType {labels: start_labels})\n" +
+                                "MERGE (b:Metagraph:NodeType {labels: end_labels})\n" +
+                                "MERGE (a)<-[:StartNodeType]-(rel:Metagraph:RelType { type:rel_type })-[:EndNodeType]->(b)\n" +
                                 "SET rel.properties =\n" +
                                 "CASE \n" +
                                 "\tWHEN rel.properties IS NULL AND rel_keys IS NULL THEN []\n" +
@@ -178,7 +178,7 @@ public class Neo4jSchemaGenerator {
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
                 // Find details of all the NodeType nodes
-                String query = "MATCH (n:Metagraph {metaType : 'NodeType'}) " +
+                String query = "MATCH (n:Metagraph:NodeType) " +
                         "RETURN DISTINCT n.labels as labels, n.properties as properties";
                 StatementResult result = tx.run(query);
 
@@ -189,9 +189,9 @@ public class Neo4jSchemaGenerator {
                 }
 
                 // Find details of all the RelType nodes and their Start & End NodeType nodes
-                query = "MATCH (startNode:Metagraph)<-[:StartNodeType]-" +
-                        "(n:Metagraph {metaType : 'RelType'})-[:EndNodeType]->" +
-                        "(endNode:Metagraph) RETURN DISTINCT startNode.labels as startLabels, " +
+                query = "MATCH (startNode:Metagraph:NodeType)<-[:StartNodeType]-" +
+                        "(n:Metagraph:RelType)-[:EndNodeType]->" +
+                        "(endNode:Metagraph:NodeType) RETURN DISTINCT startNode.labels as startLabels, " +
                         "endNode.labels as endLabels, n.type as type, n.properties as properties";
                 result = tx.run(query);
 
