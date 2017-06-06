@@ -63,4 +63,12 @@ public class NodeDescriptor {
         this.properties.remove(property);
     }
 
+    public boolean hasLabel(String label){
+        return labels.contains(label);
+    }
+
+    public boolean hasProperty(String property){
+        return properties.contains(property);
+    }
+
 }
