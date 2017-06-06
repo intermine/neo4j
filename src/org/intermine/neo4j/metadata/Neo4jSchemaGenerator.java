@@ -134,6 +134,29 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
+     * Finds out if schema (metagraph) exists in the Neo4j database.
+     * @param driver Neo4j Java Driver instance.
+     */
+    public static boolean schemaExists(Driver driver){
+        try (Session session = driver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                // Find out total number of nodes in the metagraph.
+                String query = "MATCH (n:Metagraph) RETURN COUNT(n) AS count";
+                StatementResult result = tx.run(query);
+                Record record = result.next();
+                int count = record.get("count").asInt();
+                System.out.println("There are " + count + " nodes in the Metagraph.");
+                tx.success();
+                tx.close();
+                if(count > 0){
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+
+    /**
      * Takes a list of objects, converts it into a list of Strings then returns the list after sorting.
      * @param listObjects A list of objects.
      * @return Sorted list of strings.
@@ -208,11 +231,31 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
+     * Deletes the mmetagraph from the database.
+     * @param driver Neo4j Java Driver instance.
+     */
+    public static void destroySchema(Driver driver){
+        try (Session session = driver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                // Delete each node of the metagraph.
+                String query = "MATCH (n:Metagraph) DETACH DELETE n";
+                tx.run(query);
+                tx.success();
+                tx.close();
+            }
+        }
+    }
+
+    /**
      * Creates and returns a Model object from the metagraph
      * @param driver Neo4j Java Driver instance.
      * @return Model A model object which represents the metagraph (schema).
      */
     public static Model getModel(Driver driver){
+        if(!schemaExists(driver)){
+            generateSchema(driver);
+        }
+
         Set<NodeDescriptor> nodes = new HashSet<>();
         Set<RelationshipDescriptor> relationships = new HashSet<>();
 
