@@ -19,7 +19,9 @@ public class Neo4jSchemaGenerator {
      */
     public static void generateSchema(Driver driver){
         mapNodes(driver);
+        addConstraintsForNodes(driver);
         mapRelationships(driver);
+        addConstraintsForRelationships(driver);
     }
 
     /**
@@ -85,6 +87,48 @@ public class Neo4jSchemaGenerator {
 
                 // Log the progress
                 System.out.println("Schema Progress : All relationships mapped.");
+            }
+        }
+    }
+
+    /**
+     * Add Uniqueness constraint for NodeType nodes.
+     * @param driver Neo4j Java Driver instance.
+     */
+    private static void addConstraintsForNodes(Driver driver){
+        try (Session session = driver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                // For each set of labels, there must exist only one NodeType node
+                // in the metagraph.
+                String query = "CREATE CONSTRAINT ON (a:NodeType) ASSERT " +
+                                "a.labels IS UNIQUE";
+                tx.run(query);
+                tx.success();
+                tx.close();
+
+                // Log the progress
+                System.out.println("Schema Progress : Constraints added for NodeType nodes.");
+            }
+        }
+    }
+
+    /**
+     * Add Uniqueness constraint for RelType nodes.
+     * @param driver Neo4j Java Driver instance.
+     */
+    private static void addConstraintsForRelationships(Driver driver){
+        try (Session session = driver.session()) {
+            try (Transaction tx = session.beginTransaction()) {
+                // For each type there must exist only one RelType node
+                // in the metagraph.
+                String query = "CREATE CONSTRAINT ON (a:RelType) ASSERT " +
+                "a.type IS UNIQUE";
+                tx.run(query);
+                tx.success();
+                tx.close();
+
+                // Log the progress
+                System.out.println("Schema Progress : Constraints added for RelType nodes.");
             }
         }
     }
