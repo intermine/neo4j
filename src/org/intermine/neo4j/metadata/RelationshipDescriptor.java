@@ -23,6 +23,14 @@ public class RelationshipDescriptor {
         this.properties = new HashSet<>();
     }
 
+    @Override
+    public String toString() {
+        return "RelationshipDescriptor{" +
+        "type='" + type + '\'' +
+        ", properties=" + properties +
+        '}';
+    }
+
     public String getType() {
         return type;
     }
@@ -47,11 +55,12 @@ public class RelationshipDescriptor {
         this.properties.remove(property);
     }
 
-    @Override
-    public String toString() {
-        return "RelationshipDescriptor{" +
-                "type='" + type + '\'' +
-                ", properties=" + properties +
-                '}';
+    public boolean hasType(String type){
+        return type.equals(this.type);
     }
+
+    public boolean hasProperty(String property){
+        return properties.contains(property);
+    }
+
 }
