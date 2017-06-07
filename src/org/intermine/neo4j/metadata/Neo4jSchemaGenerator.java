@@ -22,6 +22,9 @@ public class Neo4jSchemaGenerator {
         addConstraintsForNodes(driver);
         mapRelationships(driver);
         addConstraintsForRelationships(driver);
+        if (schemaExists(driver)){
+            System.out.println("Schema successfully created.");
+        }
     }
 
     /**

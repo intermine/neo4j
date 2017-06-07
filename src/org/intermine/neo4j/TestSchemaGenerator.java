@@ -1,3 +1,5 @@
+package org.intermine.neo4j;
+
 import org.intermine.neo4j.metadata.Model;
 import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
 import org.neo4j.driver.v1.AuthTokens;
@@ -36,6 +38,20 @@ public class TestSchemaGenerator {
         Model model = Neo4jSchemaGenerator.getModel(driver);
         System.out.println(model);
 
+        // Test various model methods
+        if(true){
+            System.out.println(model.hasRelationshipType("pathways"));
+            System.out.println(model.hasNodeLabel("OntologyTerm"));
+
+            System.out.println(model.getLabelProperties("DataSet"));
+            System.out.println(model.getRelationshipProperties("crossReferences"));
+
+            System.out.println(model.getIncomingRelationships("SOTerm"));
+            System.out.println(model.getOutgoingRelationships("BioEntity"));
+
+            System.out.println(model.labelHasProperty("MRNA", "length"));
+            System.out.println(model.relationshipHasProperty("proteinDomains", "length"));
+        }
 
         driver.close();
     }
