@@ -36,18 +36,6 @@ public class TestSchemaGenerator {
         Model model = Neo4jSchemaGenerator.getModel(driver);
         System.out.println(model);
 
-        // Test various model methods
-        System.out.println(model.hasRelationshipType("ACTED_IN"));
-        System.out.println(model.hasNodeLabel("Person"));
-
-        System.out.println(model.getLabelProperties("Person"));
-        System.out.println(model.getRelationshipProperties("ACTED_IN"));
-
-        System.out.println(model.getIncomingRelationships("Person"));
-        System.out.println(model.getOutgoingRelationships("Person"));
-
-        System.out.println(model.labelHasProperty("Person", "name"));
-        System.out.println(model.relationshipHasProperty("Person", "roles"));
 
         driver.close();
     }

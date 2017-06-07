@@ -72,7 +72,8 @@ public class Neo4jSchemaGenerator {
                                 "WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels\n" +
                                 "MERGE (a:Metagraph:NodeType {labels: start_labels})\n" +
                                 "MERGE (b:Metagraph:NodeType {labels: end_labels})\n" +
-                                "MERGE (a)<-[:StartNodeType]-(rel:Metagraph:RelType { type:rel_type })-[:EndNodeType]->(b)\n" +
+                                "MERGE (rel:Metagraph:RelType {type:rel_type})\n" +
+                                "MERGE (a)<-[:StartNodeType]-(rel)-[:EndNodeType]->(b)\n" +
                                 "SET rel.properties =\n" +
                                 "CASE \n" +
                                 "\tWHEN rel.properties IS NULL AND rel_keys IS NULL THEN []\n" +
