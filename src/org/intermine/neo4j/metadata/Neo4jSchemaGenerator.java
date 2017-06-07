@@ -1,6 +1,7 @@
 package org.intermine.neo4j.metadata;
 
 import org.neo4j.driver.v1.*;
+import org.neo4j.driver.v1.exceptions.ClientException;
 
 import java.util.*;
 
@@ -54,6 +55,10 @@ public class Neo4jSchemaGenerator {
                 // Log the progress
                 System.out.println("Schema Progress : All nodes mapped.");
             }
+            catch (ClientException e){
+                System.out.println("Schema Generator requires APOC 3.1+ to run properly. Please add the apoc jar to neo4jhome/plugins directory and restart the Neo4j database instance.\n");
+                System.exit(0);
+            }
         }
     }
 
@@ -70,8 +75,7 @@ public class Neo4jSchemaGenerator {
                 // nodes are present. If not, then add a new ones. Add StartNodeType & EndNodeType
                 // relations. Determine the Union of the properties set of the RelType node & all the
                 // properties of the current relationship and store it in the RelType node.
-                String query = "MATCH (n)-[r]->(m)\n" +
-                                "WHERE NOT n:Metagraph AND NOT m:Metagraph\n" +
+                String query = "MATCH (n)-[r]->(m)\n" +                                "WHERE NOT n:Metagraph AND NOT m:Metagraph\n" +
                                 "WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels\n" +
                                 "MERGE (a:Metagraph:NodeType {labels: start_labels})\n" +
                                 "MERGE (b:Metagraph:NodeType {labels: end_labels})\n" +
@@ -91,6 +95,10 @@ public class Neo4jSchemaGenerator {
 
                 // Log the progress
                 System.out.println("Schema Progress : All relationships mapped.");
+            }
+            catch (ClientException e){
+                System.out.println("Schema Generator requires APOC 3.1+ to run properly. Please add the apoc jar to neo4jhome/plugins directory and restart the Neo4j database instance.\n");
+                System.exit(0);
             }
         }
     }
