@@ -8,7 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 Download the latest source code by cloning the git repository.
 
-`https://github.com/intermine/neo4j.git`
+`git clone https://github.com/intermine/neo4j.git`
 
 ### Prerequisites
 
@@ -28,9 +28,9 @@ Install the remaining prerequisites as per the instructions given in their offic
 ## Deployment
 
 
-Change the current directory to project home by ```cd path/to/project/```.
+Change the current directory to project home by running ```cd path/to/project/```.
 
-Build the project JAR using Apache Ant by ```ant jar```.
+Build the project JAR using Apache Ant by running ```ant jar```.
 
 #### org.intermine.neo4j.Neo4jLoader
 Loads a mine into Neo4j using parameters in neo4jloader.properties.
