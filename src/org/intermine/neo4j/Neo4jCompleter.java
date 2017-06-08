@@ -88,12 +88,10 @@ public class Neo4jCompleter {
         // Put the desired class descriptors into a map so we can grab them by class name if we want; alphabetical by class simple name
         Map<String,ClassDescriptor> nodeDescriptors = new TreeMap<String,ClassDescriptor>();
         for (ClassDescriptor cd : model.getClassDescriptors()) {
-            if (!nmp.isIgnored(cd)) {
-                String nodeClass = cd.getSimpleName();
-                if ((loadedClasses.size()>0 && loadedClasses.contains(nodeClass)) ||
-                    (loadedClasses.size()==0)) {
-                    nodeDescriptors.put(nodeClass, cd);
-                }
+            String nodeClass = cd.getSimpleName();
+            if ((loadedClasses.size()>0 && loadedClasses.contains(nodeClass)) ||
+                (loadedClasses.size()==0)) {
+                nodeDescriptors.put(nodeClass, cd);
             }
         }
         
