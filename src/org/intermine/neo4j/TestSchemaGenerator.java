@@ -1,3 +1,5 @@
+package org.intermine.neo4j;
+
 import org.intermine.neo4j.metadata.Model;
 import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
 import org.neo4j.driver.v1.AuthTokens;
@@ -37,17 +39,19 @@ public class TestSchemaGenerator {
         System.out.println(model);
 
         // Test various model methods
-        System.out.println(model.hasRelationshipType("ACTED_IN"));
-        System.out.println(model.hasNodeLabel("Person"));
+        if(true){
+            System.out.println(model.hasRelationshipType("pathways"));
+            System.out.println(model.hasNodeLabel("OntologyTerm"));
 
-        System.out.println(model.getLabelProperties("Person"));
-        System.out.println(model.getRelationshipProperties("ACTED_IN"));
+            System.out.println(model.getLabelProperties("DataSet"));
+            System.out.println(model.getRelationshipProperties("crossReferences"));
 
-        System.out.println(model.getIncomingRelationships("Person"));
-        System.out.println(model.getOutgoingRelationships("Person"));
+            System.out.println(model.getIncomingRelationships("SOTerm"));
+            System.out.println(model.getOutgoingRelationships("BioEntity"));
 
-        System.out.println(model.labelHasProperty("Person", "name"));
-        System.out.println(model.relationshipHasProperty("Person", "roles"));
+            System.out.println(model.labelHasProperty("MRNA", "length"));
+            System.out.println(model.relationshipHasProperty("proteinDomains", "length"));
+        }
 
         driver.close();
     }
