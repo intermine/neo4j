@@ -183,11 +183,11 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Generates a NodeDescriptor from a record.
+     * Generates a NodeTypeDescriptor from a record.
      * @param record a row of from neo4j result.
-     * @return A NodeDescriptor object based on the record.
+     * @return A NodeTypeDescriptor object based on the record.
      */
-    private static NodeDescriptor getNodeDescriptor(Record record){
+    private static NodeTypeDescriptor getNodeDescriptor(Record record){
         Value labelsValue = record.get("labels");
         Set<String> labels;
         if(!labelsValue.isNull() && !labelsValue.isEmpty()){
@@ -206,15 +206,15 @@ public class Neo4jSchemaGenerator {
             properties = new HashSet<>();
         }
 
-        return new NodeDescriptor(labels, properties);
+        return new NodeTypeDescriptor(labels, properties);
     }
 
     /**
-     * Generates a RelationshipDescriptor from a record.
+     * Generates a RelTypeDescriptor from a record.
      * @param record a row of from neo4j result.
-     * @return A RelationshipDescriptor object based on the record.
+     * @return A RelTypeDescriptor object based on the record.
      */
-    private static RelationshipDescriptor getRelationshipDescriptor(Record record){
+    private static RelTypeDescriptor getRelationshipDescriptor(Record record){
         String type = record.get("type").asString();
         Value value = record.get("properties");
         Set<String> properties;
@@ -225,7 +225,7 @@ public class Neo4jSchemaGenerator {
             properties = new HashSet<>();
         }
 
-        return new RelationshipDescriptor(type, properties);
+        return new RelTypeDescriptor(type, properties);
     }
 
     /**
@@ -268,8 +268,8 @@ public class Neo4jSchemaGenerator {
             generateSchema(driver);
         }
 
-        Set<NodeDescriptor> nodes = new HashSet<>();
-        Set<RelationshipDescriptor> relationships = new HashSet<>();
+        Set<NodeTypeDescriptor> nodes = new HashSet<>();
+        Set<RelTypeDescriptor> relationships = new HashSet<>();
 
         Map<String, Set<Set<String>>> startNodes = new HashMap<>();
         Map<String, Set<Set<String>>> endNodes = new HashMap<>();
@@ -281,7 +281,7 @@ public class Neo4jSchemaGenerator {
                         "RETURN DISTINCT n.labels as labels, n.properties as properties";
                 StatementResult result = tx.run(query);
 
-                // For each NodeType create a NodeDescriptor
+                // For each NodeType create a NodeTypeDescriptor
                 while (result.hasNext()) {
                     Record record = result.next();
                     nodes.add(getNodeDescriptor(record));
@@ -294,7 +294,7 @@ public class Neo4jSchemaGenerator {
                         "endNode.labels as endLabels, n.type as type, n.properties as properties";
                 result = tx.run(query);
 
-                // For relationship, create a RelationshipDescriptor and
+                // For relationship, create a RelTypeDescriptor and
                 // store the labels of Start & End nodes.
                 while (result.hasNext()) {
                     Record record = result.next();

@@ -6,15 +6,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Describe a Neo4j graph model.  Gives access to NodeDescriptor & RelationshipDescriptor
+ * Describe a Neo4j graph model.  Gives access to NodeTypeDescriptor & RelTypeDescriptor
  * descriptors that exist within the model.
  *
  * @author Yash Sharma
  */
 public class Model {
 
-    private Set<NodeDescriptor> nodes;
-    private Set<RelationshipDescriptor> relationships;
+    private Set<NodeTypeDescriptor> nodes;
+    private Set<RelTypeDescriptor> relationships;
 
     // Maps Relationship Type to the associated Sets of Node Labels
     private Map<String, Set<Set<String>>> startNodes;
@@ -24,7 +24,7 @@ public class Model {
     private Map<Set<String>, Set<String>> incomingRelationships;
     private Map<Set<String>, Set<String>> outgoingRelationships;
 
-    public Model(Set<NodeDescriptor> nodes, Set<RelationshipDescriptor> relationships, Map<String, Set<Set<String>>> startNodes, Map<String, Set<Set<String>>> endNodes) {
+    public Model(Set<NodeTypeDescriptor> nodes, Set<RelTypeDescriptor> relationships, Map<String, Set<Set<String>>> startNodes, Map<String, Set<Set<String>>> endNodes) {
         this.nodes = nodes;
         this.relationships = relationships;
         this.startNodes = startNodes;
@@ -82,7 +82,7 @@ public class Model {
     }
 
     public boolean hasNodeLabel(String label){
-        for (NodeDescriptor node : nodes){
+        for (NodeTypeDescriptor node : nodes){
             if(node.hasLabel(label)){
                 return true;
             }
@@ -91,7 +91,7 @@ public class Model {
     }
 
     public boolean hasRelationshipType(String type){
-        for (RelationshipDescriptor relationship : relationships){
+        for (RelTypeDescriptor relationship : relationships){
             if(relationship.hasType(type)){
                 return true;
             }
@@ -100,7 +100,7 @@ public class Model {
     }
 
     public boolean labelHasProperty(String label, String property){
-        for (NodeDescriptor node : nodes){
+        for (NodeTypeDescriptor node : nodes){
             if(node.hasLabel(label) && node.hasProperty(property)){
                 return true;
             }
@@ -109,7 +109,7 @@ public class Model {
     }
 
     public boolean relationshipHasProperty(String type, String property){
-        for (RelationshipDescriptor relationship : relationships){
+        for (RelTypeDescriptor relationship : relationships){
             if(relationship.hasType(type) && relationship.hasProperty(property)){
                 return true;
             }
@@ -143,7 +143,7 @@ public class Model {
 
     public Set<String> getLabelProperties(String label){
         Set<String> properties = new HashSet<>();
-        for (NodeDescriptor node : nodes){
+        for (NodeTypeDescriptor node : nodes){
             if(node.hasLabel(label)){
                 for (String str : node.getProperties()){
                     properties.add(str);
@@ -155,7 +155,7 @@ public class Model {
 
     public Set<String> getRelationshipProperties(String type){
         Set<String> properties = new HashSet<>();
-        for (RelationshipDescriptor relationship : relationships){
+        for (RelTypeDescriptor relationship : relationships){
             if(relationship.hasType(type)){
                 for (String str : relationship.getProperties()){
                     properties.add(str);
