@@ -39,7 +39,7 @@ public class TestSchemaGenerator {
         System.out.println(model);
 
         // Test various model methods
-        if(true){
+        if(false){
             System.out.println(model.hasRelationshipType("pathways"));
             System.out.println(model.hasNodeLabel("OntologyTerm"));
 

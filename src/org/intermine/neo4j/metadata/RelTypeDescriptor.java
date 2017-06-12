@@ -8,24 +8,24 @@ import java.util.Set;
  *
  * @author Yash Sharma
  */
-public class RelationshipDescriptor {
+public class RelTypeDescriptor {
 
     private String type;
     private Set<String> properties;
 
-    public RelationshipDescriptor(String type, Set<String> properties) {
+    public RelTypeDescriptor(String type, Set<String> properties) {
         this.type = type;
         this.properties = properties;
     }
 
-    public RelationshipDescriptor() {
+    public RelTypeDescriptor() {
         this.type = null;
         this.properties = new HashSet<>();
     }
 
     @Override
     public String toString() {
-        return "RelationshipDescriptor{" +
+        return "RelTypeDescriptor{" +
         "type='" + type + '\'' +
         ", properties=" + properties +
         '}';
