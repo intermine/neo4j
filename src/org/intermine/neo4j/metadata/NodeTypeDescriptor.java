@@ -8,25 +8,25 @@ import java.util.Set;
  *
  * @author Yash Sharma
  */
-public class NodeDescriptor {
+public class NodeTypeDescriptor {
 
     private Set<String> labels;
     private Set<String> properties;
 
-    public NodeDescriptor(Set<String> labels, Set<String> properties) {
+    public NodeTypeDescriptor(Set<String> labels, Set<String> properties) {
         this.labels = labels;
         this.properties = properties;
     }
 
     @Override
     public String toString() {
-        return "NodeDescriptor{" +
+        return "NodeTypeDescriptor{" +
                 "labels=" + labels +
                 ", properties=" + properties +
                 '}';
     }
 
-    public NodeDescriptor() {
+    public NodeTypeDescriptor() {
         this.labels = new HashSet<>();
         this.properties = new HashSet<>();
     }
