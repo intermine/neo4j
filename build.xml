@@ -50,6 +50,17 @@
     </javac>
   </target>
 
+  <target name="javadoc" depends="classes">
+    <javadoc destdir="javadoc"
+           classpath="classes
+                      :${intermine-model}:${intermine-client}:${intermine-pathquery}
+                      :${neo4j-java-driver}
+                      :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
+                      :${servlet-api}">
+      <fileset dir="src" />
+    </javadoc>
+  </target>
+
   <target name="jar" depends="classes">
     <jar destfile="${jar}" basedir="classes"/>
     <copy file="${jar}" todir="webapps/ROOT/WEB-INF/lib"/> 
