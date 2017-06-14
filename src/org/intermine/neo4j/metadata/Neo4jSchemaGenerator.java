@@ -6,16 +6,18 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 import java.util.*;
 
 /**
- * Generates schema/metagraph of a given Neo4j graph database and stores it inside the database itself.
- * All nodes of the metagraph are assigned a "Metagraph" label.
- * Metagraph structure described at https://gist.github.com/yasharmaster/8071e53c500081660b9e5c203b913b6d
+ * A Java class which can be used to perform various operations on the schema/metagraph
+ * of the given Neo4j graph database.
+ * <p>
+ * Metagraph structure described at https://github.com/intermine/neo4j/blob/dev/metadata.md
+ *</p>
  *
  * @author Yash Sharma
  */
 public class Neo4jSchemaGenerator {
 
     /**
-     * Creates a Metagraph which maps all the nodes and relationships of the database.
+     * Creates a Metagraph which represents all the nodes and relationships in the database.
      * @param driver Neo4j Java Driver instance.
      */
     public static void generateSchema(Driver driver){
@@ -148,6 +150,7 @@ public class Neo4jSchemaGenerator {
     /**
      * Finds out if schema (metagraph) exists in the Neo4j database.
      * @param driver Neo4j Java Driver instance.
+     * @return true if schema (metagraph) exists in the Neo4j database, false otherwise
      */
     public static boolean schemaExists(Driver driver){
         try (Session session = driver.session()) {
@@ -169,7 +172,8 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Takes a list of objects, converts it into a list of Strings then returns the list after sorting.
+     * A utility function that takes a list of objects as input, converts it into
+     * a list of String objects then returns the list after sorting.
      * @param listObjects A list of objects.
      * @return Sorted list of strings.
      */
@@ -229,7 +233,7 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Adds a set to the map of set of sets.
+     * A utility function which adds a set to the map of set of sets.
      */
     private static void addSetToMap(Map<String, Set<Set<String>>> map, String key, Set<String> set){
         if(map.containsKey(key)){
@@ -244,7 +248,7 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Deletes the mmetagraph from the database.
+     * Destroys the existing schema/metagraph from the database.
      * @param driver Neo4j Java Driver instance.
      */
     public static void destroySchema(Driver driver){
@@ -260,9 +264,10 @@ public class Neo4jSchemaGenerator {
     }
 
     /**
-     * Creates and returns a Model object from the metagraph
+     * Creates and returns a {@link Model Model} object which represents the metagraph/schema
+     * of the database.
      * @param driver Neo4j Java Driver instance.
-     * @return Model A model object which represents the metagraph (schema).
+     * @return A model object which represents the metagraph (schema).
      */
     public static Model getModel(Driver driver){
         if(!schemaExists(driver)){

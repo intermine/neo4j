@@ -6,8 +6,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Describe a Neo4j graph model.  Gives access to NodeTypeDescriptor & RelTypeDescriptor
- * descriptors that exist within the model.
+ * Describes a Neo4j graph data model. It gives access to various
+ * {@link NodeTypeDescriptor NodeType} and {@link RelTypeDescriptor RelType}
+ * nodes and their relationships within the metagraph. Metagraph structure is described at
+ * https://github.com/intermine/neo4j/blob/dev/metadata.md .
+ * <p>
+ * You can generate an instance of the Model class for a given Neo4j database by calling <code>Neo4jSchemaGenerator.getModel()</code>
+ * method. An instance of Model class provides a number of methods to query the data model. These methods
+ * can be used to query properties of nodes and relationships and to query how nodes are related
+ * to each other.
+ * </p>
  *
  * @author Yash Sharma
  */
@@ -71,6 +79,9 @@ public class Model {
         this.outgoingRelationships = null;
     }
 
+    /**
+    * Generates a string containing all the information in the instance of a Model class.
+    */
     @Override
     public String toString(){
         return "\nNodes :\n" + nodes.toString() + "\n\n" +
@@ -81,6 +92,11 @@ public class Model {
                 "Outgoing Relationships :\n" + outgoingRelationships.toString() + "\n\n";
     }
 
+    /**
+    * Find out if there exists a node labelled with the given label.
+    * @param label the given node label
+    * @return true if there exists a node labelled with the given label, false otherwise
+    */
     public boolean hasNodeLabel(String label){
         for (NodeTypeDescriptor node : nodes){
             if(node.hasLabel(label)){
@@ -90,6 +106,11 @@ public class Model {
         return false;
     }
 
+    /**
+     * Find out if there exists a relationship of the given type.
+     * @param type the given relationship type
+     * @return true if there exists a relationship with the given type, false otherwise
+     */
     public boolean hasRelationshipType(String type){
         for (RelTypeDescriptor relationship : relationships){
             if(relationship.hasType(type)){
@@ -99,6 +120,14 @@ public class Model {
         return false;
     }
 
+    /**
+     * Find out if there exists a node among all the nodes labelled with the given label that
+     * contains the given property.
+     * @param label the given node label
+     * @param property the given property
+     * @return true if there exists a node among all the nodes with the given label that
+     * contains the given property, false otherwise
+     */
     public boolean labelHasProperty(String label, String property){
         for (NodeTypeDescriptor node : nodes){
             if(node.hasLabel(label) && node.hasProperty(property)){
@@ -108,6 +137,14 @@ public class Model {
         return false;
     }
 
+    /**
+     * Find out if there exists a relationship among all the relationships with the given type
+     * that contains the given property.
+     * @param type the given relationship type
+     * @param property the given property
+     * @return true if there exists a relationship among all the relationships with the given type
+     *         that contains the given property, false otherwise
+     */
     public boolean relationshipHasProperty(String type, String property){
         for (RelTypeDescriptor relationship : relationships){
             if(relationship.hasType(type) && relationship.hasProperty(property)){
@@ -117,6 +154,11 @@ public class Model {
         return false;
     }
 
+    /**
+     * Get all the relationships (both incoming and outgoing) associated with the given label.
+     * @param label the given node label
+     * @return all the relationships associated with the given label
+     */
     public Set<String> getRelationships(String label){
         Set<String> relationships = new HashSet<>();
         relationships.addAll(getIncomingRelationships(label));
@@ -124,6 +166,11 @@ public class Model {
         return relationships;
     }
 
+    /**
+     * Get the incoming relationships associated with the given label.
+     * @param label the given node label
+     * @return all the incoming relationships associated with the given label
+     */
     public Set<String> getIncomingRelationships(String label){
         Set<String> relationships = new HashSet<>();
         for (Set<String> nodeLabels : incomingRelationships.keySet()){
@@ -136,6 +183,11 @@ public class Model {
         return relationships;
     }
 
+    /**
+     * Get the outgoing relationships associated with the given label.
+     * @param label the given node label
+     * @return all the outgoing relationships associated with the given label
+     */
     public Set<String> getOutgoingRelationships(String label){
         Set<String> relationships = new HashSet<>();
         for (Set<String> nodeLabels : outgoingRelationships.keySet()){
@@ -148,6 +200,11 @@ public class Model {
         return relationships;
     }
 
+    /**
+     * Get all the properties that exist among all the nodes labelled with the given label.
+     * @param label the given node label
+     * @return all the properties that exist among all the nodes labelled with the given label
+     */
     public Set<String> getLabelProperties(String label){
         Set<String> properties = new HashSet<>();
         for (NodeTypeDescriptor node : nodes){
@@ -160,6 +217,11 @@ public class Model {
         return properties;
     }
 
+    /**
+     * Get all the properties that exist among all the relationships of the given type.
+     * @param type the given relationship type
+     * @return all the properties that exist among all the relationships of the given type.
+     */
     public Set<String> getRelationshipProperties(String type){
         Set<String> properties = new HashSet<>();
         for (RelTypeDescriptor relationship : relationships){
@@ -173,18 +235,46 @@ public class Model {
         return properties;
     }
 
+    /**
+     * Get all possible combinations of labels that exist as a Start Node of the given relationship.
+     * @param type the given relationship type
+     * @return a set containing many sets, each of which is a possible combinations of labels
+     *        that exist as a Start Node of the given relationship.
+     */
     public Set<Set<String>> getStartLabelsOfRelationship(String type){
         return startNodes.get(type);
     }
 
+    /**
+     * Get all possible combinations of labels that exist as a End Node of the given relationship.
+     * @param type the given relationship type
+     * @return a set containing many sets, each of which is a possible combinations of labels
+     *        that exist as a End Node of the given relationship.
+     */
     public Set<Set<String>> getEndLabelsOfRelationship(String type){
         return endNodes.get(type);
     }
 
+    /**
+     * Finds out if there is a relationship (incoming OR outgoing) of the given type associated
+     * with any node labelled with the given label.
+     * @param label the given node label
+     * @param type the given relationship type
+     * @return true if there is a relationship (incoming OR outgoing) of the given type associated
+     *         with any node labelled with the given label, false otherwise
+     */
     public boolean hasNodeRelationship(String label, String type){
         return (hasIncomingNodeRelationship(label, type) || hasOutgoingNodeRelationship(label, type));
     }
 
+    /**
+     * Finds out if there is an incoming relationship of the given type associated
+     * with any node labelled with the given label.
+     * @param label the given node label
+     * @param type the given relationship type
+     * @return true if there is an incoming relationship of the given type associated
+     *        with any node labelled with the given label, false otherwise
+     */
     public boolean hasIncomingNodeRelationship(String label, String type){
         for (Set<String> nodeLabels : incomingRelationships.keySet()){
             if(nodeLabels.contains(label)){
@@ -198,6 +288,14 @@ public class Model {
         return false;
     }
 
+    /**
+     * Finds out if there is an outgoing relationship of the given type associated
+     * with any node labelled with the given label.
+     * @param label the given node label
+     * @param type the given relationship type
+     * @return true if there is an outgoing relationship of the given type associated
+     *        with any node labelled with the given label, false otherwise
+     */
     public boolean hasOutgoingNodeRelationship(String label, String type){
         for (Set<String> nodeLabels : outgoingRelationships.keySet()){
             if(nodeLabels.contains(label)){
