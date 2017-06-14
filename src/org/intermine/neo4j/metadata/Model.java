@@ -117,6 +117,13 @@ public class Model {
         return false;
     }
 
+    public Set<String> getRelationships(String label){
+        Set<String> relationships = new HashSet<>();
+        relationships.addAll(getIncomingRelationships(label));
+        relationships.addAll(getOutgoingRelationships(label));
+        return relationships;
+    }
+
     public Set<String> getIncomingRelationships(String label){
         Set<String> relationships = new HashSet<>();
         for (Set<String> nodeLabels : incomingRelationships.keySet()){
@@ -165,4 +172,43 @@ public class Model {
         }
         return properties;
     }
+
+    public Set<Set<String>> getStartLabelsOfRelationship(String type){
+        return startNodes.get(type);
+    }
+
+    public Set<Set<String>> getEndLabelsOfRelationship(String type){
+        return endNodes.get(type);
+    }
+
+    public boolean hasNodeRelationship(String label, String type){
+        return (hasIncomingNodeRelationship(label, type) || hasOutgoingNodeRelationship(label, type));
+    }
+
+    public boolean hasIncomingNodeRelationship(String label, String type){
+        for (Set<String> nodeLabels : incomingRelationships.keySet()){
+            if(nodeLabels.contains(label)){
+                for (String str : incomingRelationships.get(nodeLabels)){
+                    if(str.equals(type)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasOutgoingNodeRelationship(String label, String type){
+        for (Set<String> nodeLabels : outgoingRelationships.keySet()){
+            if(nodeLabels.contains(label)){
+                for (String str : outgoingRelationships.get(nodeLabels)){
+                    if(str.equals(type)){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 }

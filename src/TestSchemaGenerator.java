@@ -19,7 +19,7 @@ import java.util.Properties;
 public class TestSchemaGenerator {
 
     public static void main(String[] args) throws IOException {
-        
+
         // get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
 
@@ -34,18 +34,13 @@ public class TestSchemaGenerator {
         System.out.println(model);
 
         // Test various model methods
-        if(false){
-            System.out.println(model.hasRelationshipType("pathways"));
-            System.out.println(model.hasNodeLabel("OntologyTerm"));
-
-            System.out.println(model.getLabelProperties("DataSet"));
-            System.out.println(model.getRelationshipProperties("crossReferences"));
-
-            System.out.println(model.getIncomingRelationships("SOTerm"));
-            System.out.println(model.getOutgoingRelationships("BioEntity"));
-
-            System.out.println(model.labelHasProperty("MRNA", "length"));
-            System.out.println(model.relationshipHasProperty("proteinDomains", "length"));
+        if(true){
+            System.out.println(model.getRelationships("Gene"));
+            System.out.println(model.getIncomingRelationships("Gene"));
+            System.out.println(model.getOutgoingRelationships("Gene"));
+            System.out.println(model.hasNodeRelationship("Gene", "location"));
+            System.out.println(model.hasIncomingNodeRelationship("Gene", "location"));
+            System.out.println(model.hasOutgoingNodeRelationship("Gene", "location"));
         }
 
         driver.close();
