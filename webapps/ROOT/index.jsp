@@ -50,6 +50,18 @@
 	        <h3>Genes with mRNA expression > 10000 NOT CURRENTLY WORKING</h3>
 	        <textarea readonly class="sample"><query name="" model="genomic" view="Gene.primaryIdentifier Gene.transcripts.expressionValues.value Gene.transcripts.expressionValues.expressionSample.primaryIdentifier" longDescription="" sortOrder="Gene.primaryIdentifier asc"><constraint path="Gene.transcripts" type="MRNA"/><constraint path="Gene.transcripts.expressionValues.value" op="&gt;" value="10000"/></query></textarea>
 		</div>
+		<script>
+		   window.onload = function() {
+		        var samples = document.getElementsByClassName('sample');
+		        for(var i = 0; i < samples.length; i++) {
+		            var sample = samples[i];
+		            sample.onclick = function(event) {
+		            	var target = document.getElementById("target");
+		            	target.innerHTML = event.target.innerHTML;
+		            }
+		        }
+		    }
+		</script>
     </body>
 
 </html>
