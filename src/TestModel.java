@@ -45,12 +45,6 @@ public class TestModel {
         }
         System.out.println("Node label "+nodeLabel+" DOES exist in the graph.");
 
-        // get properties for the given node
-        Set<String> properties = model.getLabelProperties(nodeLabel);
-
-        // get relationships for the given node
-        Set<String> relationships = model.getIncomingRelationships(nodeLabel);
-        relationships.addAll(model.getOutgoingRelationships(nodeLabel));
 
         // test if the given property exists (and there could be a relationship as well!)
         if (model.labelHasProperty(nodeLabel, propertyOrRelationship)) {
@@ -60,15 +54,12 @@ public class TestModel {
         }
 
         // test if the given relationship exists
-        if (relationships.contains(propertyOrRelationship)) {
+        if (model.hasNodeRelationship(nodeLabel, propertyOrRelationship)) {
             System.out.println("Node label "+nodeLabel+" HAS relationship "+propertyOrRelationship);
+            System.out.println("Relationship "+propertyOrRelationship+" has properties:"+model.getRelationshipProperties(propertyOrRelationship));
         } else {
             System.out.println("Node label "+nodeLabel+" DOES NOT HAVE relationship "+propertyOrRelationship);
         }
-
-        // DEBUG
-        System.out.println(properties);
-        System.out.println(relationships);
 
         // close out 
         driver.close();
