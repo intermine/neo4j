@@ -236,6 +236,7 @@ public class Neo4jSchemaGenerator {
             Set<Set<String>> setOfSets = map.get(key);
             setOfSets.add(set);
             map.put(key, setOfSets);
+            return;
         }
         Set<Set<String>> setOfSets = new HashSet<>();
         setOfSets.add(set);
