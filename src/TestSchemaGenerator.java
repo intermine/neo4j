@@ -12,7 +12,7 @@ import java.util.Properties;
 
 /**
  * Connects to a Neo4j database, generates and stores the schema
- * and validates some sample cypher queries against it.
+ * and outputs the data model.
  *
  * @author Yash Sharma
  */

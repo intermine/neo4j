@@ -17,12 +17,13 @@
 	        <p>
 	            The syntax is identical to that used by InterMine. Simply aim your HTTP request at <b><%=request.getRequestURI()%></b> instead of /beanmine/.
 	        </p>
-	        <p>
-	            NOTE: the PathQuery&rightarrow;Cypher translation is under <em>very early development</em>. Many PathQueries will fail, especially those with JOINs.
+	        <p class="alert alert-success">
+	            <strong>NOTE :</strong> The PathQuery&rightarrow;Cypher translation is under <em>very early development</em>. Many PathQueries will fail, especially those with JOINs.
 	        </p>
 	        <p>
 	            For your convenience, here's a place where you can paste PathQuery XML and test this out, or submit one of the sample queries provided below.
 	        </p>
+
 	        <form class="form-inline" action="service/query/test" method="POST">
 	            <input type="hidden" name="format" value="tab"/>
 				<div class="form-group">
@@ -34,7 +35,8 @@
 	        </form>
 	
 			<h2>Sample queries : </h2>
-	
+			<h5>(Click on a query to paste its content in the above textbox.)</h5>
+
 	        <h3>Genes associated with a particular GO term</h3>
 	        <textarea readonly class="sample"><query name="" model="genomic" view="Gene.id Gene.primaryIdentifier Gene.goAnnotation.ontologyTerm.identifier Gene.goAnnotation.ontologyTerm.name" longDescription="" sortOrder="Gene.id asc"><constraint path="Gene.goAnnotation.ontologyTerm.identifier" op="=" value="GO:0008270"/></query></textarea>
 	
@@ -50,6 +52,7 @@
 	        <h3>Genes with mRNA expression > 10000 NOT CURRENTLY WORKING</h3>
 	        <textarea readonly class="sample"><query name="" model="genomic" view="Gene.primaryIdentifier Gene.transcripts.expressionValues.value Gene.transcripts.expressionValues.expressionSample.primaryIdentifier" longDescription="" sortOrder="Gene.primaryIdentifier asc"><constraint path="Gene.transcripts" type="MRNA"/><constraint path="Gene.transcripts.expressionValues.value" op="&gt;" value="10000"/></query></textarea>
 		</div>
+		<br/>
 		<script>
 		   window.onload = function() {
 		        var samples = document.getElementsByClassName('sample');
@@ -63,6 +66,4 @@
 		    }
 		</script>
     </body>
-
 </html>
-
