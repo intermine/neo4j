@@ -7,8 +7,10 @@ import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Generates Cypher Queries.
@@ -31,8 +33,10 @@ public class QueryGenerator {
             System.exit(0);
         }
 
-        List views = pathQuery.getView();
-        System.out.println("Views :\n" + views);
+        List<List<Component>> tokenizedViews = getTokenizedViews(pathQuery);
+        System.out.println("Views :\n" + tokenizedViews);
+
+
 
         Map<PathConstraint, String> constraints = pathQuery.getConstraints();
         System.out.println("Constraints :\n" + constraints);
@@ -40,4 +44,22 @@ public class QueryGenerator {
         return "";
     }
 
+    /**
+     * Tokenizes all the views of a path query
+     * @param pathQuery The path query object, views of which has to be tokenized
+     * @return All views after tokenization.
+     */
+    private static List<List<Component>> getTokenizedViews(PathQuery pathQuery){
+        List<String> views = pathQuery.getView();
+        List<List<Component>> tokenizedViews = new ArrayList<>();
+        for (String view : views){
+            StringTokenizer st = new StringTokenizer(view, ".");
+            List<Component> tokenizedView = new ArrayList<>();
+            while(st.hasMoreTokens()){
+                tokenizedView.add(new Component(st.nextToken()));
+            }
+            tokenizedViews.add(tokenizedView);
+        }
+        return tokenizedViews;
+    }
 }

@@ -12,14 +12,16 @@ import java.io.IOException;
 public class TestQueryGenerator {
 
     public static void main(String args[]) throws IOException {
-        String pathQuery = readFile("pathqueries/gene-locations.xml");
+        String pathQuery = readFile("pathqueries/sample.xml");
 
         printPathQueryCypher(pathQuery);
     }
 
     private static void printPathQueryCypher(String query) throws IOException {
         System.out.println("Path Query :\n" + query);
+        System.out.println("-----------------------------------------");
         System.out.println("Cypher :\n" + QueryGenerator.pathQueryToCypher(query));
+        System.out.println("-----------------------------------------");
     }
 
     private static String readFile(String fileName) throws IOException {
