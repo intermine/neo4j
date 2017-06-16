@@ -1,16 +1,12 @@
 package org.intermine.neo4j.cypher;
 
-
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Generates Cypher Queries.
@@ -33,33 +29,45 @@ public class QueryGenerator {
             System.exit(0);
         }
 
-        List<List<Component>> tokenizedViews = getTokenizedViews(pathQuery);
-        System.out.println("Views :\n" + tokenizedViews);
+        List<List<Component>> views = getViewsFromPathQuery(pathQuery);
+        System.out.println("Views :\n" + views);
 
-
-
-        Map<PathConstraint, String> constraints = pathQuery.getConstraints();
+        Set<Constraint> constraints = getConstraintsFromPathQuery(pathQuery);
         System.out.println("Constraints :\n" + constraints);
-
         return "";
     }
 
     /**
-     * Tokenizes all the views of a path query
-     * @param pathQuery The path query object, views of which has to be tokenized
-     * @return All views after tokenization.
+     * Get Components after tokenization of a string
+     * @param string A string which needs to be tokenized
+     * @return List of all components inside the string
      */
-    private static List<List<Component>> getTokenizedViews(PathQuery pathQuery){
-        List<String> views = pathQuery.getView();
-        List<List<Component>> tokenizedViews = new ArrayList<>();
-        for (String view : views){
-            StringTokenizer st = new StringTokenizer(view, ".");
-            List<Component> tokenizedView = new ArrayList<>();
+    private static List<Component> getComponents(String string){
+            StringTokenizer st = new StringTokenizer(string, ".");
+            List<Component> components = new ArrayList<>();
             while(st.hasMoreTokens()){
-                tokenizedView.add(new Component(st.nextToken()));
+                components.add(new Component(st.nextToken()));
             }
-            tokenizedViews.add(tokenizedView);
+            return components;
+    }
+
+    private static Set<Constraint> getConstraintsFromPathQuery(PathQuery pathQuery){
+        Set<Constraint> constraints = new HashSet<>();
+        for(PathConstraint pathConstraint : pathQuery.getConstraints().keySet()){
+            Constraint constraint = new Constraint(getComponents(pathConstraint.getPath()),
+                                                    pathConstraint.getOp(),
+                                                    PathConstraint.getValue(pathConstraint));
+            constraints.add(constraint);
+        }
+        return constraints;
+    }
+
+    private static List<List<Component>> getViewsFromPathQuery(PathQuery pathQuery){
+        List<List<Component>> tokenizedViews = new ArrayList<>();
+        for(String view : pathQuery.getView()){
+            tokenizedViews.add(getComponents(view));
         }
         return tokenizedViews;
     }
+
 }

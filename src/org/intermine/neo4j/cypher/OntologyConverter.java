@@ -25,6 +25,7 @@ public class OntologyConverter {
      * @return type of the component
      */
     public static ComponentType getGraphComponentType(String name){
+        // TO DO: Cover all cases (probably using an external resource)
         switch (name){
             case "Gene":
                 return ComponentType.NODE;
