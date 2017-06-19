@@ -42,8 +42,9 @@ import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.util.Pair;
 
 /**
- * Complete the relationships and collections for Neo4j nodes that are incomplete, i.e. their id is not in InterMineID.
- * 
+ * Complete the relationships and collections for Neo4j nodes that are incomplete,
+ * i.e. their id is not in InterMineID.
+ *
  * @author Sam Hokin
  */
 public class Neo4jCompleter {
@@ -84,7 +85,7 @@ public class Neo4jCompleter {
         PathQuery refQuery = new PathQuery(model);
         PathQuery collQuery = new PathQuery(model);
         PathQuery attrQuery = new PathQuery(model);
-        
+
         // Put the desired class descriptors into a map so we can grab them by class name if we want; alphabetical by class simple name
         Map<String,ClassDescriptor> nodeDescriptors = new TreeMap<String,ClassDescriptor>();
         for (ClassDescriptor cd : model.getClassDescriptors()) {
@@ -94,7 +95,7 @@ public class Neo4jCompleter {
                 nodeDescriptors.put(nodeClass, cd);
             }
         }
-        
+
         // Retrieve the IM IDs of nodes that have already been stored into a sorted set
         Set<Integer> nodesAlreadyStored = new TreeSet<Integer>();
         try (Session session = driver.session()) {
@@ -135,7 +136,7 @@ public class Neo4jCompleter {
                 String nodeLabel = nodeClass;
                 if (nodeDescriptors.containsKey(nodeClass)) {
                     ClassDescriptor nodeDescriptor = nodeDescriptors.get(nodeClass);
-                    
+
                     // query this node (to be sure it exists) and continue
                     nodeQuery.clearView();
                     nodeQuery.clearConstraints();
@@ -148,7 +149,7 @@ public class Neo4jCompleter {
 
                         // SET this node's attributes
                         Neo4jLoader.populateIdClassAttributes(service, driver, attrQuery, id, nodeLabel, nodeDescriptor, nmp);
-                    
+
                         // load the references, except those to be ignored, into a map
                         HashMap<String,ReferenceDescriptor> refDescriptors = new HashMap<String,ReferenceDescriptor>();
                         for (ReferenceDescriptor rd : nodeDescriptor.getAllReferenceDescriptors()) {
@@ -157,7 +158,7 @@ public class Neo4jCompleter {
                                 refDescriptors.put(refName, rd);
                             }
                         }
-                    
+
                         // load the collections, except those to be ignored, into a map
                         HashMap<String,CollectionDescriptor> collDescriptors = new HashMap<String,CollectionDescriptor>();
                         for (CollectionDescriptor cd : nodeDescriptor.getAllCollectionDescriptors()) {
@@ -244,7 +245,7 @@ public class Neo4jCompleter {
                                 System.out.print("c");
                             }
                         }
-                        
+
                         // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
                         try (Session session = driver.session()) {
                             try (Transaction tx = session.beginTransaction()) {

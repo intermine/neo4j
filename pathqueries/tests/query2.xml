@@ -1,0 +1,4 @@
+<query model="genomic" view="Gene.length Gene.homologues.dataSets.publication.title" constraintLogic="(A and B)">
+<constraint path="Gene.homologues.evidence.publications.abstractText" value="a" op="CONTAINS" code="A"/>
+<constraint path="Gene.homologues.dataSets.name" value="a" op="CONTAINS" code="B"/>
+</query>

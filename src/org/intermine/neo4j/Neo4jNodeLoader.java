@@ -42,7 +42,8 @@ import org.neo4j.driver.v1.Transaction;
 import static org.neo4j.driver.v1.Values.parameters;
 
 /**
- * Query an InterMine model, and load a SINGLE object, referenced by its InterMine id, along with its attributes, references and collections into a Neo4j database.
+ * Query an InterMine model, and load a SINGLE object, referenced by its InterMine id,
+ * along with its attributes, references and collections into a Neo4j database.
  *
  * @author Sam Hokin
  */
@@ -84,10 +85,10 @@ public class Neo4jNodeLoader {
         PathQuery refQuery = new PathQuery(model);
         PathQuery collQuery = new PathQuery(model);
         PathQuery attrQuery = new PathQuery(model);
-        
+
         // Get the descriptor for this node
         ClassDescriptor nodeDescriptor = model.getClassDescriptorByName(nodeClass);
-        
+
         // load the attributes that are not ignored into a map
         HashMap<String,AttributeDescriptor> attrDescriptors = new HashMap<String,AttributeDescriptor>();
         for (AttributeDescriptor ad : nodeDescriptor.getAllAttributeDescriptors()) {
@@ -234,7 +235,7 @@ public class Neo4jNodeLoader {
             System.out.println("");
 
         }
-        
+
         // Close connections
         driver.close();
 
