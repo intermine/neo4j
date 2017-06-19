@@ -14,9 +14,12 @@ public class OntologyConverter {
      * @return the Neo4j name
      */
     public static String convertInterMineToNeo4j(String name){
-        String graphName;
+        String graphName = name;
         // TO DO: Write Conversion from InterMine Namespace to Neo4j Namespace
-        return name;
+        // For nodes, return label
+        // For relationships, return type
+        // For properties, return property name
+        return graphName;
     }
 
     /**
@@ -27,6 +30,7 @@ public class OntologyConverter {
     public static ComponentType getGraphComponentType(String name){
         // TO DO: Cover all cases (probably using an external resource)
         switch (name){
+            // Some dummy data for now
             case "Gene":
                 return ComponentType.NODE;
             case "taxonId":

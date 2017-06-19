@@ -10,12 +10,13 @@ import java.util.List;
  * @author Yash Sharma
  */
 public class Constraint {
-    List<Component> components;
-    ConstraintOp operator;
-    String value;
+    private List<Component> components;
+    private ConstraintOp operator;
+    private String value;
 
     Constraint(List<Component> components, ConstraintOp Op, String value){
         this.components = components;
+        // Perhaps we would also need to convert IM operators to Neo4j operators
         this.operator = Op;
         this.value = value;
     }

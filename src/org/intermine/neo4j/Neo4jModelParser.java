@@ -29,7 +29,8 @@ import org.intermine.metadata.ReferenceDescriptor;
 import org.intermine.metadata.SAXParser;
 
 /**
- * Parse a Neo4j-modified InterMine metadata XML file to provide instructions for loading data into a Neo4j graph.
+ * Parse a Neo4j-modified InterMine metadata XML file to provide instructions for
+ * loading data into a Neo4j graph.
  *
  * @author Sam Hokin
  */
@@ -43,7 +44,7 @@ public class Neo4jModelParser {
 
     // the Neo4j relationship types corresponding to classes that become relationships
     Map<String,String> relationshipTypes; // e.g. "Location" -> "LOCATED_ON"
-    
+
     /**
      * Constructor
      */
@@ -56,7 +57,7 @@ public class Neo4jModelParser {
 
         // relationship types
         relationshipTypes = new LinkedHashMap<String,String>();
-        
+
         // initialization
         ignoredClasses.add("InterMineObject"); // doesn't appear in XML files but most certainly should be ignored!
     }
@@ -233,14 +234,14 @@ public class Neo4jModelParser {
     public Set<String> getIgnoredAttributes() {
         return ignoredAttributes;
     }
-    
+
     /**
      * Just a getter.
      */
     public Set<String> getIgnoredReferences() {
         return ignoredReferences;
     }
-    
+
     /**
      * Just a getter.
      */
@@ -284,7 +285,7 @@ public class Neo4jModelParser {
                 }
                 boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
                 if (neo4jIgnore) ignoredAttributes.add(cls.name+"."+name);
-                
+
             } else if ("reference".equals(qName)) {
 
                 String name = attrs.getValue("name");
@@ -293,7 +294,7 @@ public class Neo4jModelParser {
                 }
                 boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
                 if (neo4jIgnore) ignoredReferences.add(cls.name+"."+name);
-                
+
             } else if ("collection".equals(qName)) {
 
                 String name = attrs.getValue("name");
@@ -302,7 +303,7 @@ public class Neo4jModelParser {
                 }
                 boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
                 if (neo4jIgnore) ignoredCollections.add(cls.name+"."+name);
-                
+
             }
         }
 

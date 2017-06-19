@@ -12,7 +12,7 @@ import java.io.IOException;
 public class TestQueryGenerator {
 
     public static void main(String args[]) throws IOException {
-        String pathQuery = readFile("pathqueries/sample.xml");
+        String pathQuery = readFile("pathqueries/tests/query1.xml");
 
         printPathQueryCypher(pathQuery);
     }

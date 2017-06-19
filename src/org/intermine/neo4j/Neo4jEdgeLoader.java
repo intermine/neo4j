@@ -38,15 +38,16 @@ import org.neo4j.driver.v1.Transaction;
 import static org.neo4j.driver.v1.Values.parameters;
 
 /**
- * Query an InterMine model and load the requested edges (relations) between the subject and target objects.
- * Requested relations are given on the command line, e.g.
+ * Query an InterMine model and load the requested edges (relations) between the subject and
+ * target objects. Requested relations are given on the command line, e.g.
  *
- * Neo4jEdgeLoader Gene chromosomeLocation locatedOn
+ * <code>Neo4jEdgeLoader Gene chromosomeLocation locatedOn</code>
  *
  * The relation can be an Intermine reference or collection and the target is a reference.
  *
- * Only nodes that have been fully loaded (i.e. their InterMine ID is in the InterMineID node) are processed. This prevents partial labels from being created.
- * 
+ * Only nodes that have been fully loaded (i.e. their InterMine ID is in the InterMineID node)
+ * are processed. This prevents partial labels from being created.
+ *
  * @author Sam Hokin
  */
 public class Neo4jEdgeLoader {
@@ -69,7 +70,7 @@ public class Neo4jEdgeLoader {
 
         // get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
-        
+
         // Neo4j setup
         Driver driver = props.getGraphDatabaseDriver();
 
@@ -87,7 +88,7 @@ public class Neo4jEdgeLoader {
 
         // map IM classes that become edges to their Neo4j relationship type
         Map<String,String> edgeClassTypes = nmp.getRelationshipTypes();
-        
+
         // Retrieve the IM IDs of things that have already been stored
         List<Integer> thingsAlreadyStored = new ArrayList<Integer>();
         try (Session session = driver.session()) {
@@ -155,7 +156,7 @@ public class Neo4jEdgeLoader {
             attrNamesTypes.put(ad.getName(),ad.getType());
         }
         System.out.println(edgeName+":"+attrNamesTypes.keySet());
-        
+
         // query the source:relation attributes:target
         nodeQuery.addView(sourceClass+".id"); // Neo4j source key
         nodeQuery.addView(sourceClass+"."+edgeName+".id"); // Neo4j edge key
@@ -172,7 +173,7 @@ public class Neo4jEdgeLoader {
         Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
         while (rows.hasNext() && (props.maxRows==0 || nodeCount<props.maxRows)) {
             nodeCount++;
-			
+
             Object[] row = rows.next().toArray();
             int i = 0;
             int sid = Integer.parseInt(row[i++].toString()); // source
@@ -181,11 +182,11 @@ public class Neo4jEdgeLoader {
 
             // only process edges that haven't been done for nodes that ARE fully stored on both sides
             if (thingsAlreadyStored.contains(sid) && !thingsAlreadyStored.contains(eid) && thingsAlreadyStored.contains(tid))  {
-                
+
                 // SET the source and target attributes (just in case, possible a stored node lacks an attribute)
                 Neo4jLoader.populateIdClassAttributes(service, driver, attrQuery, sid, sourceClass, sourceDescriptor, nmp);
                 Neo4jLoader.populateIdClassAttributes(service, driver, attrQuery, tid, targetClass, targetDescriptor, nmp);
-                
+
                 // MERGE the edge, but don't relate InterMineID nodes!
                 String merge = "MATCH (s {id:"+sid+"}),(t {id:"+tid+"}) WHERE labels(s)<>'InterMineID' AND labels(t)<>'InterMineID' MERGE (s)-[:"+edgeType+" {id:"+eid+"}]->(t)";
                 try (Session session = driver.session()) {
@@ -195,7 +196,7 @@ public class Neo4jEdgeLoader {
                         System.out.println("("+sourceClass+":"+sid+")-["+edgeType+":"+eid+"]->("+targetClass+":"+tid+")");
                     }
                 }
-                
+
                 // MATCH the edge and SET its properties
                 String set = "MATCH p=()-[r:"+edgeType+" {id:"+eid+"}]->() ";
                 boolean first = true;
@@ -222,7 +223,7 @@ public class Neo4jEdgeLoader {
                         tx.success();
                     }
                 }
-                
+
                 // MERGE this edge's InterMine ID into the InterMine ID nodes for record-keeping that it's been stored as an edge
                 try (Session session = driver.session()) {
                     try (Transaction tx = session.beginTransaction()) {
@@ -235,10 +236,10 @@ public class Neo4jEdgeLoader {
             }
 
         }
-        
+
         // Close connections
         driver.close();
-        
+
     }
 
 }

@@ -17,6 +17,22 @@ public class Component {
         componentType = getGraphComponentType(name);
     }
 
+    public void setGraphicalName(String graphicalName) {
+        this.graphicalName = graphicalName;
+    }
+
+    public void setComponentType(ComponentType componentType) {
+        this.componentType = componentType;
+    }
+
+    public String getGraphicalName() {
+        return graphicalName;
+    }
+
+    public ComponentType getComponentType() {
+        return componentType;
+    }
+
     public String toString(){
         return graphicalName + " : " + componentType.name();
     }

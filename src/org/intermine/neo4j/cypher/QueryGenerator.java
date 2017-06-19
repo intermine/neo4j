@@ -20,7 +20,7 @@ public class QueryGenerator {
         // get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
 
-        // create a PathQuery object using IM Service and input string
+        // create a Path Query object using IM Service and input string
         QueryService service = props.getQueryService();
         PathQuery pathQuery = service.createPathQuery(input);
 
@@ -29,11 +29,17 @@ public class QueryGenerator {
             System.exit(0);
         }
 
-        List<List<Component>> views = getViewsFromPathQuery(pathQuery);
+        // We need to call getQueryToExecute() first.  For template queries this gets a query that
+        // excludes any optional constraints that have been switched off.  A normal PathQuery is
+        // unchanged.
+        pathQuery = pathQuery.getQueryToExecute();
+
+        Set<List<Component>> views = getViewsFromPathQuery(pathQuery);
         System.out.println("Views :\n" + views);
 
         Set<Constraint> constraints = getConstraintsFromPathQuery(pathQuery);
         System.out.println("Constraints :\n" + constraints);
+
         return "";
     }
 
@@ -51,9 +57,16 @@ public class QueryGenerator {
             return components;
     }
 
+    /**
+     * Extracts constraints from the path query in the form of components
+     * @param pathQuery the path query object
+     * @return A set, each element of which is a constraint object which stores
+     *         the path components, operator and the value
+     */
     private static Set<Constraint> getConstraintsFromPathQuery(PathQuery pathQuery){
-        Set<Constraint> constraints = new HashSet<>();
-        for(PathConstraint pathConstraint : pathQuery.getConstraints().keySet()){
+        Map<PathConstraint, String> constraintsMap = pathQuery.getConstraints();
+        Set<Constraint> constraints = new HashSet<>(constraintsMap.keySet().size());
+        for(PathConstraint pathConstraint : constraintsMap.keySet()){
             Constraint constraint = new Constraint(getComponents(pathConstraint.getPath()),
                                                     pathConstraint.getOp(),
                                                     PathConstraint.getValue(pathConstraint));
@@ -62,9 +75,15 @@ public class QueryGenerator {
         return constraints;
     }
 
-    private static List<List<Component>> getViewsFromPathQuery(PathQuery pathQuery){
-        List<List<Component>> tokenizedViews = new ArrayList<>();
-        for(String view : pathQuery.getView()){
+    /**
+     * Extracts views from the path query in the form of components
+     * @param pathQuery the path query object
+     * @return A list of views, each element of which is a list of path components
+     */
+    private static Set<List<Component>> getViewsFromPathQuery(PathQuery pathQuery){
+        List<String> viewsList = pathQuery.getView();
+        Set<List<Component>> tokenizedViews = new HashSet<>(viewsList.size());
+        for(String view : viewsList){
             tokenizedViews.add(getComponents(view));
         }
         return tokenizedViews;

@@ -92,7 +92,7 @@ public class Neo4jLoader {
             }
         }
 
-        // Retreive the IM IDs of nodes that have already been fully stored
+        // Retrieve the IM IDs of nodes that have already been fully stored
         List<Integer> nodesAlreadyStored = new LinkedList<Integer>();
         try (Session session = driver.session()) {
             try (Transaction tx = session.beginTransaction()) {
