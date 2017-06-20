@@ -1,11 +1,11 @@
 package org.intermine.neo4j.cypher;
 
 /**
- * Represents type of the Path Query Component - Node, Relationship or Property
+ * Represents type of the Path Query TreeNode - Node, Relationship or Property
  *
  * @author Yash Sharma
  */
-public enum ComponentType {
+public enum TreeNodeType {
     NODE,
     RELATIONSHIP,
     PROPERTY

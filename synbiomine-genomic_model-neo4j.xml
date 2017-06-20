@@ -323,7 +323,7 @@
 </class>
 <class name="Component" is-interface="true">
 	<attribute name="name" type="java.lang.String"/>
-	<reference name="protein" referenced-type="Protein" reverse-reference="components"/>
+	<reference name="protein" referenced-type="Protein" reverse-reference="treeNodes"/>
 </class>
 <class name="PromoterEvidenceCode" is-interface="true">
 	<attribute name="abbreviation" type="java.lang.String"/>
@@ -575,7 +575,7 @@
 	<collection name="genes" referenced-type="Gene" reverse-reference="proteins"/>
 	<collection name="isoforms" referenced-type="Protein" reverse-reference="canonicalProtein"/>
 	<collection name="keywords" referenced-type="OntologyTerm"/>
-	<collection name="components" referenced-type="Component" reverse-reference="protein"/>
+	<collection name="treeNodes" referenced-type="Component" reverse-reference="protein"/>
 	<collection name="proteinDomainRegions" referenced-type="ProteinDomainRegion" reverse-reference="protein"/>
 	<collection name="pathways" referenced-type="Pathway"/>
 	<collection name="transcripts" referenced-type="Transcript" reverse-reference="protein"/>
