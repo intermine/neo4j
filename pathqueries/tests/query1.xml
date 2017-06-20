@@ -1,4 +1,4 @@
-<query name="" model="genomic" view="Gene.symbol Gene.interactions.participant2.interactions.participant2.name" longDescription="" sortOrder="Gene.symbol asc">
-    <constraint path="Gene.name" op="CONTAINS" value="phosphate"/>
-    <constraint path="Gene.interactions.participant2.name" op="CONTAINS" value="phosphate"/>
+<query name="" model="genomic" view="Gene.symbol Gene.interactions.participant2.interactions.participant2.name" longDescription="" constraintLogic="(A and B)" sortOrder="Gene.symbol asc">
+    <constraint path="Gene.name" op="CONTAINS" value="phosphate" code="A"/>
+    <constraint path="Gene.interactions.participant2.name" op="CONTAINS" value="phosphate" code="B"/>
 </query>

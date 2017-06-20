@@ -20,7 +20,7 @@ public class TestQueryGenerator {
     private static void printPathQueryCypher(String query) throws IOException {
         System.out.println("Path Query :\n" + query);
         System.out.println("-----------------------------------------");
-        System.out.println("Cypher :\n" + QueryGenerator.pathQueryToCypher(query));
+        System.out.println("\nCypher :\n" + QueryGenerator.pathQueryToCypher(query));
         System.out.println("-----------------------------------------");
     }
 
@@ -29,7 +29,6 @@ public class TestQueryGenerator {
         try {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
-
             while (line != null) {
                 sb.append(line);
                 sb.append("\n");

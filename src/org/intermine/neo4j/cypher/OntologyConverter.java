@@ -27,16 +27,16 @@ public class OntologyConverter {
      * @param name name of the component
      * @return type of the component
      */
-    public static ComponentType getGraphComponentType(String name){
+    public static TreeNodeType getGraphComponentType(String name){
         // TO DO: Cover all cases (probably using an external resource)
         switch (name){
             // Some dummy data for now
             case "Gene":
-                return ComponentType.NODE;
+                return TreeNodeType.NODE;
             case "taxonId":
-                return ComponentType.PROPERTY;
+                return TreeNodeType.PROPERTY;
             default:
-                return ComponentType.RELATIONSHIP;
+                return TreeNodeType.RELATIONSHIP;
         }
     }
 }

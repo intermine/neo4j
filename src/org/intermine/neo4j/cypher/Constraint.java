@@ -10,19 +10,19 @@ import java.util.List;
  * @author Yash Sharma
  */
 public class Constraint {
-    private List<Component> components;
+    private List<TreeNode> treeNodes;
     private ConstraintOp operator;
     private String value;
 
-    Constraint(List<Component> components, ConstraintOp Op, String value){
-        this.components = components;
-        // Perhaps we would also need to convert IM operators to Neo4j operators
+    Constraint(List<TreeNode> treeNodes, ConstraintOp Op, String value){
+        this.treeNodes = treeNodes;
+        // Perhaps we would also need to convert IM operators to Neo4j operators down the line
         this.operator = Op;
         this.value = value;
     }
 
     public String toString(){
-        return "(" + components + " " + operator + " " + value + ")";
+        return "(" + treeNodes + " " + operator + " " + value + ")";
     }
 
 }
