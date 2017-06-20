@@ -37,11 +37,31 @@ public class TreeNode {
             if(parent == null){
                 System.out.println("Create node " + name + " as root");
             } else {
-                System.out.println("Create node, " + name +
+                System.out.println("Create node " + name +
                 ", parent " + parent.getName() +
                 ", variableName " + variableName);
             }
         }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getVariableName() {
+        return variableName;
+    }
+
+    public String getGraphicalName() {
+        return graphicalName;
+    }
+
+    public TreeNode getParent() {
+        return parent;
+    }
+
+    public TreeNodeType getTreeNodeType() {
+        return treeNodeType;
     }
 
     public TreeNode getChild(String key){
@@ -64,18 +84,7 @@ public class TreeNode {
         this.treeNodeType = treeNodeType;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getGraphicalName() {
-        return graphicalName;
-    }
-
-    public TreeNodeType getTreeNodeType() {
-        return treeNodeType;
-    }
-
+    @Override
     public String toString(){
         return graphicalName + " : " + treeNodeType.name();
     }

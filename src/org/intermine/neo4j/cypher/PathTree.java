@@ -18,38 +18,37 @@ public class PathTree {
     PathTree(PathQuery pathQuery){
         Boolean DEBUG = false;
 
-        // Print paths
         Set<String> paths = Helper.getAllPaths(pathQuery);
 
         if(DEBUG){
             System.out.println(paths);
         }
 
-        // Root node is always null at the start.
+        // Initialize root node with null, since no node currently exists in the PathTree.
         root = null;
 
+        // Create tree using all the paths
         for (String path : paths){
             List<String> tokens = Helper.getTokensFromPath(path);
 
             // Start variable name as an empty string. Gradually add each token for each node.
             String variableName = "";
 
-            // At start, no portion of the path is traversed.
+            // List used to keep track of what portion of the path we have traversed.
+            // At start, no portion of the path is traversed. So it is an empty list.
             List<String> pathSoFar = new ArrayList<>(tokens.size());
 
             if(DEBUG){
                 System.out.println(path + "\n");
             }
 
+            // We will create a TreeNode for each token of the Path.
             for (String token : tokens){
+                // Since we have traversed till this token, add it to pathSoFar.
                 pathSoFar.add(token);
 
                 // Add token to variable name
                 variableName += (token.toLowerCase());
-
-                if(DEBUG){
-                    System.out.println(pathSoFar);
-                }
 
                 // TO DO - Set TreeNodeType of TreeNode using methods from Ontology Converter
                 if(this.root == null){
@@ -65,20 +64,29 @@ public class PathTree {
                             // Skip the root
                             continue;
                         }
-                        if(DEBUG){
-                            System.out.println("treeNode is " + treeNode.getName());
-                        }
                         // Get current TreeNode's child
                         TreeNode child = treeNode.getChild(str);
-                        // If child is null, add new child
+
+                        TreeNodeType treeNodeType;
+                        if(tokens == pathSoFar){
+                            treeNodeType = TreeNodeType.PROPERTY;
+                        } else {
+                            treeNodeType = TreeNodeType.NODE;
+                        }
+
+                        // If child does not exist, create a new one.
+                        // If it exists already, then this path prefix was also found in a previous path,
+                        // so tokens for that have already been created. In this case we can simply do nothing
+                        // and wait till we encounter a token for which TreeNode is not yet created.
                         if(child == null){
                             treeNode.addChild(str,
-                                            new TreeNode(variableName, str, TreeNodeType.NODE, treeNode));
+                                            new TreeNode(variableName, str, treeNodeType, treeNode));
                             break;
                         }
                         treeNode = child;
                     }
                 }
+                // Add an underscore in the variable name for the next child.
                 variableName += "_";
             }
             if(DEBUG){
@@ -87,6 +95,9 @@ public class PathTree {
         }
     }
 
+    /**
+     * Prints names of all the nodes of a tree serially, separated by a closing parenthesis.
+     */
     public void serialize(){
         System.out.print("Serializing PathTree :\n");
         if (root == null){
@@ -99,6 +110,9 @@ public class PathTree {
         System.out.print(")");
     }
 
+    /**
+     * Utility method which does recursion for the serialize method.
+     */
     private void serializeUtil(TreeNode treeNode){
         if (treeNode == null){
             return;
@@ -111,7 +125,7 @@ public class PathTree {
     }
 
     public String toCypher(){
-        // TO DO : Write this method
+
         return "";
     }
 
