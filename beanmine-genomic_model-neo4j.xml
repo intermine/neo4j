@@ -2,8 +2,6 @@
 
 <model name="genomic" package="org.intermine.model.bio">
 
-  <class name="InterMineObject" is-interface="true" neo4j-ignore="true"/>
-  
   <class name="Intron" extends="SequenceFeature" is-interface="true">
     <collection name="transcripts" referenced-type="Transcript" reverse-reference="introns" neo4j-ignore="true"/>
     <collection name="genes" referenced-type="Gene" reverse-reference="introns"/>
