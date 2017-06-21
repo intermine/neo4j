@@ -85,7 +85,7 @@ public class TreeNode {
 
     @Override
     public String toString(){
-        return graphicalName + " : " + treeNodeType.name();
+        return variableName + "(" + graphicalName + ")" + ":" + treeNodeType.name();
     }
 
 }

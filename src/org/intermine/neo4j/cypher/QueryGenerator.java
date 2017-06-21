@@ -33,9 +33,8 @@ public class QueryGenerator {
         pathQuery = pathQuery.getQueryToExecute();
 
         PathTree pathTree = new PathTree(pathQuery);
-        pathTree.serialize();
 
-        return pathTreeToCypher(pathTree);
+        return pathTreeToCypher(pathTree, pathQuery);
     }
 
     private static void createMatchClause(Query query, TreeNode treeNode){
@@ -64,7 +63,7 @@ public class QueryGenerator {
                 // If current TreeNode is a Graph Node and its parent is a Graph Relationship
                 query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
                                 "-[" + treeNode.getVariableName() +
-                                ": " + treeNode.getGraphicalName() + "]-()" );
+                                ":" + treeNode.getGraphicalName() + "]-()" );
             } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
                 // If current TreeNode is a Graph Relationship and its parent is also
                 // a Graph Relationship, then Path Tree is invalid so error out.
@@ -78,9 +77,21 @@ public class QueryGenerator {
         }
     }
 
-    private static String pathTreeToCypher(PathTree pathTree){
+    private static void createReturnClause(Query query, PathTree pathTree, PathQuery pathQuery){
+        for (String path : pathQuery.getView()){
+            TreeNode treeNode = pathTree.getTreeNode(path);
+            if (treeNode.getTreeNodeType() == TreeNodeType.PROPERTY){
+                // Return only if a property is queried !!
+                query.addToReturn(treeNode.getParent().getVariableName() + "." +
+                                    treeNode.getGraphicalName());
+            }
+        }
+    }
+
+    private static String pathTreeToCypher(PathTree pathTree, PathQuery pathQuery){
         Query query = new Query();
         createMatchClause(query, pathTree.getRoot());
+        createReturnClause(query, pathTree, pathQuery);
         return query.toString();
     }
 

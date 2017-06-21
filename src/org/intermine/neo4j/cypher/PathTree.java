@@ -47,6 +47,9 @@ public class PathTree {
                 // Since we have traversed till this token, add it to pathSoFar.
                 pathSoFar.add(token);
 
+                // TO DO : Use another way of creating variable names.
+                // Underscore separated names may get unnecessarily large.
+
                 // Add token to variable name
                 variableName += (token.toLowerCase());
 
@@ -68,7 +71,10 @@ public class PathTree {
                         TreeNode child = treeNode.getChild(str);
 
                         TreeNodeType treeNodeType;
-                        if(tokens == pathSoFar){
+                        if(tokens.indexOf(str) == tokens.size()-1){
+                            // Last element of the path must be a property.
+                            // We could use Ontology Converter to get TreeNodeType for all the TreeNodes
+                            // based on their name, instead on relying on their position in the path.
                             treeNodeType = TreeNodeType.PROPERTY;
                         } else {
                             treeNodeType = OntologyConverter.getGraphComponentType(str);
@@ -97,6 +103,24 @@ public class PathTree {
 
     public TreeNode getRoot() {
         return root;
+    }
+
+    public TreeNode getTreeNode(String path){
+        if(root == null){
+            return null;
+        }
+        List<String> nodes = Helper.getTokensFromPath(path);
+        TreeNode treeNode = root;
+        for (String node: nodes){
+            if (nodes.indexOf(node) == 0){
+                continue;
+            }
+            treeNode = treeNode.getChild(node);
+            if(treeNode == null){
+                return null;
+            }
+        }
+        return treeNode;
     }
 
     /**
