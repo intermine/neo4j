@@ -399,7 +399,7 @@
     <attribute name="residues" type="org.intermine.objectstore.query.ClobAccess"/>
     <attribute name="length" type="int"/>
   </class>
-  <class name="DataSet" is-interface="true">
+  <class name="DataSet" is-interface="true" neo4j-ignore="true">
     <attribute name="description" type="java.lang.String"/>
     <attribute name="url" type="java.lang.String"/>
     <attribute name="name" type="java.lang.String"/>

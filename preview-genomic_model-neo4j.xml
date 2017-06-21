@@ -4,7 +4,7 @@
 	<attribute name="qualifier" type="java.lang.String"/>
 	<reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations"/>
 	<reference name="subject" referenced-type="BioEntity" reverse-reference="ontologyAnnotations"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="Exon" extends="SequenceFeature" is-interface="true">
 	<reference name="gene" referenced-type="Gene" reverse-reference="exons"/>
@@ -18,7 +18,7 @@
 	<reference name="developmentTerm" referenced-type="DevelopmentTerm"/>
 	<collection name="cvTerms" referenced-type="CVTerm"/>
 	<collection name="publications" referenced-type="Publication"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="TFmodule" extends="RegulatoryRegion" is-interface="true"></class>
 <class name="MRNA" extends="Transcript" is-interface="true">
@@ -88,7 +88,7 @@
 	<reference name="publication" referenced-type="Publication"/>
 	<collection name="rnaiResults" referenced-type="RNAiResult" reverse-reference="rnaiScreen" neo4j-ignore="true"/>
 </class>
-<class name="SequenceFeature" extends="BioEntity" is-interface="true">
+<class name="SequenceFeature" extends="BioEntity" is-interface="true" neo4j-ignore="true">
 	<attribute name="length" type="java.lang.Integer"/>
 	<attribute name="cytoLocation" type="java.lang.String"/>
 	<attribute name="scoreType" type="java.lang.String"/>
@@ -111,7 +111,7 @@
 	<attribute name="description" type="java.lang.String"/>
 	<collection name="proteins" referenced-type="Protein"/>
 	<collection name="genes" referenced-type="Gene" reverse-reference="pathways" neo4j-ignore="true"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="MeshTerm" is-interface="true">
 	<attribute name="name" type="java.lang.String"/>
@@ -172,7 +172,7 @@
 	<collection name="transcripts" referenced-type="Transcript" reverse-reference="probeSets"/>
 	<collection name="results" referenced-type="MicroArrayResult" reverse-reference="material"/>
 </class>
-<class name="BioEntity" is-interface="true">
+<class name="BioEntity" is-interface="true" neo4j-ignore="true">
 	<attribute name="secondaryIdentifier" type="java.lang.String"/>
 	<attribute name="symbol" type="java.lang.String"/>
 	<attribute name="primaryIdentifier" type="java.lang.String"/>
@@ -183,7 +183,7 @@
 	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="subject"/>
 	<collection name="interactions" referenced-type="Interaction" reverse-reference="participant1"/>
 	<collection name="crossReferences" referenced-type="CrossReference" reverse-reference="subject"/>
-	<collection name="dataSets" referenced-type="DataSet" reverse-reference="bioEntities"/>
+	<collection name="dataSets" referenced-type="DataSet" reverse-reference="bioEntities" neo4j-ignore="true"/>
 	<collection name="locatedFeatures" referenced-type="Location" reverse-reference="locatedOn"/>
 	<collection name="locations" referenced-type="Location" reverse-reference="feature"/>
 </class>
@@ -199,7 +199,7 @@
 <class name="Synonym" is-interface="true">
 	<attribute name="value" type="java.lang.String"/>
 	<reference name="subject" referenced-type="BioEntity" reverse-reference="synonyms"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="PointMutation" extends="SequenceFeature" is-interface="true"></class>
 <class name="ChromosomeBand" extends="SequenceFeature" is-interface="true"></class>
@@ -250,7 +250,7 @@
 	<reference name="experiment" referenced-type="InteractionExperiment" reverse-reference="interactions"/>
 	<collection name="allInteractors" referenced-type="Interactor"/>
 	<collection name="interactingRegions" referenced-type="InteractionRegion" reverse-reference="interaction"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="BindingSite" extends="SequenceFeature" is-interface="true">
 	<reference name="factor" referenced-type="Gene"/>
@@ -350,8 +350,8 @@
 	<attribute name="url" type="java.lang.String"/>
 	<attribute name="description" type="java.lang.String"/>
 	<reference name="publication" referenced-type="Publication"/>
-	<reference name="dataSource" referenced-type="DataSource" reverse-reference="dataSets"/>
-	<collection name="bioEntities" referenced-type="BioEntity" reverse-reference="dataSets"/>
+	<reference name="dataSource" referenced-type="DataSource" reverse-reference="dataSets" neo4j-ignore="true"/>
+	<collection name="bioEntities" referenced-type="BioEntity" reverse-reference="dataSets" neo4j-ignore="true"/>
 </class>
 <class name="MiRNA" extends="NcRNA" is-interface="true"></class>
 <class name="TransposableElement" extends="SequenceFeature" is-interface="true">
@@ -362,7 +362,7 @@
 	<attribute name="stageRange" type="java.lang.String"/>
 	<attribute name="expressed" type="java.lang.Boolean"/>
 	<reference name="publication" referenced-type="Publication"/>
-	<reference name="dataSet" referenced-type="DataSet"/>
+	<reference name="dataSet" referenced-type="DataSet" neo4j-ignore="true"/>
 	<reference name="gene" referenced-type="Gene" reverse-reference="mRNAExpressionResults"/>
 	<collection name="stages" referenced-type="DevelopmentTerm"/>
 	<collection name="images" referenced-type="Image"/>
@@ -433,7 +433,7 @@
 	<collection name="reporters" referenced-type="Reporter" reverse-reference="results"/>
 	<collection name="genes" referenced-type="Gene" reverse-reference="microArrayResults"/>
 	<collection name="samples" referenced-type="Sample"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="Stock" extends="BioEntity" is-interface="true">
 	<attribute name="type" type="java.lang.String"/>
@@ -512,7 +512,7 @@
 	<collection name="synonyms" referenced-type="OntologyTermSynonym"/>
 	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="ontologyTerm"/>
 	<collection name="parents" referenced-type="OntologyTerm"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 	<collection name="crossReferences" referenced-type="OntologyTerm"/>
 </class>
 <class name="Intron" extends="SequenceFeature" is-interface="true">
@@ -534,11 +534,11 @@
 <class name="Homologue" is-interface="true">
 	<attribute name="bootstrapScore" type="java.lang.Integer"/>
 	<attribute name="type" type="java.lang.String"/>
-	<reference name="gene" referenced-type="Gene" reverse-reference="homologues"/>
-	<reference name="homologue" referenced-type="Gene"/>
+	<reference name="gene" referenced-type="Gene" reverse-reference="homologues" neo4j-relationship="PARTNER_OF"/>
+	<reference name="homologue" referenced-type="Gene" neo4j-relationship="PARTNER_OF"/>
 	<collection name="evidence" referenced-type="OrthologueEvidence"/>
 	<collection name="crossReferences" referenced-type="CrossReference"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="SampleCharacteristic" is-interface="true">
 	<attribute name="value" type="java.lang.String"/>
@@ -598,7 +598,7 @@
 	<attribute name="strand" type="java.lang.String"/>
 	<reference name="feature" referenced-type="BioEntity" reverse-reference="locations"/>
 	<reference name="locatedOn" referenced-type="BioEntity" reverse-reference="locatedFeatures"/>
-	<collection name="dataSets" referenced-type="DataSet"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="CrossReference" is-interface="true">
 	<attribute name="identifier" type="java.lang.String"/>
