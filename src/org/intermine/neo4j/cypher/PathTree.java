@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class PathTree {
 
-    TreeNode root;
+    private TreeNode root;
 
     PathTree(PathQuery pathQuery){
         Boolean DEBUG = false;
@@ -47,6 +47,9 @@ public class PathTree {
                 // Since we have traversed till this token, add it to pathSoFar.
                 pathSoFar.add(token);
 
+                // TO DO : Use another way of creating variable names.
+                // Underscore separated names may get unnecessarily large.
+
                 // Add token to variable name
                 variableName += (token.toLowerCase());
 
@@ -68,10 +71,13 @@ public class PathTree {
                         TreeNode child = treeNode.getChild(str);
 
                         TreeNodeType treeNodeType;
-                        if(tokens == pathSoFar){
+                        if(tokens.indexOf(str) == tokens.size()-1){
+                            // Last element of the path must be a property.
+                            // We could use Ontology Converter to get TreeNodeType for all the TreeNodes
+                            // based on their name, instead on relying on their position in the path.
                             treeNodeType = TreeNodeType.PROPERTY;
                         } else {
-                            treeNodeType = TreeNodeType.NODE;
+                            treeNodeType = OntologyConverter.getGraphComponentType(str);
                         }
 
                         // If child does not exist, create a new one.
@@ -95,6 +101,28 @@ public class PathTree {
         }
     }
 
+    public TreeNode getRoot() {
+        return root;
+    }
+
+    public TreeNode getTreeNode(String path){
+        if(root == null){
+            return null;
+        }
+        List<String> nodes = Helper.getTokensFromPath(path);
+        TreeNode treeNode = root;
+        for (String node: nodes){
+            if (nodes.indexOf(node) == 0){
+                continue;
+            }
+            treeNode = treeNode.getChild(node);
+            if(treeNode == null){
+                return null;
+            }
+        }
+        return treeNode;
+    }
+
     /**
      * Prints names of all the nodes of a tree serially, separated by a closing parenthesis.
      */
@@ -103,7 +131,7 @@ public class PathTree {
         if (root == null){
             return;
         }
-        System.out.print(root.getName() + " ");
+        System.out.print(root.getName()+ ":" + root.getTreeNodeType().name() + " ");
         for (String key : root.getChildrenKeys()){
             serializeUtil(root.getChild(key));
         }
@@ -117,16 +145,11 @@ public class PathTree {
         if (treeNode == null){
             return;
         }
-        System.out.print(treeNode.getName() + " ");
+        System.out.print(treeNode.getName()+ ":" + treeNode.getTreeNodeType().name() + " ");
         for (String key : treeNode.getChildrenKeys()){
             serializeUtil(treeNode.getChild(key));
         }
         System.out.print(")");
-    }
-
-    public String toCypher(){
-
-        return "";
     }
 
 }

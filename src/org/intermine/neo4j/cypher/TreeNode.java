@@ -1,10 +1,8 @@
 package org.intermine.neo4j.cypher;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 /**
  * Describes a component used in the Path Query.
@@ -12,16 +10,17 @@ import java.util.Set;
  * @author Yash Sharma
  */
 public class TreeNode {
+    // Name as in Neo4j - Node Label or Relationship Type
     private String graphicalName;
-
+    // Name as in path query
     private String name;
-
+    // Name generated for cypher query
     private String variableName;
-
+    // Node or Relationship or Property
     private TreeNodeType treeNodeType;
-
+    // Reference to its parent in the PathTree
     private TreeNode parent;
-
+    // Children of the TreeNode
     private Map<String, TreeNode> children;
 
     TreeNode(String variableName, String name, TreeNodeType treeNodeType, TreeNode parent){
@@ -86,7 +85,7 @@ public class TreeNode {
 
     @Override
     public String toString(){
-        return graphicalName + " : " + treeNodeType.name();
+        return variableName + "(" + graphicalName + ")" + ":" + treeNodeType.name();
     }
 
 }

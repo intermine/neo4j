@@ -33,9 +33,58 @@ public class QueryGenerator {
         pathQuery = pathQuery.getQueryToExecute();
 
         PathTree pathTree = new PathTree(pathQuery);
-        pathTree.serialize();
 
-        return pathTree.toCypher();
+        return pathTreeToCypher(pathTree, pathQuery);
+    }
+
+    private static void createMatchClause(Query query, TreeNode treeNode){
+        if (treeNode == null){
+            return;
+        }
+        else if (treeNode.getParent() == null) {
+            // Root TreeNode is always a Graph Node
+            query.addToMatch("(" + treeNode.getVariableName() +
+                            " :" + treeNode.getGraphicalName() + ")");
+        } else if(treeNode.getTreeNodeType() == TreeNodeType.NODE) {
+            if(treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE){
+                // If current TreeNode is a Graph Node and its parent is also a Graph Node,
+                // then add a dummy relationship.
+                query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
+                                "-[]-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")");
+            } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
+                // then match an actual relationship of the current node with its grand parent node.
+                query.addToMatch("("+ treeNode.getParent().getParent().getVariableName() + ")" +
+                                "-[" + treeNode.getParent().getVariableName() +
+                                ":" + treeNode.getParent().getGraphicalName() + "]" +
+                                "-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")");
+            }
+        } else if(treeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+            // Do nothing. We will match this relationship when recursion reaches its children.
+        }
+        for (String key : treeNode.getChildrenKeys()){
+            createMatchClause(query, treeNode.getChild(key));
+        }
+    }
+
+    private static void createReturnClause(Query query, PathTree pathTree, PathQuery pathQuery){
+        for (String path : pathQuery.getView()){
+            TreeNode treeNode = pathTree.getTreeNode(path);
+            if (treeNode.getTreeNodeType() == TreeNodeType.PROPERTY){
+                // Return only if a property is queried !!
+                query.addToReturn(treeNode.getParent().getVariableName() + "." +
+                                    treeNode.getGraphicalName());
+            }
+        }
+    }
+
+    private static String pathTreeToCypher(PathTree pathTree, PathQuery pathQuery){
+        Query query = new Query();
+        createMatchClause(query, pathTree.getRoot());
+        createReturnClause(query, pathTree, pathQuery);
+        return query.toString();
     }
 
 }
