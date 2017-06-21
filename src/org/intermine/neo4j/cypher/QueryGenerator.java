@@ -47,30 +47,22 @@ public class QueryGenerator {
                             " :" + treeNode.getGraphicalName() + ")");
         } else if(treeNode.getTreeNodeType() == TreeNodeType.NODE) {
             if(treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE){
-                // If current TreeNode is a Graph Node and its parent is also a Graph Node
+                // If current TreeNode is a Graph Node and its parent is also a Graph Node,
+                // then add a dummy relationship.
                 query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
                                 "-[]-(" + treeNode.getVariableName() +
                                 " :" + treeNode.getGraphicalName() + ")");
             } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-                // If current TreeNode is a Graph Node and its parent is a Graph Relationship
+                // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
+                // then match an actual relationship of the current node with its grand parent node.
                 query.addToMatch("("+ treeNode.getParent().getParent().getVariableName() + ")" +
-                                "-[" + treeNode.getParent().getVariableName() + "]" +
+                                "-[" + treeNode.getParent().getVariableName() +
+                                ":" + treeNode.getParent().getGraphicalName() + "]" +
                                 "-(" + treeNode.getVariableName() +
                                 " :" + treeNode.getGraphicalName() + ")");
             }
         } else if(treeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-            if(treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE){
-                // If current TreeNode is a Graph Node and its parent is a Graph Relationship
-                query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
-                                "-[" + treeNode.getVariableName() +
-                                ":" + treeNode.getGraphicalName() + "]-()" );
-            } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-                // If current TreeNode is a Graph Relationship and its parent is also
-                // a Graph Relationship, then Path Tree is invalid so error out.
-                System.out.println("PathTree is invalid. A relationship cannot be connected " +
-                                    "to another relationship.");
-                System.exit(0);
-            }
+            // Do nothing. We will match this relationship when recursion reaches its children.
         }
         for (String key : treeNode.getChildrenKeys()){
             createMatchClause(query, treeNode.getChild(key));
