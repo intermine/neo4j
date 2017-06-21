@@ -36,6 +36,9 @@ import org.intermine.metadata.SAXParser;
  */
 public class Neo4jModelParser {
 
+    static final String NEO4J_IGNORE_ATTRIBUTE = "neo4j-ignore";
+    static final String NEO4J_RELATIONSHIP_ATTRIBUTE = "neo4j-relationship";
+    
     // classes, attributes, references and collections to ignore during Neo4j loading
     Set<String> ignoredClasses;           // e.g. "Sequence"
     Set<String> ignoredAttributes;        // e.g. "BioEntity.chadoFeatureId"
@@ -43,7 +46,8 @@ public class Neo4jModelParser {
     Set<String> ignoredCollections;       // e.g. "GOAnnotation.transcripts"
 
     // the Neo4j relationship types corresponding to classes that become relationships
-    Map<String,String> relationshipTypes; // e.g. "Location" -> "LOCATED_ON"
+    // as well as references and collections that should be renamed in the graph
+    Map<String,String> relationshipTypes; // e.g. "Location" -> "LOCATED_ON" or "homologue" -> "HOMOLOGUE_OF"
 
     /**
      * Constructor
@@ -55,7 +59,7 @@ public class Neo4jModelParser {
         ignoredReferences = new LinkedHashSet<String>();
         ignoredCollections = new LinkedHashSet<String>();
 
-        // relationship types
+        // relationship types, keyed by class name for classes, or Class.name for references and collections
         relationshipTypes = new LinkedHashMap<String,String>();
 
         // initialization
@@ -109,13 +113,23 @@ public class Neo4jModelParser {
                 Set<ReferenceDescriptor> refDescriptors = classDescriptor.getReferenceDescriptors();
                 for (ReferenceDescriptor rd : refDescriptors) {
                     if (nmp.isIgnored(rd)) System.out.print("X");
-                    System.out.println("\tr "+rd.getName());
+                    System.out.print("\tr "+rd.getName());
+                    if (nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+rd.getName())!=null) {
+                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+rd.getName()));
+                    } else {
+                        System.out.println("");
+                    }
                 }
                 // show collections
                 Set<CollectionDescriptor> collDescriptors = classDescriptor.getCollectionDescriptors();
                 for (CollectionDescriptor cd : collDescriptors) {
                     if (nmp.isIgnored(cd)) System.out.print("X");
-                    System.out.println("\tc "+cd.getName());
+                    System.out.print("\tc "+cd.getName());
+                    if (nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+cd.getName())!=null) {
+                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+cd.getName()));
+                    } else {
+                        System.out.println("");
+                    }
                 }
             }
         }
@@ -150,6 +164,19 @@ public class Neo4jModelParser {
     public String getRelationshipType(ClassDescriptor cd) {
         if (relationshipTypes.containsKey(cd.getSimpleName())) {
             return(relationshipTypes.get(cd.getSimpleName()));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Return the relationship type for the given reference or collection name, if it is to be renamed in the Neo4j graph; null otherwise.
+     * @param name the reference or collection name
+     * @return the relationship type, or null if the given name is not to be renamed in Neo4j
+     */
+    public String getRelationshipType(String name) {
+        if (relationshipTypes.containsKey(name)) {
+            return(relationshipTypes.get(name));
         } else {
             return null;
         }
@@ -268,8 +295,8 @@ public class Neo4jModelParser {
                 String name = attrs.getValue("name");
                 String supers = attrs.getValue("extends");
                 cls = new SkeletonClass(name, supers);
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
-                String neo4jRelationship = attrs.getValue("neo4j-relationship");
+                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
+                String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
                 if (neo4jIgnore) {
                     ignoredClasses.add(name);
                 } else if (!StringUtils.isEmpty(neo4jRelationship)) {
@@ -283,7 +310,7 @@ public class Neo4jModelParser {
                 if (StringUtils.isEmpty(name)) {
                     throw new IllegalArgumentException("Error - `" + cls.name + "` has an attribute" + " with an empty/null name");
                 }
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
+                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
                 if (neo4jIgnore) ignoredAttributes.add(cls.name+"."+name);
 
             } else if ("reference".equals(qName)) {
@@ -292,8 +319,12 @@ public class Neo4jModelParser {
                 if (StringUtils.isEmpty(name)) {
                     throw new IllegalArgumentException("Error - `" + cls.name + "` has a reference" + " with an empty/null name");
                 }
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
+                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
                 if (neo4jIgnore) ignoredReferences.add(cls.name+"."+name);
+                String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
+                if (!StringUtils.isEmpty(neo4jRelationship)) {
+                    relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
+                }
 
             } else if ("collection".equals(qName)) {
 
@@ -301,8 +332,12 @@ public class Neo4jModelParser {
                 if (StringUtils.isEmpty(name)) {
                     throw new IllegalArgumentException("Error - `" + cls.name + "` has a collection" + " with an empty/null name");
                 }
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue("neo4j-ignore")).booleanValue();
+                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
                 if (neo4jIgnore) ignoredCollections.add(cls.name+"."+name);
+                String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
+                if (!StringUtils.isEmpty(neo4jRelationship)) {
+                    relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
+                }
 
             }
         }
