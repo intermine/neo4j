@@ -31,12 +31,10 @@ public class OntologyConverter {
         // TO DO: Cover all cases (probably using an external resource)
         switch (name){
             // Some dummy data for now
-            case "Gene":
-                return TreeNodeType.NODE;
-            case "taxonId":
-                return TreeNodeType.PROPERTY;
-            default:
+            case "geneFamily":
                 return TreeNodeType.RELATIONSHIP;
+            default:
+                return TreeNodeType.NODE;
         }
     }
 }

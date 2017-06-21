@@ -42,13 +42,36 @@ public class QueryGenerator {
         if (treeNode == null){
             return;
         }
-        else if (treeNode.getParent() == null){
+        else if (treeNode.getParent() == null) {
+            // Root TreeNode is always a Graph Node
             query.addToMatch("(" + treeNode.getVariableName() +
                             " :" + treeNode.getGraphicalName() + ")");
-        } else {
-            query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
-                            "-[]-(" + treeNode.getVariableName() +
-                            " :" + treeNode.getGraphicalName() + ")");
+        } else if(treeNode.getTreeNodeType() == TreeNodeType.NODE) {
+            if(treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE){
+                // If current TreeNode is a Graph Node and its parent is also a Graph Node
+                query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
+                                "-[]-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")");
+            } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                // If current TreeNode is a Graph Node and its parent is a Graph Relationship
+                query.addToMatch("("+ treeNode.getParent().getParent().getVariableName() + ")" +
+                                "-[" + treeNode.getParent().getVariableName() + "]" +
+                                "-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")");
+            }
+        } else if(treeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+            if(treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE){
+                // If current TreeNode is a Graph Node and its parent is a Graph Relationship
+                query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
+                                "-[" + treeNode.getVariableName() +
+                                ": " + treeNode.getGraphicalName() + "]-()" );
+            } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                // If current TreeNode is a Graph Relationship and its parent is also
+                // a Graph Relationship, then Path Tree is invalid so error out.
+                System.out.println("PathTree is invalid. A relationship cannot be connected " +
+                                    "to another relationship.");
+                System.exit(0);
+            }
         }
         for (String key : treeNode.getChildrenKeys()){
             createMatchClause(query, treeNode.getChild(key));

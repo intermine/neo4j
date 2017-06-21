@@ -71,7 +71,7 @@ public class PathTree {
                         if(tokens == pathSoFar){
                             treeNodeType = TreeNodeType.PROPERTY;
                         } else {
-                            treeNodeType = TreeNodeType.NODE;
+                            treeNodeType = OntologyConverter.getGraphComponentType(str);
                         }
 
                         // If child does not exist, create a new one.
@@ -107,7 +107,7 @@ public class PathTree {
         if (root == null){
             return;
         }
-        System.out.print(root.getName() + " ");
+        System.out.print(root.getName()+ ":" + root.getTreeNodeType().name() + " ");
         for (String key : root.getChildrenKeys()){
             serializeUtil(root.getChild(key));
         }
@@ -121,7 +121,7 @@ public class PathTree {
         if (treeNode == null){
             return;
         }
-        System.out.print(treeNode.getName() + " ");
+        System.out.print(treeNode.getName()+ ":" + treeNode.getTreeNodeType().name() + " ");
         for (String key : treeNode.getChildrenKeys()){
             serializeUtil(treeNode.getChild(key));
         }
