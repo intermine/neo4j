@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class PathTree {
 
-    TreeNode root;
+    private TreeNode root;
 
     PathTree(PathQuery pathQuery){
         Boolean DEBUG = false;
@@ -95,6 +95,10 @@ public class PathTree {
         }
     }
 
+    public TreeNode getRoot() {
+        return root;
+    }
+
     /**
      * Prints names of all the nodes of a tree serially, separated by a closing parenthesis.
      */
@@ -122,11 +126,6 @@ public class PathTree {
             serializeUtil(treeNode.getChild(key));
         }
         System.out.print(")");
-    }
-
-    public String toCypher(){
-
-        return "";
     }
 
 }

@@ -28,7 +28,6 @@ public class Helper {
         return strings;
     }
 
-
     /**
      * Extracts all paths from the path query object
      *

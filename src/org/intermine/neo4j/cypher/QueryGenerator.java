@@ -35,7 +35,30 @@ public class QueryGenerator {
         PathTree pathTree = new PathTree(pathQuery);
         pathTree.serialize();
 
-        return pathTree.toCypher();
+        return pathTreeToCypher(pathTree);
+    }
+
+    private static void createMatchClause(Query query, TreeNode treeNode){
+        if (treeNode == null){
+            return;
+        }
+        else if (treeNode.getParent() == null){
+            query.addToMatch("(" + treeNode.getVariableName() +
+                            " :" + treeNode.getGraphicalName() + ")");
+        } else {
+            query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
+                            "-[]-(" + treeNode.getVariableName() +
+                            " :" + treeNode.getGraphicalName() + ")");
+        }
+        for (String key : treeNode.getChildrenKeys()){
+            createMatchClause(query, treeNode.getChild(key));
+        }
+    }
+
+    private static String pathTreeToCypher(PathTree pathTree){
+        Query query = new Query();
+        createMatchClause(query, pathTree.getRoot());
+        return query.toString();
     }
 
 }

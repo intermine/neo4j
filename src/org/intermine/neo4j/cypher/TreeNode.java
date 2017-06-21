@@ -1,10 +1,8 @@
 package org.intermine.neo4j.cypher;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 
 /**
  * Describes a component used in the Path Query.
