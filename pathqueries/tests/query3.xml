@@ -1,0 +1,4 @@
+<query model="genomic" view="Gene.score Gene.chromosomeLocation.dataSets.name Gene.crossReferences.identifier Gene.crossReferences.source.description" constraintLogic="(A and B)">
+    <constraint path="Gene.crossReferences.source.description" value="a" op="CONTAINS" code="B"/>
+    <constraint path="Gene.chromosomeLocation.dataSets.name" value="a" op="CONTAINS" code="A"/>
+</query>

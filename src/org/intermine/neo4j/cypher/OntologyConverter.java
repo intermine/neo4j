@@ -24,6 +24,7 @@ public class OntologyConverter {
 
     /**
      * Tells whether the component is a node, relationship or a property.
+     *
      * @param name name of the component
      * @return type of the component
      */
