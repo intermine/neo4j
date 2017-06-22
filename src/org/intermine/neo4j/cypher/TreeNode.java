@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Describes a component used in the Path Query.
+ * Describes a Node of a PathTree.
  *
  * @author Yash Sharma
  */
