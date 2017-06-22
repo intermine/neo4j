@@ -46,31 +46,14 @@ public class QueryGenerator {
         String whereClause = "WHERE " + pathQuery.getConstraintLogic();
         for (String constraintCode : pathQuery.getConstraintCodes()){
             PathConstraint pathConstraint = pathQuery.getConstraintForCode(constraintCode);
-            TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
-            if(treeNode.getTreeNodeType() != TreeNodeType.PROPERTY){
+            if(Constraint.isConstraintValid(pathConstraint, pathTree)){
                 System.out.println("Invalid constraint.");
                 System.exit(0);
             }
-            String whereClausePart = treeNode.getParent().getVariableName() + "." +
-                                    treeNode.getGraphicalName() + " " +
-                                    pathConstraint.getOp().toString() + " " +
-                                    getConstraintValue(pathConstraint);
-            whereClause = whereClause.replaceAll(constraintCode, whereClausePart);
+            Constraint constraint = new Constraint(pathConstraint, pathTree);
+            whereClause = whereClause.replaceAll(constraintCode, constraint.toString());
         }
         query.setWhereClause(whereClause);
-    }
-
-    private static String getConstraintValue(PathConstraint pathConstraint){
-        // TO DO : Cover cases for all possible operators.
-        String value;
-        switch (pathConstraint.getOp().toString()){
-            case ("CONTAINS"):
-                value = "'" + PathConstraint.getValue(pathConstraint) + "'";
-                break;
-            default:
-                value = PathConstraint.getValue(pathConstraint);
-        }
-        return value;
     }
 
     private static void createMatchClause(Query query, TreeNode treeNode){

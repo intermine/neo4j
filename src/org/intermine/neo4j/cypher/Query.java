@@ -45,6 +45,9 @@ public class Query {
     }
 
     protected void setWhereClause(String whereClause){
+        if (!whereClause.startsWith("WHERE ")){
+            whereClause = "WHERE " + whereClause;
+        }
         this.whereClause = whereClause;
     }
 
