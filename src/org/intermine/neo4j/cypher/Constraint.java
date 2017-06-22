@@ -26,6 +26,15 @@ public class Constraint {
                                                         PathConstraint.getValue(pathConstraint));
     }
 
+    /**
+     * Finds out if the given PathConstraint is valid as per the given per the given PathTree
+     * not by checking if the constrained object is represented by a Graph Property.
+     *
+     * @param pathConstraint The PathConstraint object
+     * @param pathTree The PathTree
+     * @return true if the given PathConstraint is valid as per the given per the given PathTree,
+     *          false otherwise
+     */
     public static boolean isConstraintValid(PathConstraint pathConstraint, PathTree pathTree){
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
         if (treeNode.getTreeNodeType() != TreeNodeType.PROPERTY){
@@ -34,22 +43,47 @@ public class Constraint {
         return true;
     }
 
+    /**
+     * Gets the property key used in the constraint
+     *
+     * @return the property key
+     */
     public String getPropertyKey() {
         return propertyKey;
     }
 
+    /**
+     * Gets the variable name used in the constraint
+     *
+     * @return the variable name
+     */
     public String getVariableName() {
         return variableName;
     }
 
+    /**
+     * Gets the operator used in the constraint
+     *
+     * @return the variable name
+     */
     public String getOperator() {
         return operator;
     }
 
+    /**
+     * Gets the value used in the constraint
+     *
+     * @return the value
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Converts a cypher constraint to its string representation
+     *
+     * @return the string representation of the constraint
+     */
     @Override
     public String toString(){
         return getVariableName() + "." +

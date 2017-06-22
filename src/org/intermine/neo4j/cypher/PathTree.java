@@ -101,10 +101,21 @@ public class PathTree {
         }
     }
 
+    /**
+     * Gets the root TreeNode of the PathTree
+     *
+     * @return the root TreeNode
+     */
     public TreeNode getRoot() {
         return root;
     }
 
+    /**
+     * Traverses the PathTree as per the given path and returns the TreeNode found
+     *
+     * @param path the given path
+     * @return the TreeNode object if it is found, null otherwise
+     */
     public TreeNode getTreeNode(String path){
         if(root == null){
             return null;

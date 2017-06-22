@@ -14,6 +14,14 @@ import java.io.IOException;
  */
 public class QueryGenerator {
 
+    /**
+     * Converts a given PathQuery in XML into the corresponding cypher query which can
+     * be used to query a Neo4j database.
+     *
+     * @param input the given Path Query
+     * @return the cypher query
+     * @throws IOException
+     */
     public static String pathQueryToCypher(String input) throws IOException {
 
         // Get the properties from the default file
@@ -28,7 +36,7 @@ public class QueryGenerator {
             System.exit(0);
         }
 
-        // We need to call getQueryToExecute() first.  For template queries this gets a query that
+        // We need to call getQueryToExecute() first. For template queries this gets a query that
         // excludes any optional constraints that have been switched off.  A normal PathQuery is
         // unchanged.
         pathQuery = pathQuery.getQueryToExecute();
@@ -42,11 +50,18 @@ public class QueryGenerator {
         return query.toString();
     }
 
+    /**
+     * Creates WHERE clause using a PathQuery and its PathTree representation
+     *
+     * @param query the Cypher Query object
+     * @param pathTree the given PathTree
+     * @param pathQuery the given PathQuery
+     */
     private static void createWhereClause(Query query, PathTree pathTree, PathQuery pathQuery){
         String whereClause = "WHERE " + pathQuery.getConstraintLogic();
         for (String constraintCode : pathQuery.getConstraintCodes()){
             PathConstraint pathConstraint = pathQuery.getConstraintForCode(constraintCode);
-            if(Constraint.isConstraintValid(pathConstraint, pathTree)){
+            if(!Constraint.isConstraintValid(pathConstraint, pathTree)){
                 System.out.println("Invalid constraint.");
                 System.exit(0);
             }
@@ -56,6 +71,12 @@ public class QueryGenerator {
         query.setWhereClause(whereClause);
     }
 
+    /**
+     * Creates MATCH clause using a PathTree
+     *
+     * @param query the Cypher Query object
+     * @param treeNode the root node of the PathTree
+     */
     private static void createMatchClause(Query query, TreeNode treeNode){
         if (treeNode == null){
             return;
@@ -90,6 +111,13 @@ public class QueryGenerator {
         }
     }
 
+    /**
+     * Creates RETURN clause using a PathTree
+     *
+     * @param query the Cypher Query object
+     * @param pathTree the given PathTree
+     * @param pathQuery the given PathQuery
+     */
     private static void createReturnClause(Query query, PathTree pathTree, PathQuery pathQuery){
         for (String path : pathQuery.getView()){
             TreeNode treeNode = pathTree.getTreeNode(path);
