@@ -190,10 +190,7 @@ public class Neo4jLoader {
                     ReferenceDescriptor rd = refDescriptors.get(refName);
                     ClassDescriptor rcd = rd.getReferencedClassDescriptor();
                     String refLabel = getFullNodeLabel(rcd);
-                    String relType = refName;
-                    if (nmp.getRelationshipType(nodeClass+"."+refName)!=null) {
-                        relType = nmp.getRelationshipType(nodeClass+"."+refName);
-                    }
+                    String relType = nmp.getRelationshipType(nodeClass,refName);
                     refQuery.clearView();
                     refQuery.clearConstraints();
                     refQuery.addView(nodeClass+".id");
@@ -235,10 +232,7 @@ public class Neo4jLoader {
                     CollectionDescriptor cd = collDescriptors.get(collName);
                     ClassDescriptor ccd = cd.getReferencedClassDescriptor();
                     String collLabel = getFullNodeLabel(ccd);
-                    String collType = collName;
-                    if (nmp.getRelationshipType(nodeClass+"."+collName)!=null) {
-                        collType = nmp.getRelationshipType(nodeClass+"."+collName);
-                    }
+                    String collType = nmp.getRelationshipType(nodeClass,collName);
                     collQuery.clearView();
                     collQuery.clearConstraints();
                     collQuery.addView(nodeClass+".id");

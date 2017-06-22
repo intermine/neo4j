@@ -114,8 +114,8 @@ public class Neo4jModelParser {
                 for (ReferenceDescriptor rd : refDescriptors) {
                     if (nmp.isIgnored(rd)) System.out.print("X");
                     System.out.print("\tr "+rd.getName());
-                    if (nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+rd.getName())!=null) {
-                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+rd.getName()));
+                    if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()).equals(rd.getName())) {
+                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()));
                     } else {
                         System.out.println("");
                     }
@@ -125,8 +125,8 @@ public class Neo4jModelParser {
                 for (CollectionDescriptor cd : collDescriptors) {
                     if (nmp.isIgnored(cd)) System.out.print("X");
                     System.out.print("\tc "+cd.getName());
-                    if (nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+cd.getName())!=null) {
-                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName()+"."+cd.getName()));
+                    if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()).equals(cd.getName())) {
+                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()));
                     } else {
                         System.out.println("");
                     }
@@ -170,15 +170,17 @@ public class Neo4jModelParser {
     }
 
     /**
-     * Return the relationship type for the given reference or collection name, if it is to be renamed in the Neo4j graph; null otherwise.
-     * @param name the reference or collection name
-     * @return the relationship type, or null if the given name is not to be renamed in Neo4j
+     * Return the relationship type for the given class and reference or collection name, if it is to be renamed in the Neo4j graph; null otherwise.
+     * @param className the name of the class
+     * @param refName the name of the reference or collection
+     * @return the relationship type, either the renamed value or refName if it is not designated to be renamed in Neo4j
      */
-    public String getRelationshipType(String name) {
-        if (relationshipTypes.containsKey(name)) {
-            return(relationshipTypes.get(name));
+    public String getRelationshipType(String className, String refName) {
+        String key = className+"."+refName;
+        if (relationshipTypes.containsKey(key)) {
+            return(relationshipTypes.get(key));
         } else {
-            return null;
+            return refName;
         }
     }
 
