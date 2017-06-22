@@ -44,6 +44,10 @@ public class Query {
         }
     }
 
+    protected void setWhereClause(String whereClause){
+        this.whereClause = whereClause;
+    }
+
     public String getMatchClause() {
         return matchClause;
     }

@@ -1,6 +1,7 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 
@@ -33,8 +34,43 @@ public class QueryGenerator {
         pathQuery = pathQuery.getQueryToExecute();
 
         PathTree pathTree = new PathTree(pathQuery);
+        Query query = new Query();
 
-        return pathTreeToCypher(pathTree, pathQuery);
+        createMatchClause(query, pathTree.getRoot());
+        createReturnClause(query, pathTree, pathQuery);
+        createWhereClause(query, pathTree, pathQuery);
+        return query.toString();
+    }
+
+    private static void createWhereClause(Query query, PathTree pathTree, PathQuery pathQuery){
+        String whereClause = "WHERE " + pathQuery.getConstraintLogic();
+        for (String constraintCode : pathQuery.getConstraintCodes()){
+            PathConstraint pathConstraint = pathQuery.getConstraintForCode(constraintCode);
+            TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
+            if(treeNode.getTreeNodeType() != TreeNodeType.PROPERTY){
+                System.out.println("Invalid constraint.");
+                System.exit(0);
+            }
+            String whereClausePart = treeNode.getParent().getVariableName() + "." +
+                                    treeNode.getGraphicalName() + " " +
+                                    pathConstraint.getOp().toString() + " " +
+                                    getConstraintValue(pathConstraint);
+            whereClause = whereClause.replaceAll(constraintCode, whereClausePart);
+        }
+        query.setWhereClause(whereClause);
+    }
+
+    private static String getConstraintValue(PathConstraint pathConstraint){
+        // TO DO : Cover cases for all possible operators.
+        String value;
+        switch (pathConstraint.getOp().toString()){
+            case ("CONTAINS"):
+                value = "'" + PathConstraint.getValue(pathConstraint) + "'";
+                break;
+            default:
+                value = PathConstraint.getValue(pathConstraint);
+        }
+        return value;
     }
 
     private static void createMatchClause(Query query, TreeNode treeNode){
@@ -61,9 +97,11 @@ public class QueryGenerator {
                                 "-(" + treeNode.getVariableName() +
                                 " :" + treeNode.getGraphicalName() + ")");
             }
-        } else if(treeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-            // Do nothing. We will match this relationship when recursion reaches its children.
         }
+        // If current TreeNode represents a Graphical Relationship, then Do nothing.
+        // We will match this relationship when recursion reaches its children.
+
+        // Add all children to Match clause
         for (String key : treeNode.getChildrenKeys()){
             createMatchClause(query, treeNode.getChild(key));
         }
@@ -78,13 +116,6 @@ public class QueryGenerator {
                                     treeNode.getGraphicalName());
             }
         }
-    }
-
-    private static String pathTreeToCypher(PathTree pathTree, PathQuery pathQuery){
-        Query query = new Query();
-        createMatchClause(query, pathTree.getRoot());
-        createReturnClause(query, pathTree, pathQuery);
-        return query.toString();
     }
 
 }
