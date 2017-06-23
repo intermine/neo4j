@@ -1,11 +1,13 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.pathquery.OrderElement;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Generates Cypher Queries.
@@ -45,9 +47,26 @@ public class QueryGenerator {
         Query query = new Query();
 
         createMatchClause(query, pathTree.getRoot());
-        createReturnClause(query, pathTree, pathQuery);
         createWhereClause(query, pathTree, pathQuery);
+        createReturnClause(query, pathTree, pathQuery);
+        createOrderByClause(query, pathTree, pathQuery);
+
         return query.toString();
+    }
+
+    /**
+     * Creates Order By clause using a PathQuery and its PathTree representation
+     *
+     * @param query the Cypher Query object
+     * @param pathTree the given PathTree
+     * @param pathQuery the given PathQuery
+     */
+    private static void createOrderByClause(Query query, PathTree pathTree, PathQuery pathQuery){
+        List<OrderElement> orderElements = pathQuery.getOrderBy();
+        for (OrderElement orderElement : orderElements){
+            Order order = new Order(orderElement, pathTree);
+            query.addToOrderBy(order.toString());
+        }
     }
 
     /**
@@ -58,6 +77,9 @@ public class QueryGenerator {
      * @param pathQuery the given PathQuery
      */
     private static void createWhereClause(Query query, PathTree pathTree, PathQuery pathQuery){
+        if (pathQuery.getConstraintCodes().isEmpty()){
+            return;
+        }
         String whereClause = "WHERE " + pathQuery.getConstraintLogic();
         for (String constraintCode : pathQuery.getConstraintCodes()){
             PathConstraint pathConstraint = pathQuery.getConstraintForCode(constraintCode);
@@ -85,14 +107,16 @@ public class QueryGenerator {
             // Root TreeNode is always a Graph Node
             query.addToMatch("(" + treeNode.getVariableName() +
                             " :" + treeNode.getGraphicalName() + ")");
-        } else if(treeNode.getTreeNodeType() == TreeNodeType.NODE) {
+        }
+        else if(treeNode.getTreeNodeType() == TreeNodeType.NODE) {
             if(treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE){
                 // If current TreeNode is a Graph Node and its parent is also a Graph Node,
                 // then add a dummy relationship.
                 query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
                                 "-[]-(" + treeNode.getVariableName() +
                                 " :" + treeNode.getGraphicalName() + ")");
-            } else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+            }
+            else if(treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
                 // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
                 // then match an actual relationship of the current node with its grand parent node.
                 query.addToMatch("("+ treeNode.getParent().getParent().getVariableName() + ")" +
