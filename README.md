@@ -29,7 +29,7 @@ Download the following prerequisites from their official websites.
 * Neo4j Graph Database 3.2
 * Neo4j APOC 3.1+
 
-## Deployment
+## Compiling
 
 Change the current directory to project home by running ```cd path/to/project/```.
 
@@ -41,7 +41,7 @@ The [metadata package](src/org/intermine/neo4j/metadata) deals with handling met
 
 The [cypher package](src/org/intermine/neo4j/cypher) deals with the conversion of PathQuery into Cypher.
 
-For detailed documentation, you can checkout the [Java Docs](/javadocs/).
+For detailed documentation, you can checkout the [Java Docs](/javadoc/).
 
 #### Neo4jLoader
 Loads a mine into Neo4j using parameters in neo4jloader.properties.
