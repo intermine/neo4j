@@ -13,6 +13,32 @@ import java.util.*;
  */
 public class Helper {
 
+    public static void printConstraints(PathQuery pathQuery){
+        for (PathConstraint pathConstraint : pathQuery.getConstraints().keySet()){
+            System.out.println("Path : " + pathConstraint.getPath());
+            System.out.println("Operator : " + pathConstraint.getOp());
+            System.out.println("Value : " + PathConstraint.getValue(pathConstraint));
+            System.out.println("Extra value : " + PathConstraint.getExtraValue(pathConstraint));
+        }
+    }
+
+    public static String quoted(String string){
+        return "'" + string + "'";
+    }
+
+    public static boolean isNumeric(String str)
+    {
+        try
+        {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Get all tokens from a path
      *

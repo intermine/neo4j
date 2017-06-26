@@ -46,6 +46,8 @@ public class QueryGenerator {
         PathTree pathTree = new PathTree(pathQuery);
         Query query = new Query();
 
+        Helper.printConstraints(pathQuery);
+
         createMatchClause(query, pathTree.getRoot());
         createWhereClause(query, pathTree, pathQuery);
         createReturnClause(query, pathTree, pathQuery);
@@ -70,6 +72,25 @@ public class QueryGenerator {
     }
 
     /**
+     * This method adds three underscores as prefix & suffix to the constraint codes of the
+     * constraint logic. This prevents unwanted replacements of the characters which are
+     * same as codes but are actually not codes.
+     * @param pathQuery The given path query
+     * @return modified constraint logic string
+     */
+    private static String getModifiedConstraintLogic(PathQuery pathQuery){
+        String logic = pathQuery.getConstraintLogic();
+        for (String code : pathQuery.getConstraintCodes()){
+            logic = logic.replaceAll(code, modifiedConstraintCode(code));
+        }
+        return logic;
+    }
+
+    public static String modifiedConstraintCode(String string){
+        return "___" + string + "___";
+    }
+
+    /**
      * Creates WHERE clause using a PathQuery and its PathTree representation
      *
      * @param query the Cypher Query object
@@ -80,15 +101,13 @@ public class QueryGenerator {
         if (pathQuery.getConstraintCodes().isEmpty()){
             return;
         }
-        String whereClause = "WHERE " + pathQuery.getConstraintLogic();
+        String whereClause = "WHERE " + getModifiedConstraintLogic(pathQuery);
+        whereClause = whereClause.toUpperCase();
         for (String constraintCode : pathQuery.getConstraintCodes()){
             PathConstraint pathConstraint = pathQuery.getConstraintForCode(constraintCode);
-            if(!Constraint.isConstraintValid(pathConstraint, pathTree)){
-                System.out.println("Invalid constraint.");
-                System.exit(0);
-            }
             Constraint constraint = new Constraint(pathConstraint, pathTree);
-            whereClause = whereClause.replaceAll(constraintCode, constraint.toString());
+            whereClause = whereClause.replaceAll(modifiedConstraintCode(constraintCode),
+                                                constraint.toString());
         }
         query.setWhereClause(whereClause);
     }
