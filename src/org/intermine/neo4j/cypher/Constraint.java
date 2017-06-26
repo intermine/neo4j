@@ -1,8 +1,5 @@
 package org.intermine.neo4j.cypher;
 
-import apoc.help.Help;
-import org.apache.commons.lang.math.NumberUtils;
-import org.intermine.metadata.ConstraintOp;
 import org.intermine.pathquery.PathConstraint;
 
 /**
@@ -25,10 +22,32 @@ public class Constraint {
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
         String value;
         switch (type){
+
             case AND:
                 constraint = join(treeNode.getParent().getVariableName() + "." +
                             treeNode.getGraphicalName(),
                             "AND",
+                            PathConstraint.getValue(pathConstraint));
+                break;
+
+            case NAND:
+                constraint = join(treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName(),
+                            "NAND",
+                            PathConstraint.getValue(pathConstraint));
+                break;
+
+            case NOR:
+                constraint = join(treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName(),
+                            "NOR",
+                            PathConstraint.getValue(pathConstraint));
+                break;
+
+            case OR:
+                constraint = join(treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName(),
+                            "OR",
                             PathConstraint.getValue(pathConstraint));
                 break;
 
@@ -47,18 +66,6 @@ public class Constraint {
                             Helper.quoted(PathConstraint.getValue(pathConstraint)));
                 break;
 
-//            case DOES_NOT_EXIST:
-//                break;
-
-//            case DOES_NOT_HAVE:
-//                break;
-
-//            case DOES_NOT_MATCH:
-//                break;
-
-//            case DOES_NOT_OVERLAP:
-//                break;
-
             case EQUALS:
                 value = PathConstraint.getValue(pathConstraint);
                 if(!Helper.isNumeric(value)){
@@ -70,11 +77,17 @@ public class Constraint {
                             value);
                 break;
 
-//            case EXACT_MATCH:
-//                break;
-
-//            case EXISTS:
-//                break;
+            case NOT_EQUALS:
+                value = PathConstraint.getValue(pathConstraint);
+                if(!Helper.isNumeric(value)){
+                    value = Helper.quoted(value);
+                }
+                constraint = "NOT " +
+                            join(treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName(),
+                            "<>",
+                            value);
+                break;
 
             case GREATER_THAN:
                 constraint = join(treeNode.getParent().getVariableName() + "." +
@@ -90,36 +103,6 @@ public class Constraint {
                             PathConstraint.getValue(pathConstraint));
                 break;
 
-//            case HAS:
-//                break;
-
-//            case IN:
-//                break;
-
-//            case IS_EMPTY:
-//                break;
-
-//            case IS_NOT_EMPTY:
-//                break;
-
-            case IS_NOT_NULL:
-                constraint = treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName() + " " +
-                            "IS NOT NULL";
-                break;
-
-            case IS_NULL:
-                constraint = treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName() + " " +
-                            "IS NULL";
-                break;
-
-//            case ISA:
-//                break;
-
-//            case ISNT:
-//                break;
-
             case LESS_THAN:
                 constraint = join(treeNode.getParent().getVariableName() + "." +
                             treeNode.getGraphicalName(),
@@ -134,6 +117,22 @@ public class Constraint {
                             PathConstraint.getValue(pathConstraint));
                 break;
 
+            // IS NOT EMPTY is synonymous to IS NOT NULL
+            case IS_NOT_EMPTY:
+            case IS_NOT_NULL:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " " +
+                            "IS NOT NULL";
+                break;
+
+            // IS EMPTY is synonymous to IS NULL
+            case IS_EMPTY:
+            case IS_NULL:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " " +
+                            "IS NULL";
+                break;
+
             case LOOKUP:
                 if(PathConstraint.getExtraValue(pathConstraint).equals(null)){
                     constraint = "ANY (key in keys(" + treeNode.getVariableName() +
@@ -142,7 +141,7 @@ public class Constraint {
                                 ")";
                 }
                 else{
-                    // TO DO : Have to handle extra value here
+                    // TO DO : Handle extra value in this case
                     constraint = "ANY (key in keys(" + treeNode.getVariableName() +
                                 ") WHERE " + treeNode.getVariableName() + "[key]=" +
                                 Helper.quoted(PathConstraint.getValue(pathConstraint)) +
@@ -150,68 +149,45 @@ public class Constraint {
                 }
                 break;
 
-//            case MATCHES:
-//                break;
+            case STRICT_NOT_EQUALS:
 
-            case NAND:
-                constraint = join(treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName(),
-                            "NAND",
-                            PathConstraint.getValue(pathConstraint));
-                break;
+            case EXACT_MATCH:
 
-//            case NONE_OF:
-//                break;
+            case EXISTS:
 
-            case NOR:
-                constraint = join(treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName(),
-                            "NOR",
-                            PathConstraint.getValue(pathConstraint));
-                break;
+            case HAS:
 
-            case NOT_EQUALS:
-                value = PathConstraint.getValue(pathConstraint);
-                if(!Helper.isNumeric(value)){
-                    value = Helper.quoted(value);
-                }
-                constraint = "NOT " +
-                            join(treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName(),
-                            "<>",
-                            value);
-                break;
+            case IN:    // Require that the first argument is IN the second
 
-//            case NOT_IN:
-//                break;
+            case NOT_IN:
 
-//            case ONE_OF:
-//                break;
+            case ISA:
 
-            case OR:
-                constraint = join(treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName(),
-                            "OR",
-                            PathConstraint.getValue(pathConstraint));
-                break;
+            case ISNT:
 
-//            case OUTSIDE:
-//                break;
+            case MATCHES:
 
-//            case OVERLAPS:
-//                break;
+            case NONE_OF:
 
-//            case STRICT_NOT_EQUALS:
-//                break;
+            case ONE_OF:
 
-//            case WITHIN:
-//                break;
+            case DOES_NOT_EXIST:
 
-//            case LIKE:
-//                break;
+            case DOES_NOT_HAVE:
 
-//            case NOT_LIKE:
-//                break;
+            case DOES_NOT_MATCH:
+
+            case DOES_NOT_OVERLAP:
+
+            case OUTSIDE:
+
+            case OVERLAPS:
+
+            case WITHIN:
+
+            case LIKE:
+
+            case NOT_LIKE:
 
             case SOMETHING_NEW:
                 this.constraint = "<NEW OPERATOR CONSTRAINT>";
