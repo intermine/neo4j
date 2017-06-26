@@ -1,0 +1,3 @@
+<query model="genomic" view="Gene.length" constraintLogic="(A)">
+    <constraint path="Gene.name" value="rf" op="NOT LIKE" code="A"/>
+</query>
