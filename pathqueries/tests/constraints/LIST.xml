@@ -1,0 +1,3 @@
+<query name="" model="genomic" view="Gene.secondaryIdentifier Gene.symbol Gene.primaryIdentifier Gene.organism.name" longDescription="" sortOrder="Gene.secondaryIdentifier asc">
+    <constraint path="Gene" op="IN" value="PL FlyAtlas_maleglands_top"/>
+</query>
