@@ -18,6 +18,7 @@ public class Helper {
             System.out.println("Path : " + pathConstraint.getPath());
             System.out.println("Operator : " + pathConstraint.getOp());
             System.out.println("Value : " + PathConstraint.getValue(pathConstraint));
+            System.out.println("Values : " + PathConstraint.getValues(pathConstraint));
             System.out.println("Extra value : " + PathConstraint.getExtraValue(pathConstraint));
         }
     }

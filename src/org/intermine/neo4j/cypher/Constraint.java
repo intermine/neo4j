@@ -2,6 +2,9 @@ package org.intermine.neo4j.cypher;
 
 import org.intermine.pathquery.PathConstraint;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Describes a constraint in Cypher Query.
  *
@@ -133,19 +136,54 @@ public class Constraint {
                             "IS NULL";
                 break;
 
+            case ONE_OF:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " " +
+                            "IN ";
+                Set<String> valueSet = new HashSet<>();
+                for (String val: PathConstraint.getValues(pathConstraint)){
+                    valueSet.add(Helper.quoted(val));
+                }
+                constraint += valueSet;
+                break;
+
+            case NONE_OF:
+                constraint = "NOT " +
+                            treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " " +
+                            "IN ";
+                valueSet = new HashSet<>();
+                for (String val: PathConstraint.getValues(pathConstraint)){
+                    valueSet.add(Helper.quoted(val));
+                }
+                constraint += valueSet;
+                break;
+
+            case EXISTS:
+                constraint = "exists(" +
+                            treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + ")";
+                break;
+
+            case DOES_NOT_EXIST:
+                constraint = "NOT exists(" +
+                            treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + ")";
+                break;
+
             case LOOKUP:
                 if(PathConstraint.getExtraValue(pathConstraint).equals(null)){
                     constraint = "ANY (key in keys(" + treeNode.getVariableName() +
-                                ") WHERE " + treeNode.getVariableName() + "[key]=" +
-                                Helper.quoted(PathConstraint.getValue(pathConstraint)) +
-                                ")";
+                    ") WHERE " + treeNode.getVariableName() + "[key]=" +
+                    Helper.quoted(PathConstraint.getValue(pathConstraint)) +
+                    ")";
                 }
                 else{
                     // TO DO : Handle extra value in this case
                     constraint = "ANY (key in keys(" + treeNode.getVariableName() +
-                                ") WHERE " + treeNode.getVariableName() + "[key]=" +
-                                Helper.quoted(PathConstraint.getValue(pathConstraint)) +
-                                ")";
+                    ") WHERE " + treeNode.getVariableName() + "[key]=" +
+                    Helper.quoted(PathConstraint.getValue(pathConstraint)) +
+                    ")";
                 }
                 break;
 
@@ -153,9 +191,13 @@ public class Constraint {
 
             case EXACT_MATCH:
 
-            case EXISTS:
+            case MATCHES:
+
+            case DOES_NOT_MATCH:
 
             case HAS:
+
+            case DOES_NOT_HAVE:
 
             case IN:    // Require that the first argument is IN the second
 
@@ -165,25 +207,13 @@ public class Constraint {
 
             case ISNT:
 
-            case MATCHES:
-
-            case NONE_OF:
-
-            case ONE_OF:
-
-            case DOES_NOT_EXIST:
-
-            case DOES_NOT_HAVE:
-
-            case DOES_NOT_MATCH:
-
-            case DOES_NOT_OVERLAP:
+            case WITHIN:
 
             case OUTSIDE:
 
             case OVERLAPS:
 
-            case WITHIN:
+            case DOES_NOT_OVERLAP:
 
             case LIKE:
 

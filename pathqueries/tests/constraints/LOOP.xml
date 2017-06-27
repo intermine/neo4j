@@ -1,0 +1,4 @@
+<query model="genomic" view="Gene.symbol Gene.pathways.identifier">
+    <join path="Gene.pathways" style="OUTER"/>
+    <constraint path="Gene.homologues.homologue" op="=" value="Gene.pathways.genes"/>
+</query>
