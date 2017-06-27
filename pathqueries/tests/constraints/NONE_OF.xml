@@ -1,5 +1,5 @@
 <query model="genomic" view="Gene.symbol Gene.primaryIdentifier">
-    <constraint path="Gene.symbol" op="ONE OF">
+    <constraint path="Gene.symbol" op="NONE OF">
         <value>eve</value>
         <value>bib</value>
         <value>zen</value>
