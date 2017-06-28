@@ -200,7 +200,7 @@ public class Constraint {
                                         extraValueBag.getLabel() + " { " +
                                         extraValueBag.getProperty() + ": " +
                                         Helper.quoted(PathConstraint.getExtraValue(pathConstraint)) +
-                                        " } )";
+                                        " } ))";
                     }
                 }
                 break;
