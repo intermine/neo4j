@@ -1,8 +1,15 @@
 package org.intermine.neo4j.cypher;
 
+import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.metadata.Model;
+import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
 import org.intermine.pathquery.PathConstraint;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -34,17 +41,11 @@ public class Constraint {
                 break;
 
             case NAND:
-                constraint = join(treeNode.getParent().getVariableName() + "." +
+                constraint = "NOT (" +
+                            join(treeNode.getParent().getVariableName() + "." +
                             treeNode.getGraphicalName(),
-                            "NAND",
-                            PathConstraint.getValue(pathConstraint));
-                break;
-
-            case NOR:
-                constraint = join(treeNode.getParent().getVariableName() + "." +
-                            treeNode.getGraphicalName(),
-                            "NOR",
-                            PathConstraint.getValue(pathConstraint));
+                            "AND",
+                            PathConstraint.getValue(pathConstraint)) + ")";
                 break;
 
             case OR:
@@ -52,6 +53,14 @@ public class Constraint {
                             treeNode.getGraphicalName(),
                             "OR",
                             PathConstraint.getValue(pathConstraint));
+                break;
+
+            case NOR:
+                constraint = "NOT (" +
+                            join(treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName(),
+                            "OR",
+                            PathConstraint.getValue(pathConstraint)) + ")";
                 break;
 
             case CONTAINS:
@@ -174,16 +183,25 @@ public class Constraint {
             case LOOKUP:
                 if(PathConstraint.getExtraValue(pathConstraint).equals(null)){
                     constraint = "ANY (key in keys(" + treeNode.getVariableName() +
-                    ") WHERE " + treeNode.getVariableName() + "[key]=" +
-                    Helper.quoted(PathConstraint.getValue(pathConstraint)) +
-                    ")";
+                                ") WHERE " + treeNode.getVariableName() + "[key]=" +
+                                Helper.quoted(PathConstraint.getValue(pathConstraint)) +
+                                ")";
                 }
                 else{
-                    // TO DO : Handle extra value in this case
                     constraint = "ANY (key in keys(" + treeNode.getVariableName() +
-                    ") WHERE " + treeNode.getVariableName() + "[key]=" +
-                    Helper.quoted(PathConstraint.getValue(pathConstraint)) +
-                    ")";
+                                ") WHERE " + treeNode.getVariableName() + "[key]=" +
+                                Helper.quoted(PathConstraint.getValue(pathConstraint)) +
+                                ")";
+
+                    if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())){
+                        ExtraValueBag extraValueBag = ExtraValueBag.getExtraValueBag();
+                        constraint = "( " + constraint + " AND ";
+                        constraint += "(" + treeNode.getVariableName() + ")-[]-(" +
+                                        extraValueBag.getLabel() + " { " +
+                                        extraValueBag.getProperty() + ": " +
+                                        Helper.quoted(PathConstraint.getExtraValue(pathConstraint)) +
+                                        " } )";
+                    }
                 }
                 break;
 
