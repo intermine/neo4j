@@ -309,4 +309,21 @@ public class Model {
         return false;
     }
 
+    /**
+     * Finds out if two labels are connected to each other
+     * @param nodeLabel the label of the node
+     * @param neighbourLabel the label of the neighbouring node
+     * @return true if they are neighbours, false otherwise
+     */
+    public boolean labelHasNeighbour(String nodeLabel, String neighbourLabel){
+        for (RelTypeDescriptor relType : relationships ){
+            String key = relType.getType();
+            if( (endNodes.get(key).contains(nodeLabel) && startNodes.get(key).contains(neighbourLabel)) ||
+            (endNodes.get(key).contains(neighbourLabel) && startNodes.get(key).contains(nodeLabel)) ){
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

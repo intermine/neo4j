@@ -29,6 +29,9 @@ public class Neo4jLoaderProperties {
     String neo4jUser;
     String neo4jPassword;
     String dataModelFilename;
+    String extraValueLabel;
+
+    String extraValuePropertyName;
     int maxRows;
     int maxSequenceLength;
     boolean verbose;
@@ -52,6 +55,19 @@ public class Neo4jLoaderProperties {
     }
 
     /**
+     * The label of the nodes that are matched with the extra value provided in the
+     * LOOKUP constraint is stored in neo4jloader.properties file. This method fetches
+     * that node label.
+     */
+    public String getExtraValueLabel() {
+        return extraValueLabel;
+    }
+
+    public String getExtraValuePropertyName() {
+        return extraValuePropertyName;
+    }
+
+    /**
      * Set the various properties from a Properties object
      */
     void load(Properties props) throws FileNotFoundException, IOException {
@@ -61,6 +77,8 @@ public class Neo4jLoaderProperties {
         neo4jUser = props.getProperty("neo4j.user");
         neo4jPassword = props.getProperty("neo4j.password");
         dataModelFilename = props.getProperty("data.model.file");
+        extraValueLabel = props.getProperty("extraValueLabel");
+        extraValuePropertyName = props.getProperty("extraValuePropertyName");
 
         // ints
         String maxRowsString = props.getProperty("max.rows");
