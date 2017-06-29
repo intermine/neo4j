@@ -11,6 +11,7 @@ import org.intermine.metadata.InterMineModelParser;
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
 import org.intermine.webservice.client.core.ServiceFactory;
+import org.intermine.webservice.client.services.ListService;
 import org.intermine.webservice.client.services.QueryService;
 
 import org.neo4j.driver.v1.AuthTokens;
@@ -30,8 +31,9 @@ public class Neo4jLoaderProperties {
     String neo4jPassword;
     String dataModelFilename;
     String extraValueLabel;
-
     String extraValuePropertyName;
+    String intermineApiToken;
+
     int maxRows;
     int maxSequenceLength;
     boolean verbose;
@@ -55,19 +57,6 @@ public class Neo4jLoaderProperties {
     }
 
     /**
-     * The label of the nodes that are matched with the extra value provided in the
-     * LOOKUP constraint is stored in neo4jloader.properties file. This method fetches
-     * that node label.
-     */
-    public String getExtraValueLabel() {
-        return extraValueLabel;
-    }
-
-    public String getExtraValuePropertyName() {
-        return extraValuePropertyName;
-    }
-
-    /**
      * Set the various properties from a Properties object
      */
     void load(Properties props) throws FileNotFoundException, IOException {
@@ -79,6 +68,7 @@ public class Neo4jLoaderProperties {
         dataModelFilename = props.getProperty("data.model.file");
         extraValueLabel = props.getProperty("extraValueLabel");
         extraValuePropertyName = props.getProperty("extraValuePropertyName");
+        intermineApiToken = props.getProperty("intermine.api.token");
 
         // ints
         String maxRowsString = props.getProperty("max.rows");
@@ -105,6 +95,15 @@ public class Neo4jLoaderProperties {
         return new ServiceFactory(intermineServiceUrl).getQueryService();
     }
 
+
+    /**
+     * Return an InterMine ListService
+     */
+    public ListService getListService() {
+        return new ServiceFactory(intermineServiceUrl).getListService();
+    }
+
+
     /**
      * Return an InterMine Model
      */
@@ -119,4 +118,24 @@ public class Neo4jLoaderProperties {
         return maxSequenceLength;
     }
 
+    /**
+     * The label of the nodes that are matched with the extra value provided in the
+     * LOOKUP constraint is stored in neo4jloader.properties file. This method fetches
+     * that node label.
+     */
+    public String getExtraValueLabel() {
+        return extraValueLabel;
+    }
+
+    public String getExtraValuePropertyName() {
+        return extraValuePropertyName;
+    }
+
+    public String getIntermineApiToken() {
+        return intermineApiToken;
+    }
+
+    public String getIntermineServiceUrl() {
+        return intermineServiceUrl;
+    }
 }

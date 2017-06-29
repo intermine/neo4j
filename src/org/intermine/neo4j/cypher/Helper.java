@@ -1,8 +1,13 @@
 package org.intermine.neo4j.cypher;
 
+import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.pathquery.OrderElement;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathQuery;
+import org.intermine.webservice.client.core.ContentType;
+import org.intermine.webservice.client.core.Request;
+import org.intermine.webservice.client.services.QueryService;
+import org.intermine.webservice.client.util.HttpConnection;
 
 import java.util.*;
 
