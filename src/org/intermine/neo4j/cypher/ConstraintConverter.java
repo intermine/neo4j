@@ -44,6 +44,7 @@ public class ConstraintConverter {
 
     public static ConstraintType getConstraintType(PathConstraint pathConstraint){
         ConstraintOp op = pathConstraint.getOp();
+
         if(op == ConstraintOp.AND){
             return ConstraintType.AND;
         }
@@ -150,16 +151,10 @@ public class ConstraintConverter {
         {
             return ConstraintType.WITHIN;
         }
-        else if(op.toString().equals("NOT LIKE")){
-            return ConstraintType.NOT_LIKE;
-        }
-        else if(op.toString().equals("LIKE")){
-            return ConstraintType.LIKE;
-        }
         else {
             System.out.println("In Constraint Converter class, getConstraintType method " +
-                                "New Operator Found");
-            return ConstraintType.SOMETHING_NEW;
+                                "Unsupported constraint found Found");
+            return ConstraintType.UNSUPPORTED_CONSTRAINT;
         }
     }
 }

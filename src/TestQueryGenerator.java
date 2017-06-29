@@ -11,7 +11,7 @@ public class TestQueryGenerator {
 
     public static void main(String args[]) throws IOException {
 
-        String FILENAME = "constraints/EQUALS";
+        String FILENAME = "constraints/MATCHES";
 
         String PATHQUERY_FILENAME = "tests/pathquery/" + FILENAME + ".xml";
         String pathQuery = readFile(PATHQUERY_FILENAME);

@@ -31,6 +31,7 @@ public class Constraint {
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
         String value;
+
         switch (type){
 
             case AND:
@@ -205,13 +206,23 @@ public class Constraint {
                 }
                 break;
 
+            // Matches properties with Regular Expression
+            case MATCHES:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " =~ " +
+                            Helper.quoted(PathConstraint.getValue(pathConstraint));
+                break;
+
+            case DOES_NOT_MATCH:
+                constraint = "NOT " +
+                            treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " =~ " +
+                            Helper.quoted(PathConstraint.getValue(pathConstraint));
+                break;
+
             case STRICT_NOT_EQUALS:
 
             case EXACT_MATCH:
-
-            case MATCHES:
-
-            case DOES_NOT_MATCH:
 
             case HAS:
 
@@ -233,11 +244,7 @@ public class Constraint {
 
             case DOES_NOT_OVERLAP:
 
-            case LIKE:
-
-            case NOT_LIKE:
-
-            case SOMETHING_NEW:
+            case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<NEW OPERATOR CONSTRAINT>";
                 break;
         }
