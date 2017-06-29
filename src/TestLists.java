@@ -1,5 +1,4 @@
-import org.intermine.api.InterMineAPI;
-import org.intermine.api.profile.ProfileManager;
+
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;

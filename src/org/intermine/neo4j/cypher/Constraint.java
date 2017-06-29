@@ -1,15 +1,9 @@
 package org.intermine.neo4j.cypher;
 
-import org.intermine.neo4j.Neo4jLoaderProperties;
-import org.intermine.neo4j.metadata.Model;
-import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
+
 import org.intermine.pathquery.PathConstraint;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -213,6 +207,12 @@ public class Constraint {
                             Helper.quoted(PathConstraint.getValue(pathConstraint));
                 break;
 
+            case EXACT_MATCH:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " = " +
+                            Helper.quoted(PathConstraint.getValue(pathConstraint));
+                break;
+
             case DOES_NOT_MATCH:
                 constraint = "NOT " +
                             treeNode.getParent().getVariableName() + "." +
@@ -222,14 +222,12 @@ public class Constraint {
 
             case STRICT_NOT_EQUALS:
 
-            case EXACT_MATCH:
-
             case HAS:
 
             case DOES_NOT_HAVE:
 
             case IN:    // Require that the first argument is IN the second
-
+                        // Need to fetch lists (bags) in user profile from IM API
             case NOT_IN:
 
             case ISA:

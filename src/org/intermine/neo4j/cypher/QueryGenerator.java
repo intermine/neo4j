@@ -122,25 +122,28 @@ public class QueryGenerator {
     private static void createMatchClause(Query query, TreeNode treeNode) {
         if (treeNode == null) {
             return;
-        } else if (treeNode.getParent() == null) {
+        }
+        else if (treeNode.getParent() == null) {
             // Root TreeNode is always a Graph Node
             query.addToMatch("(" + treeNode.getVariableName() +
-            " :" + treeNode.getGraphicalName() + ")");
-        } else if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
+                             " :" + treeNode.getGraphicalName() + ")");
+        }
+        else if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
             if (treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE) {
                 // If current TreeNode is a Graph Node and its parent is also a Graph Node,
                 // then add a dummy relationship.
                 query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
-                "-[]-(" + treeNode.getVariableName() +
-                " :" + treeNode.getGraphicalName() + ")");
-            } else if (treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                                "-[]-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")");
+            }
+            else if (treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
                 // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
                 // then match an actual relationship of the current node with its grand parent node.
                 query.addToMatch("(" + treeNode.getParent().getParent().getVariableName() + ")" +
-                "-[" + treeNode.getParent().getVariableName() +
-                ":" + treeNode.getParent().getGraphicalName() + "]" +
-                "-(" + treeNode.getVariableName() +
-                " :" + treeNode.getGraphicalName() + ")");
+                                "-[" + treeNode.getParent().getVariableName() +
+                                ":" + treeNode.getParent().getGraphicalName() + "]" +
+                                "-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")");
             }
         }
         // If current TreeNode represents a Graphical Relationship, then Do nothing.
@@ -163,7 +166,7 @@ public class QueryGenerator {
         for (String path : pathQuery.getView()) {
             TreeNode treeNode = pathTree.getTreeNode(path);
             if (treeNode.getTreeNodeType() == TreeNodeType.PROPERTY) {
-                // Return only if a property is queried !!
+                // Return ONLY IF a property is queried !!
                 query.addToReturn(treeNode.getParent().getVariableName() + "." +
                 treeNode.getGraphicalName());
             }
