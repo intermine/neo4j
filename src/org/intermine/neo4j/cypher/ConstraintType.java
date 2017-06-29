@@ -41,7 +41,5 @@ public enum ConstraintType {
     OVERLAPS,
     STRICT_NOT_EQUALS,
     WITHIN,
-    LIKE,
-    NOT_LIKE,
-    SOMETHING_NEW   // TO DO : Use a better default than this
+    UNSUPPORTED_CONSTRAINT
 }

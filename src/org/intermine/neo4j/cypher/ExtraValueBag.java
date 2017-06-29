@@ -1,7 +1,6 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
-import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
 import org.neo4j.driver.v1.Driver;
 
 import java.io.IOException;

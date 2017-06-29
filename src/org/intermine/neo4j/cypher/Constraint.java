@@ -1,15 +1,9 @@
 package org.intermine.neo4j.cypher;
 
-import org.intermine.neo4j.Neo4jLoaderProperties;
-import org.intermine.neo4j.metadata.Model;
-import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
+
 import org.intermine.pathquery.PathConstraint;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -31,6 +25,7 @@ public class Constraint {
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
         String value;
+
         switch (type){
 
             case AND:
@@ -205,20 +200,34 @@ public class Constraint {
                 }
                 break;
 
-            case STRICT_NOT_EQUALS:
+            // Matches properties with Regular Expression
+            case MATCHES:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " =~ " +
+                            Helper.quoted(PathConstraint.getValue(pathConstraint));
+                break;
 
             case EXACT_MATCH:
-
-            case MATCHES:
+                constraint = treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " = " +
+                            Helper.quoted(PathConstraint.getValue(pathConstraint));
+                break;
 
             case DOES_NOT_MATCH:
+                constraint = "NOT " +
+                            treeNode.getParent().getVariableName() + "." +
+                            treeNode.getGraphicalName() + " =~ " +
+                            Helper.quoted(PathConstraint.getValue(pathConstraint));
+                break;
+
+            case STRICT_NOT_EQUALS:
 
             case HAS:
 
             case DOES_NOT_HAVE:
 
             case IN:    // Require that the first argument is IN the second
-
+                        // Need to fetch lists (bags) in user profile from IM API
             case NOT_IN:
 
             case ISA:
@@ -233,11 +242,7 @@ public class Constraint {
 
             case DOES_NOT_OVERLAP:
 
-            case LIKE:
-
-            case NOT_LIKE:
-
-            case SOMETHING_NEW:
+            case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<NEW OPERATOR CONSTRAINT>";
                 break;
         }

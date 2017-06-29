@@ -31,9 +31,7 @@ public class OntologyConverter {
     public static TreeNodeType getGraphComponentType(String name){
         // TO DO: Cover all cases (probably using an external resource)
         switch (name){
-            // Some dummy data for now
-            case "geneFamily":
-                return TreeNodeType.RELATIONSHIP;
+            // Everything is a Graph Node for now
             default:
                 return TreeNodeType.NODE;
         }

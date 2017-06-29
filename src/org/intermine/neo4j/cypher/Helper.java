@@ -1,15 +1,16 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
-import org.intermine.neo4j.metadata.Neo4jSchemaGenerator;
 import org.intermine.pathquery.OrderElement;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathQuery;
-import org.neo4j.driver.v1.Driver;
+import org.intermine.webservice.client.core.ContentType;
+import org.intermine.webservice.client.core.Request;
+import org.intermine.webservice.client.services.QueryService;
+import org.intermine.webservice.client.util.HttpConnection;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.*;
+
 
 /**
  * Stores various helper methods.

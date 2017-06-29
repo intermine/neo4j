@@ -1,0 +1,3 @@
+<query name="" model="genomic" view="Gene.primaryIdentifier Gene.chromosomeLocation.start Gene.chromosomeLocation.end Gene.chromosomeLocation.strand Gene.chromosome.primaryIdentifier " longDescription="" sortOrder="Gene.primaryIdentifier asc">
+
+</query>

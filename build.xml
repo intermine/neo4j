@@ -20,9 +20,9 @@
     <property name="intermine-model" value="lib/intermine-model.jar"/>
     <property name="intermine-client" value="lib/intermine-client.jar"/>
     <property name="intermine-pathquery" value="lib/intermine-pathquery.jar"/>
+    <property name="intermine-api" value="lib/intermine-api.jar"/>
 
     <property name="neo4j-java-driver" value="lib/neo4j-java-driver-1.3.0.jar"/>
-	<property name="neo4j-cypher-dsl" value="lib/neo4j-cypher-dsl-2.3.1.jar"/>
 	
     <property name="servlet-api" value="lib/servlet-api-3.1.0.jar"/>
 
@@ -40,7 +40,7 @@
   <target name="classes" depends="init">
     <javac srcdir="src"
 	   classpath="classes
-                      :${intermine-model}:${intermine-client}:${intermine-pathquery}
+                      :${intermine-model}:${intermine-client}:${intermine-pathquery}:${intermine-api}
                       :${neo4j-java-driver}
                       :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
                       :${servlet-api}"
@@ -54,7 +54,7 @@
   <target name="javadoc" depends="classes">
     <javadoc destdir="javadoc"
            classpath="classes
-                      :${intermine-model}:${intermine-client}:${intermine-pathquery}
+                      :${intermine-model}:${intermine-client}:${intermine-pathquery}:${intermine-api}
                       :${neo4j-java-driver}
                       :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
                       :${servlet-api}">

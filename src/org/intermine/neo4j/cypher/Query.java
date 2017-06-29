@@ -22,7 +22,7 @@ public class Query {
      *
      * @param string the given match
      */
-    public void addToMatch(String string){
+    protected void addToMatch(String string){
         if(matchClause.equals("")){
             matchClause += "MATCH " + string;
         } else {
@@ -35,7 +35,7 @@ public class Query {
      *
      * @param string the given match
      */
-    public void addToOptionalMatch(String string){
+    protected void addToOptionalMatch(String string){
         if(optionalMatchClause.equals("")){
             optionalMatchClause += "OPTIONAL MATCH " + string;
         } else {
@@ -48,7 +48,7 @@ public class Query {
      *
      * @param string the given view
      */
-    public void addToReturn(String string){
+    protected void addToReturn(String string){
         if(returnClause.equals("")){
             returnClause += "RETURN " + string;
         } else {
@@ -61,7 +61,7 @@ public class Query {
      *
      * @param string the given order
      */
-    public void addToOrderBy(String string){
+    protected void addToOrderBy(String string){
         if(orderByClause.equals("")){
             orderByClause += "ORDER BY " + string;
         } else {
