@@ -1,5 +1,7 @@
 package org.intermine.neo4j.cypher;
 
+import org.intermine.neo4j.cypher.tree.TreeNodeType;
+
 /**
  * Handles InterMine to Neo4j ontology conversion.
  *

@@ -1,4 +1,4 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.tree;
 
 /**
  * Represents type of the Path Query TreeNode - Node, Relationship or Property

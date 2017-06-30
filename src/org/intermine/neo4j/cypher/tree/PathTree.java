@@ -1,5 +1,7 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.tree;
 
+import org.intermine.neo4j.cypher.Helper;
+import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.PathQuery;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public class PathTree {
 
     private TreeNode root;
 
-    PathTree(PathQuery pathQuery){
+    public PathTree(PathQuery pathQuery){
         Boolean DEBUG = false;
 
         Set<String> paths = Helper.getAllPaths(pathQuery);

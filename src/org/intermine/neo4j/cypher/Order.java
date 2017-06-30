@@ -1,5 +1,7 @@
 package org.intermine.neo4j.cypher;
 
+import org.intermine.neo4j.cypher.tree.PathTree;
+import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.pathquery.OrderElement;
 
 /**
