@@ -1,6 +1,7 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.constraint;
 
 
+import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.pathquery.PathConstraint;
@@ -47,7 +48,7 @@ public class Constraint {
 
     private String getEqualsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
         String value = PathConstraint.getValue(pathConstraint);
-        if(!Helper.isNumeric(value)){
+        if (!Helper.isNumeric(value)) {
             value = Helper.quoted(value);
         }
         return join(treeNode.getParent().getVariableName() + "." +
@@ -70,19 +71,19 @@ public class Constraint {
     }
 
     private String getLookupConstraint(TreeNode treeNode, PathConstraint pathConstraint){
-        if(PathConstraint.getExtraValue(pathConstraint).equals(null)){
+        if (PathConstraint.getExtraValue(pathConstraint).equals(null)) {
             return "ANY (key in keys(" + treeNode.getVariableName() +
                     ") WHERE " + treeNode.getVariableName() + "[key]=" +
                     Helper.quoted(PathConstraint.getValue(pathConstraint)) +
                     ")";
         }
-        else{
+        else {
             String string = "ANY (key in keys(" + treeNode.getVariableName() +
                             ") WHERE " + treeNode.getVariableName() + "[key]=" +
                             Helper.quoted(PathConstraint.getValue(pathConstraint)) +
                             ")";
 
-            if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())){
+            if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())) {
                 ExtraValueBag extraValueBag = ExtraValueBag.getExtraValueBag();
                 string = "( " + string + " AND ";
                 string += "(" + treeNode.getVariableName() + ")-[]-(" +
@@ -143,7 +144,7 @@ public class Constraint {
                 PathConstraint.getValue(pathConstraint));
     }
 
-    Constraint(PathConstraint pathConstraint, PathTree pathTree){
+    public Constraint(PathConstraint pathConstraint, PathTree pathTree){
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
 
@@ -179,6 +180,7 @@ public class Constraint {
                 constraint = getEqualsConstraint(treeNode, pathConstraint);
                 break;
 
+            case STRICT_NOT_EQUALS:
             case NOT_EQUALS:
                 constraint = negation(getEqualsConstraint(treeNode, pathConstraint));
                 break;
@@ -247,8 +249,6 @@ public class Constraint {
             case NOT_IN:
                 constraint = negation(getInConstraint(treeNode, pathConstraint));
                 break;
-
-            case STRICT_NOT_EQUALS:
 
             case HAS:
 

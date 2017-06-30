@@ -1,4 +1,4 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.constraint;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.neo4j.driver.v1.Driver;
@@ -11,8 +11,13 @@ import java.io.IOException;
  * @author Yash Sharma
  */
 public class ExtraValueBag {
+
+    // The label of the node whose properties are matched by the extra value.
+    // Generally it is Organism.
     String label;
 
+    // The property which is matched by the extra value.
+    // For Organism it is its shortName.
     String property;
 
     public ExtraValueBag(String label, String property) {
@@ -20,6 +25,12 @@ public class ExtraValueBag {
         this.property = property;
     }
 
+    /**
+     * Reads extra value label & property from neo4jloader.properties, creates an ExtraValueBag
+     * object and returns it.
+     *
+     * @return The ExtraValueBag object
+     */
     protected static ExtraValueBag getExtraValueBag()  {
         try {
             Neo4jLoaderProperties neo4jLoaderProperties = new Neo4jLoaderProperties();
@@ -34,10 +45,20 @@ public class ExtraValueBag {
         return null;
     }
 
+    /**
+     * Returns the label of the extra value bag
+     *
+     * @return the label
+     */
     public String getLabel() {
         return label;
     }
 
+    /**
+     * Returns the property matched by the extra value.
+     *
+     * @return the property
+     */
     public String getProperty() {
         return property;
     }
@@ -56,11 +77,9 @@ public class ExtraValueBag {
             String neighbourLabel = neo4jLoaderProperties.getExtraValueLabel();
             Driver driver = neo4jLoaderProperties.getGraphDatabaseDriver();
 
-            // To check of extra constraint is valid, we need to access the data model.
-            // To access the data model we need to access the Neo4j database.
-            // It takes a lot of time, so to avoid it we are returning true by default, for now.
+            // TO DO : Restore this return statement when testing with proper IM Neo4j Graph.
 
-//            return Neo4jSchemaGenerator.getModel(driver).labelHasNeighbour(nodeLabel, neighbourLabel);
+            // return Neo4jSchemaGenerator.getModel(driver).labelHasNeighbour(nodeLabel, neighbourLabel);
             return true;
         }
         catch (IOException e){

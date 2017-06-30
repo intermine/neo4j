@@ -1,4 +1,4 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.constraint;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.webservice.client.lists.ItemList;
@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class BagHandler {
 
-    public static Set<String> getListNames(){
+    private static ListService getListService(){
         Neo4jLoaderProperties props = null;
         try {
             props = new Neo4jLoaderProperties();
@@ -26,9 +26,11 @@ public class BagHandler {
             System.out.println("Could not load neo4jloader.properties file.");
         }
         String authToken = props.getIntermineApiToken();
+        return props.getListService(authToken);
+    }
 
-        ListService listService = props.getListService(authToken);
-        return listService.getListMap().keySet();
+    public static Set<String> getListNames(){
+        return getListService().getListMap().keySet();
     }
 
     public static boolean listExists(String listName){
@@ -40,15 +42,7 @@ public class BagHandler {
         if (!listExists(listName)) {
             return set;
         }
-        Neo4jLoaderProperties props = null;
-        try {
-            props = new Neo4jLoaderProperties();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Could not load neo4jloader.properties file.");
-        }
-        String authToken = props.getIntermineApiToken();
-        ListService listService = props.getListService(authToken);
+        ListService listService = getListService();
         ItemList items = listService.getList(listName);
         Iterator<Item> iterator = items.iterator();
         while (iterator.hasNext()) {

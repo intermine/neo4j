@@ -1,4 +1,4 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.constraint;
 
 import org.intermine.metadata.ConstraintOp;
 import org.intermine.pathquery.PathConstraint;

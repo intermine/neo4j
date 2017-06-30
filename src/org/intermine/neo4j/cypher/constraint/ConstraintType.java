@@ -1,4 +1,4 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.constraint;
 
 /**
  * Describes a constraint type in Cypher Query.
