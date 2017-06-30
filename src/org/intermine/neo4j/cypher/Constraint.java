@@ -3,9 +3,6 @@ package org.intermine.neo4j.cypher;
 
 import org.intermine.pathquery.PathConstraint;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Describes a constraint in Cypher Query.
  *
@@ -144,11 +141,7 @@ public class Constraint {
                 constraint = treeNode.getParent().getVariableName() + "." +
                             treeNode.getGraphicalName() + " " +
                             "IN ";
-                Set<String> valueSet = new HashSet<>();
-                for (String val: PathConstraint.getValues(pathConstraint)){
-                    valueSet.add(Helper.quoted(val));
-                }
-                constraint += valueSet;
+                constraint += Helper.quoted(PathConstraint.getValues(pathConstraint));
                 break;
 
             case NONE_OF:
@@ -156,11 +149,7 @@ public class Constraint {
                             treeNode.getParent().getVariableName() + "." +
                             treeNode.getGraphicalName() + " " +
                             "IN ";
-                valueSet = new HashSet<>();
-                for (String val: PathConstraint.getValues(pathConstraint)){
-                    valueSet.add(Helper.quoted(val));
-                }
-                constraint += valueSet;
+                constraint += Helper.quoted(PathConstraint.getValues(pathConstraint));
                 break;
 
             case EXISTS:
@@ -220,15 +209,25 @@ public class Constraint {
                             Helper.quoted(PathConstraint.getValue(pathConstraint));
                 break;
 
+            case IN:
+                constraint = treeNode.getGraphicalName() + ".primaryIdentifier IN " +
+                Helper.quoted(BagHandler.getAttributes(PathConstraint.getValue(pathConstraint),
+                                                        treeNode.getGraphicalName(),
+                                                        "primaryIdentifier"));
+                break;
+
+            case NOT_IN:
+                constraint = "NOT " + treeNode.getGraphicalName() + ".primaryIdentifier IN " +
+                Helper.quoted(BagHandler.getAttributes(PathConstraint.getValue(pathConstraint),
+                                                        treeNode.getGraphicalName(),
+                                                        "primaryIdentifier"));
+                break;
+
             case STRICT_NOT_EQUALS:
 
             case HAS:
 
             case DOES_NOT_HAVE:
-
-            case IN:    // Require that the first argument is IN the second
-                        // Need to fetch lists (bags) in user profile from IM API
-            case NOT_IN:
 
             case ISA:
 

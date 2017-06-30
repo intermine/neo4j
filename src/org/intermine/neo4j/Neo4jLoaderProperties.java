@@ -103,6 +103,13 @@ public class Neo4jLoaderProperties {
         return new ServiceFactory(intermineServiceUrl).getListService();
     }
 
+    /**
+     * Return an InterMine ListService with authentication.
+     */
+    public ListService getListService(String authToken) {
+        return new ServiceFactory(intermineServiceUrl, authToken).getListService();
+    }
+
 
     /**
      * Return an InterMine Model
