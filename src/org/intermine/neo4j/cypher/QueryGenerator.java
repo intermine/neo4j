@@ -1,6 +1,9 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.cypher.tree.PathTree;
+import org.intermine.neo4j.cypher.tree.TreeNode;
+import org.intermine.neo4j.cypher.tree.TreeNodeType;
 import org.intermine.pathquery.OrderElement;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathQuery;

@@ -1,4 +1,6 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.tree;
+
+import org.intermine.neo4j.cypher.OntologyConverter;
 
 import java.util.HashMap;
 import java.util.Map;
