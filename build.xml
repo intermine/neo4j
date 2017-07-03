@@ -4,18 +4,18 @@
   <target name="init">
     <tstamp/>
 
-    <property name="antlr" value="lib/antlr-2.7.6-caching.jar"/>
-
     <property name="commons-codec" value="lib/commons-codec-1.9.jar"/>
     <property name="commons-lang" value="lib/commons-lang-2.6.jar"/>
     <property name="commons-httpclient" value="lib/commons-httpclient-3.0.jar"/>
     <property name="commons-io" value="lib/commons-io-1.2.jar"/>
     <property name="commons-logging" value="lib/commons-logging-1.1.1.jar"/>
 
+    <property name="antlr" value="lib/antlr-2.7.6-caching.jar"/>
     <property name="json" value="lib/json20110106.jar"/>
     <property name="stax-api" value="lib/stax-api-1.0.jar"/>
     <property name="stax-ri" value="lib/stax-ri-1.0.jar"/>
     <property name="log4j" value="lib/log4j.jar"/>
+    <property name="servlet-api" value="lib/servlet-api-3.1.0.jar"/>
     
     <property name="intermine-model" value="lib/intermine-model.jar"/>
     <property name="intermine-client" value="lib/intermine-client.jar"/>
@@ -23,8 +23,7 @@
     <property name="intermine-api" value="lib/intermine-api.jar"/>
 
     <property name="neo4j-java-driver" value="lib/neo4j-java-driver-1.3.0.jar"/>
-	
-    <property name="servlet-api" value="lib/servlet-api-3.1.0.jar"/>
+    <property name="apoc" value="lib/apoc-3.2.0.3-all.jar"/>
 
     <property name="jar" value="intermine-neo4j.jar"/>
 
@@ -41,7 +40,7 @@
     <javac srcdir="src"
 	   classpath="classes
                       :${intermine-model}:${intermine-client}:${intermine-pathquery}:${intermine-api}
-                      :${neo4j-java-driver}
+                      :${neo4j-java-driver}:${apoc}
                       :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
                       :${servlet-api}"
            deprecation="true"
@@ -55,7 +54,7 @@
     <javadoc destdir="javadoc"
            classpath="classes
                       :${intermine-model}:${intermine-client}:${intermine-pathquery}:${intermine-api}
-                      :${neo4j-java-driver}
+                      :${neo4j-java-driver}:${apoc}
                       :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
                       :${servlet-api}">
       <fileset dir="src" />
