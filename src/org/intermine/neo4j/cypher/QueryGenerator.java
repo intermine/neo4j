@@ -1,6 +1,7 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.cypher.constraint.Constraint;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
@@ -36,20 +37,18 @@ public class QueryGenerator {
         QueryService service = props.getQueryService();
         PathQuery pathQuery = service.createPathQuery(input);
 
-        if (!pathQuery.isValid()) {
-            System.out.println("Please enter a valid path query.");
-            System.exit(0);
-        }
-
         // We need to call getQueryToExecute() first. For template queries this gets a query that
         // excludes any optional constraints that have been switched off.  A normal PathQuery is
         // unchanged.
         pathQuery = pathQuery.getQueryToExecute();
 
+        if (!pathQuery.isValid()) {
+            System.out.println("Please enter a valid path query.");
+            System.exit(0);
+        }
+
         PathTree pathTree = new PathTree(pathQuery);
         Query query = new Query();
-
-        Helper.printConstraints(pathQuery);
 
         createMatchClause(query, pathTree.getRoot());
         createWhereClause(query, pathTree, pathQuery);
@@ -170,6 +169,7 @@ public class QueryGenerator {
             TreeNode treeNode = pathTree.getTreeNode(path);
             if (treeNode.getTreeNodeType() == TreeNodeType.PROPERTY) {
                 // Return ONLY IF a property is queried !!
+                // Nodes & Relationships cannot be returned.
                 query.addToReturn(treeNode.getParent().getVariableName() + "." +
                 treeNode.getGraphicalName());
             }

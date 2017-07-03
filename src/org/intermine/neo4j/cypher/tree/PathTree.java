@@ -59,6 +59,9 @@ public class PathTree {
                 if(this.root == null){
                     // Create the root TreeNode. It is always represents a Graph Node.
                     // Parent is null for root.
+                    if (DEBUG) {
+                        System.out.println("Root created " + variableName);
+                    }
                     this.root = new TreeNode(variableName, token, TreeNodeType.NODE, null);
                 }
                 else{
@@ -71,16 +74,7 @@ public class PathTree {
                         }
                         // Get current TreeNode's child
                         TreeNode child = treeNode.getChild(str);
-
-                        TreeNodeType treeNodeType;
-                        if(tokens.indexOf(str) == tokens.size()-1){
-                            // Last element of the path must be a property.
-                            // We could use Ontology Converter to get TreeNodeType for all the TreeNodes
-                            // based on their name, instead on relying on their position in the path.
-                            treeNodeType = TreeNodeType.PROPERTY;
-                        } else {
-                            treeNodeType = OntologyConverter.getGraphComponentType(str);
-                        }
+                        TreeNodeType treeNodeType = OntologyConverter.getTreeNodeType(str);
 
                         // If child does not exist, create a new one.
                         // If it exists already, then this path prefix was also found in a previous path,
@@ -144,11 +138,11 @@ public class PathTree {
         if (root == null){
             return;
         }
-        System.out.print(root.getName()+ ":" + root.getTreeNodeType().name() + " ");
+        System.out.print(root.getVariableName()+ ":" + root.getTreeNodeType().name() + " ");
         for (String key : root.getChildrenKeys()){
             serializeUtil(root.getChild(key));
         }
-        System.out.print(")");
+        System.out.println(")");
     }
 
     /**

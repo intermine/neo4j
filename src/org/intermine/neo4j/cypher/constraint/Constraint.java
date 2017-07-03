@@ -1,9 +1,14 @@
-package org.intermine.neo4j.cypher;
+package org.intermine.neo4j.cypher.constraint;
 
 
+import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.pathquery.PathConstraint;
+import org.intermine.pathquery.PathConstraintRange;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Describes a constraint in Cypher Query.
@@ -38,16 +43,9 @@ public class Constraint {
                     PathConstraint.getValue(pathConstraint));
     }
 
-    private String getContainsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
-        return join(treeNode.getParent().getVariableName() + "." +
-                    treeNode.getGraphicalName(),
-                    "CONTAINS",
-                    Helper.quoted(PathConstraint.getValue(pathConstraint)));
-    }
-
     private String getEqualsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
         String value = PathConstraint.getValue(pathConstraint);
-        if(!Helper.isNumeric(value)){
+        if (!Helper.isNumeric(value)) {
             value = Helper.quoted(value);
         }
         return join(treeNode.getParent().getVariableName() + "." +
@@ -70,19 +68,19 @@ public class Constraint {
     }
 
     private String getLookupConstraint(TreeNode treeNode, PathConstraint pathConstraint){
-        if(PathConstraint.getExtraValue(pathConstraint).equals(null)){
+        if (PathConstraint.getExtraValue(pathConstraint).equals(null)) {
             return "ANY (key in keys(" + treeNode.getVariableName() +
                     ") WHERE " + treeNode.getVariableName() + "[key]=" +
                     Helper.quoted(PathConstraint.getValue(pathConstraint)) +
                     ")";
         }
-        else{
+        else {
             String string = "ANY (key in keys(" + treeNode.getVariableName() +
                             ") WHERE " + treeNode.getVariableName() + "[key]=" +
                             Helper.quoted(PathConstraint.getValue(pathConstraint)) +
                             ")";
 
-            if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())){
+            if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())) {
                 ExtraValueBag extraValueBag = ExtraValueBag.getExtraValueBag();
                 string = "( " + string + " AND ";
                 string += "(" + treeNode.getVariableName() + ")-[]-(" +
@@ -143,11 +141,84 @@ public class Constraint {
                 PathConstraint.getValue(pathConstraint));
     }
 
-    Constraint(PathConstraint pathConstraint, PathTree pathTree){
+    private String getRangeConstraint(TreeNode treeNode,
+                                      PathConstraint pathConstraint,
+                                      ConstraintType constraintType){
+        if(!treeNode.getName().equals("chromosomeLocation")){
+            return "<" + constraintType.name() + " UNSUPPORTED ON " + treeNode.getName() + ">";
+        }
+        List<String> ranges = new ArrayList<>(PathConstraint.getValues(pathConstraint));
+        PathConstraintRange pcr = new PathConstraintRange(pathConstraint.getPath(),
+        pathConstraint.getOp(),
+        ranges);
+        String constraintString = "";
+        for (String range: pcr.getValues()) {
+            GenomicInterval interval = new GenomicInterval(range);
+            String chromosomePrimaryId = interval.getChr();
+            int start = interval.getStart();
+            int end = interval.getEnd();
+            if (!constraintString.equals("")) {
+                constraintString += " OR ";
+            }
+            if (start <= end) {
+                constraintString += "(";
+                if (constraintType == ConstraintType.OVERLAPS) {
+                        constraintString += treeNode.getVariableName() + ".start <= " + end +
+                                    " AND " +
+                                    treeNode.getVariableName() + ".end >= " + start;
+
+                }
+                else if (constraintType == ConstraintType.CONTAINS) {
+                    constraintString += "(" +
+                                    treeNode.getVariableName() + ".start <= " + start +
+                                    " AND " +
+                                    treeNode.getVariableName() + ".end >= " + end;
+                }
+                else if (constraintType == ConstraintType.WITHIN) {
+                    constraintString += "(" +
+                                    treeNode.getVariableName() + ".start >= " + start +
+                                    " AND " +
+                                    treeNode.getVariableName() + ".end <= " + end;
+                }
+                constraintString += " AND " +
+                                "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
+                                Helper.quoted(chromosomePrimaryId) + "})" +
+                                ")";
+            }
+            else {
+                return "<INVALID RANGE ENTERED>";
+            }
+        }
+        return constraintString;
+    }
+
+    private String getContainsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        // If CONTAINS is matching Strings
+        if (!PathConstraint.getValue(pathConstraint).equals(null)) {
+            return join(treeNode.getParent().getVariableName() + "." +
+            treeNode.getGraphicalName(),
+            "CONTAINS",
+            Helper.quoted(PathConstraint.getValue(pathConstraint)));
+        }
+        else {
+            // If CONTAINS is matching Intervals
+            return getRangeConstraint(treeNode, pathConstraint, ConstraintType.CONTAINS);
+        }
+    }
+
+    private String getOverlapsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        return getRangeConstraint(treeNode, pathConstraint, ConstraintType.OVERLAPS);
+    }
+
+    private String getWithinConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        return getRangeConstraint(treeNode, pathConstraint, ConstraintType.WITHIN);
+    }
+
+    public Constraint(PathConstraint pathConstraint, PathTree pathTree){
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
 
-        switch (type){
+        switch (type) {
 
             case AND:
                 constraint = getAndConstraint(treeNode, pathConstraint);
@@ -179,6 +250,7 @@ public class Constraint {
                 constraint = getEqualsConstraint(treeNode, pathConstraint);
                 break;
 
+            case STRICT_NOT_EQUALS:
             case NOT_EQUALS:
                 constraint = negation(getEqualsConstraint(treeNode, pathConstraint));
                 break;
@@ -248,7 +320,20 @@ public class Constraint {
                 constraint = negation(getInConstraint(treeNode, pathConstraint));
                 break;
 
-            case STRICT_NOT_EQUALS:
+            case WITHIN:
+                constraint = getWithinConstraint(treeNode, pathConstraint);
+                break;
+
+            case OUTSIDE:
+                constraint = negation(getWithinConstraint(treeNode, pathConstraint));
+
+            case OVERLAPS:
+                constraint = getOverlapsConstraint(treeNode, pathConstraint);
+                break;
+
+            case DOES_NOT_OVERLAP:
+                constraint = negation(getOverlapsConstraint(treeNode, pathConstraint));
+                break;
 
             case HAS:
 
@@ -257,14 +342,6 @@ public class Constraint {
             case ISA:
 
             case ISNT:
-
-            case WITHIN:
-
-            case OUTSIDE:
-
-            case OVERLAPS:
-
-            case DOES_NOT_OVERLAP:
 
             case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<UNSUPPORTED CONSTRAINT>";
