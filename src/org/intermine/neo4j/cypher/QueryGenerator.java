@@ -50,8 +50,6 @@ public class QueryGenerator {
         PathTree pathTree = new PathTree(pathQuery);
         Query query = new Query();
 
-//        Helper.printConstraints(pathQuery);
-
         createMatchClause(query, pathTree.getRoot());
         createWhereClause(query, pathTree, pathQuery);
         createReturnClause(query, pathTree, pathQuery);

@@ -1,5 +1,4 @@
 <query model="genomic" view="Gene.symbol Gene.pathways.identifier">
-    <join path="Gene.pathways" style="OUTER"/>
     <constraint path="Gene.chromosomeLocation" op="OVERLAPS">
         <value>X:12345..45678</value>
         <value>2L:12345..45678</value>

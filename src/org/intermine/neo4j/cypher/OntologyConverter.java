@@ -30,10 +30,27 @@ public class OntologyConverter {
      * @param name name of the component
      * @return type of the component
      */
-    public static TreeNodeType getGraphComponentType(String name){
+    public static TreeNodeType getTreeNodeType(String name){
         // TO DO: Cover all cases (probably using an external resource)
         switch (name){
-            // Everything is a Graph Node for now
+
+            case "value":
+            case "identifier":
+            case "symbol":
+            case "secondaryIdentifier":
+            case "primaryIdentifier":
+            case "name":
+            case "type":
+            case "code":
+            case "annotationType":
+            case "description":
+            case "start":
+            case "end":
+            case "strand":
+            case "taxonId":
+            case "length":
+                return TreeNodeType.PROPERTY;
+
             default:
                 return TreeNodeType.NODE;
         }

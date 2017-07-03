@@ -5,6 +5,10 @@ import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.pathquery.PathConstraint;
+import org.intermine.pathquery.PathConstraintRange;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Describes a constraint in Cypher Query.
@@ -144,6 +148,48 @@ public class Constraint {
                 PathConstraint.getValue(pathConstraint));
     }
 
+    // TO DO : Complete this method
+    private String getOverlapsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        if(!treeNode.getName().equals("chromosomeLocation")){
+            return "<OVERLAPS UNSUPPORTED ON " + treeNode.getName() + ">";
+        }
+        List<String> ranges = new ArrayList<>(PathConstraint.getValues(pathConstraint));
+        PathConstraintRange pcr = new PathConstraintRange(pathConstraint.getPath(),
+                                                            pathConstraint.getOp(),
+                                                            ranges);
+        String constraintString = "";
+        for (String range: pcr.getValues()) {
+            GenomicInterval interval = new GenomicInterval(range);
+            String chromosomePrimaryId = interval.getChr();
+            int start = interval.getStart();
+            int end = interval.getEnd();
+            if(!constraintString.equals("")){
+                constraintString += " OR ";
+            }
+            if(start != end){
+                constraintString += "(" +
+                                    treeNode.getVariableName() + ".start >= " + start +
+                                    " AND " +
+                                    treeNode.getVariableName() + ".end <= " + end +
+                                    " AND " +
+                                    "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
+                                    Helper.quoted(chromosomePrimaryId) + "})" +
+                                    ")";
+            }
+            else{
+                constraintString += "(" +
+                                    treeNode.getVariableName() + ".start = " + start +
+                                    " AND " +
+                                    treeNode.getVariableName() + ".end = " + end +
+                                    " AND " +
+                                    "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
+                                    Helper.quoted(chromosomePrimaryId) + "})" +
+                                    ")";
+            }
+        }
+        return constraintString;
+    }
+
     public Constraint(PathConstraint pathConstraint, PathTree pathTree){
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
@@ -263,8 +309,12 @@ public class Constraint {
             case OUTSIDE:
 
             case OVERLAPS:
+                constraint = getOverlapsConstraint(treeNode, pathConstraint);
+                break;
 
             case DOES_NOT_OVERLAP:
+                constraint = negation(getOverlapsConstraint(treeNode, pathConstraint));
+                break;
 
             case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<UNSUPPORTED CONSTRAINT>";
