@@ -43,13 +43,6 @@ public class Constraint {
                     PathConstraint.getValue(pathConstraint));
     }
 
-    private String getContainsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
-        return join(treeNode.getParent().getVariableName() + "." +
-                    treeNode.getGraphicalName(),
-                    "CONTAINS",
-                    Helper.quoted(PathConstraint.getValue(pathConstraint)));
-    }
-
     private String getEqualsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
         String value = PathConstraint.getValue(pathConstraint);
         if (!Helper.isNumeric(value)) {
@@ -148,15 +141,16 @@ public class Constraint {
                 PathConstraint.getValue(pathConstraint));
     }
 
-    // TO DO : Complete this method
-    private String getOverlapsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+    private String getRangeConstraint(TreeNode treeNode,
+                                      PathConstraint pathConstraint,
+                                      ConstraintType constraintType){
         if(!treeNode.getName().equals("chromosomeLocation")){
-            return "<OVERLAPS UNSUPPORTED ON " + treeNode.getName() + ">";
+            return "<" + constraintType.name() + " UNSUPPORTED ON " + treeNode.getName() + ">";
         }
         List<String> ranges = new ArrayList<>(PathConstraint.getValues(pathConstraint));
         PathConstraintRange pcr = new PathConstraintRange(pathConstraint.getPath(),
-                                                            pathConstraint.getOp(),
-                                                            ranges);
+        pathConstraint.getOp(),
+        ranges);
         String constraintString = "";
         for (String range: pcr.getValues()) {
             GenomicInterval interval = new GenomicInterval(range);
@@ -167,20 +161,57 @@ public class Constraint {
                 constraintString += " OR ";
             }
             if (start <= end) {
-                constraintString += "(" +
-                                    treeNode.getVariableName() + ".start <= " + end +
+                constraintString += "(";
+                if (constraintType == ConstraintType.OVERLAPS) {
+                        constraintString += treeNode.getVariableName() + ".start <= " + end +
                                     " AND " +
-                                    treeNode.getVariableName() + ".end >= " + start +
+                                    treeNode.getVariableName() + ".end >= " + start;
+
+                }
+                else if (constraintType == ConstraintType.CONTAINS) {
+                    constraintString += "(" +
+                                    treeNode.getVariableName() + ".start <= " + start +
                                     " AND " +
-                                    "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
-                                    Helper.quoted(chromosomePrimaryId) + "})" +
-                                    ")";
+                                    treeNode.getVariableName() + ".end >= " + end;
+                }
+                else if (constraintType == ConstraintType.WITHIN) {
+                    constraintString += "(" +
+                                    treeNode.getVariableName() + ".start >= " + start +
+                                    " AND " +
+                                    treeNode.getVariableName() + ".end <= " + end;
+                }
+                constraintString += " AND " +
+                                "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
+                                Helper.quoted(chromosomePrimaryId) + "})" +
+                                ")";
             }
             else {
                 return "<INVALID RANGE ENTERED>";
             }
         }
         return constraintString;
+    }
+
+    private String getContainsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        // If CONTAINS is matching Strings
+        if (!PathConstraint.getValue(pathConstraint).equals(null)) {
+            return join(treeNode.getParent().getVariableName() + "." +
+            treeNode.getGraphicalName(),
+            "CONTAINS",
+            Helper.quoted(PathConstraint.getValue(pathConstraint)));
+        }
+        else {
+            // If CONTAINS is matching Intervals
+            return getRangeConstraint(treeNode, pathConstraint, ConstraintType.CONTAINS);
+        }
+    }
+
+    private String getOverlapsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        return getRangeConstraint(treeNode, pathConstraint, ConstraintType.OVERLAPS);
+    }
+
+    private String getWithinConstraint(TreeNode treeNode, PathConstraint pathConstraint){
+        return getRangeConstraint(treeNode, pathConstraint, ConstraintType.WITHIN);
     }
 
     public Constraint(PathConstraint pathConstraint, PathTree pathTree){
@@ -289,17 +320,12 @@ public class Constraint {
                 constraint = negation(getInConstraint(treeNode, pathConstraint));
                 break;
 
-            case HAS:
-
-            case DOES_NOT_HAVE:
-
-            case ISA:
-
-            case ISNT:
-
             case WITHIN:
+                constraint = getWithinConstraint(treeNode, pathConstraint);
+                break;
 
             case OUTSIDE:
+                constraint = negation(getWithinConstraint(treeNode, pathConstraint));
 
             case OVERLAPS:
                 constraint = getOverlapsConstraint(treeNode, pathConstraint);
@@ -308,6 +334,14 @@ public class Constraint {
             case DOES_NOT_OVERLAP:
                 constraint = negation(getOverlapsConstraint(treeNode, pathConstraint));
                 break;
+
+            case HAS:
+
+            case DOES_NOT_HAVE:
+
+            case ISA:
+
+            case ISNT:
 
             case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<UNSUPPORTED CONSTRAINT>";
