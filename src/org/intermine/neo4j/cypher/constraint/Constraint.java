@@ -163,28 +163,21 @@ public class Constraint {
             String chromosomePrimaryId = interval.getChr();
             int start = interval.getStart();
             int end = interval.getEnd();
-            if(!constraintString.equals("")){
+            if (!constraintString.equals("")) {
                 constraintString += " OR ";
             }
-            if(start != end){
+            if (start <= end) {
                 constraintString += "(" +
-                                    treeNode.getVariableName() + ".start >= " + start +
+                                    treeNode.getVariableName() + ".start <= " + end +
                                     " AND " +
-                                    treeNode.getVariableName() + ".end <= " + end +
+                                    treeNode.getVariableName() + ".end >= " + start +
                                     " AND " +
                                     "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
                                     Helper.quoted(chromosomePrimaryId) + "})" +
                                     ")";
             }
-            else{
-                constraintString += "(" +
-                                    treeNode.getVariableName() + ".start = " + start +
-                                    " AND " +
-                                    treeNode.getVariableName() + ".end = " + end +
-                                    " AND " +
-                                    "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
-                                    Helper.quoted(chromosomePrimaryId) + "})" +
-                                    ")";
+            else {
+                return "<INVALID RANGE ENTERED>";
             }
         }
         return constraintString;
@@ -194,7 +187,7 @@ public class Constraint {
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
 
-        switch (type){
+        switch (type) {
 
             case AND:
                 constraint = getAndConstraint(treeNode, pathConstraint);
