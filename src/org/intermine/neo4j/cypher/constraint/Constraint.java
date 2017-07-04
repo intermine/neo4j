@@ -68,7 +68,7 @@ public class Constraint {
     }
 
     private String getLookupConstraint(TreeNode treeNode, PathConstraint pathConstraint){
-        if (PathConstraint.getExtraValue(pathConstraint).equals(null)) {
+        if (PathConstraint.getExtraValue(pathConstraint) == null) {
             return "ANY (key in keys(" + treeNode.getVariableName() +
                     ") WHERE " + treeNode.getVariableName() + "[key]=" +
                     Helper.quoted(PathConstraint.getValue(pathConstraint)) +
@@ -194,7 +194,7 @@ public class Constraint {
 
     private String getContainsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
         // If CONTAINS is matching Strings
-        if (!PathConstraint.getValue(pathConstraint).equals(null)) {
+        if (!(PathConstraint.getValue(pathConstraint) == null)) {
             return join(treeNode.getParent().getVariableName() + "." +
             treeNode.getGraphicalName(),
             "CONTAINS",
