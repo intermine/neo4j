@@ -340,13 +340,25 @@ public class Constraint {
             case DOES_NOT_HAVE:
 
             case ISA:
+                constraint = getIsAConstraint(treeNode, pathConstraint);
+                break;
 
             case ISNT:
+                constraint = negation(getIsAConstraint(treeNode, pathConstraint));
+                break;
 
             case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<UNSUPPORTED CONSTRAINT>";
                 break;
         }
+    }
+
+    private String getIsAConstraint(TreeNode treeNode, PathConstraint pathConstraint) {
+        return "ANY(x IN labels(" +
+                treeNode.getVariableName() +
+                ") WHERE x IN " +
+                Helper.quoted(PathConstraint.getValues(pathConstraint)) +
+                ")";
     }
 
     /**
