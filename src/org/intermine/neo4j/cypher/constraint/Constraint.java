@@ -2,8 +2,10 @@ package org.intermine.neo4j.cypher.constraint;
 
 
 import org.intermine.neo4j.cypher.Helper;
+import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
+import org.intermine.neo4j.cypher.tree.TreeNodeType;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathConstraintRange;
 
@@ -214,6 +216,18 @@ public class Constraint {
         return getRangeConstraint(treeNode, pathConstraint, ConstraintType.WITHIN);
     }
 
+    private String getIsAConstraint(TreeNode treeNode, PathConstraint pathConstraint) {
+        if(treeNode.getTreeNodeType() != TreeNodeType.NODE){
+            System.out.println("ISA constraint can only be applied on nodes");
+            return "<Invalid use of ISA constraint>";
+        }
+        return "ANY(x IN labels(" +
+        treeNode.getVariableName() +
+        ") WHERE x IN " +
+        Helper.quoted(OntologyConverter.convertInterMineToNeo4j(PathConstraint.getValues(pathConstraint))) +
+        ")";
+    }
+
     public Constraint(PathConstraint pathConstraint, PathTree pathTree){
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
@@ -335,10 +349,6 @@ public class Constraint {
                 constraint = negation(getOverlapsConstraint(treeNode, pathConstraint));
                 break;
 
-            case HAS:
-
-            case DOES_NOT_HAVE:
-
             case ISA:
                 constraint = getIsAConstraint(treeNode, pathConstraint);
                 break;
@@ -347,18 +357,14 @@ public class Constraint {
                 constraint = negation(getIsAConstraint(treeNode, pathConstraint));
                 break;
 
+            case HAS:
+
+            case DOES_NOT_HAVE:
+
             case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<UNSUPPORTED CONSTRAINT>";
                 break;
         }
-    }
-
-    private String getIsAConstraint(TreeNode treeNode, PathConstraint pathConstraint) {
-        return "ANY(x IN labels(" +
-                treeNode.getVariableName() +
-                ") WHERE x IN " +
-                Helper.quoted(PathConstraint.getValues(pathConstraint)) +
-                ")";
     }
 
     /**

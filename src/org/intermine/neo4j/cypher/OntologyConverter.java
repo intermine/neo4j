@@ -2,6 +2,10 @@ package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Handles InterMine to Neo4j ontology conversion.
  *
@@ -22,6 +26,20 @@ public class OntologyConverter {
         // For relationships, return type
         // For properties, return property name
         return graphName;
+    }
+
+    /**
+     * Converts all Intermine names in the collection to their Neo4j version.
+     *
+     * @param collection the InterMine name
+     * @return the collection containing Neo4j names
+     */
+    public static Set<String> convertInterMineToNeo4j(Collection<String> collection){
+        Set<String> set = new HashSet<>();
+        for (String string: collection) {
+            set.add(convertInterMineToNeo4j(string));
+        }
+        return set;
     }
 
     /**
