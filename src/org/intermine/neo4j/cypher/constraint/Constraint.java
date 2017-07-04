@@ -2,8 +2,10 @@ package org.intermine.neo4j.cypher.constraint;
 
 
 import org.intermine.neo4j.cypher.Helper;
+import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
+import org.intermine.neo4j.cypher.tree.TreeNodeType;
 import org.intermine.pathquery.PathConstraint;
 import org.intermine.pathquery.PathConstraintRange;
 
@@ -68,7 +70,7 @@ public class Constraint {
     }
 
     private String getLookupConstraint(TreeNode treeNode, PathConstraint pathConstraint){
-        if (PathConstraint.getExtraValue(pathConstraint).equals(null)) {
+        if (PathConstraint.getExtraValue(pathConstraint) == null) {
             return "ANY (key in keys(" + treeNode.getVariableName() +
                     ") WHERE " + treeNode.getVariableName() + "[key]=" +
                     Helper.quoted(PathConstraint.getValue(pathConstraint)) +
@@ -80,12 +82,12 @@ public class Constraint {
                             Helper.quoted(PathConstraint.getValue(pathConstraint)) +
                             ")";
 
-            if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())) {
-                ExtraValueBag extraValueBag = ExtraValueBag.getExtraValueBag();
+            if (ExtraValue.isExtraConstraint(treeNode.getGraphicalName())) {
+                ExtraValue extraValue = ExtraValue.getExtraValueBag();
                 string = "( " + string + " AND ";
                 string += "(" + treeNode.getVariableName() + ")-[]-(" +
-                        extraValueBag.getLabel() + " { " +
-                        extraValueBag.getProperty() + ": " +
+                        extraValue.getLabel() + " { " +
+                        extraValue.getProperty() + ": " +
                         Helper.quoted(PathConstraint.getExtraValue(pathConstraint)) +
                         " } ))";
             }
@@ -194,7 +196,7 @@ public class Constraint {
 
     private String getContainsConstraint(TreeNode treeNode, PathConstraint pathConstraint){
         // If CONTAINS is matching Strings
-        if (!PathConstraint.getValue(pathConstraint).equals(null)) {
+        if (!(PathConstraint.getValue(pathConstraint) == null)) {
             return join(treeNode.getParent().getVariableName() + "." +
             treeNode.getGraphicalName(),
             "CONTAINS",
@@ -212,6 +214,18 @@ public class Constraint {
 
     private String getWithinConstraint(TreeNode treeNode, PathConstraint pathConstraint){
         return getRangeConstraint(treeNode, pathConstraint, ConstraintType.WITHIN);
+    }
+
+    private String getIsAConstraint(TreeNode treeNode, PathConstraint pathConstraint) {
+        if(treeNode.getTreeNodeType() != TreeNodeType.NODE){
+            System.out.println("ISA constraint can only be applied on nodes");
+            return "<Invalid use of ISA constraint>";
+        }
+        return "ANY(x IN labels(" +
+        treeNode.getVariableName() +
+        ") WHERE x IN " +
+        Helper.quoted(OntologyConverter.convertInterMineToNeo4j(PathConstraint.getValues(pathConstraint))) +
+        ")";
     }
 
     public Constraint(PathConstraint pathConstraint, PathTree pathTree){
@@ -335,13 +349,17 @@ public class Constraint {
                 constraint = negation(getOverlapsConstraint(treeNode, pathConstraint));
                 break;
 
+            case ISA:
+                constraint = getIsAConstraint(treeNode, pathConstraint);
+                break;
+
+            case ISNT:
+                constraint = negation(getIsAConstraint(treeNode, pathConstraint));
+                break;
+
             case HAS:
 
             case DOES_NOT_HAVE:
-
-            case ISA:
-
-            case ISNT:
 
             case UNSUPPORTED_CONSTRAINT:
                 this.constraint = "<UNSUPPORTED CONSTRAINT>";

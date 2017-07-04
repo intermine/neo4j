@@ -10,7 +10,7 @@ import java.io.IOException;
  *
  * @author Yash Sharma
  */
-public class ExtraValueBag {
+public class ExtraValue {
 
     // The label of the node whose properties are matched by the extra value.
     // Generally it is Organism.
@@ -20,21 +20,21 @@ public class ExtraValueBag {
     // For Organism it is its shortName.
     String property;
 
-    public ExtraValueBag(String label, String property) {
+    public ExtraValue(String label, String property) {
         this.label = label;
         this.property = property;
     }
 
     /**
-     * Reads extra value label & property from neo4jloader.properties, creates an ExtraValueBag
+     * Reads extra value label & property from neo4jloader.properties, creates an ExtraValue
      * object and returns it.
      *
-     * @return The ExtraValueBag object
+     * @return The ExtraValue object
      */
-    protected static ExtraValueBag getExtraValueBag()  {
+    protected static ExtraValue getExtraValueBag()  {
         try {
             Neo4jLoaderProperties neo4jLoaderProperties = new Neo4jLoaderProperties();
-            return new ExtraValueBag(neo4jLoaderProperties.getExtraValueLabel(),
+            return new ExtraValue(neo4jLoaderProperties.getExtraValueLabel(),
                                     neo4jLoaderProperties.getExtraValuePropertyName());
 
         }
