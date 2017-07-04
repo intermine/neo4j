@@ -80,12 +80,12 @@ public class Constraint {
                             Helper.quoted(PathConstraint.getValue(pathConstraint)) +
                             ")";
 
-            if (ExtraValueBag.isExtraConstraint(treeNode.getGraphicalName())) {
-                ExtraValueBag extraValueBag = ExtraValueBag.getExtraValueBag();
+            if (ExtraValue.isExtraConstraint(treeNode.getGraphicalName())) {
+                ExtraValue extraValue = ExtraValue.getExtraValueBag();
                 string = "( " + string + " AND ";
                 string += "(" + treeNode.getVariableName() + ")-[]-(" +
-                        extraValueBag.getLabel() + " { " +
-                        extraValueBag.getProperty() + ": " +
+                        extraValue.getLabel() + " { " +
+                        extraValue.getProperty() + ": " +
                         Helper.quoted(PathConstraint.getExtraValue(pathConstraint)) +
                         " } ))";
             }
