@@ -1,0 +1,1 @@
+<query name="GOterm_gene_report" model="genomic" view="GOTerm.name GOTerm.ontologyAnnotations.subject.primaryIdentifier GOTerm.ontologyAnnotations.subject.symbol" longDescription="For a specified GO term, show the set of genes with this annotation." sortOrder="GOTerm.name asc"><constraint path="GOTerm.identifier" editable="true" op="=" value="GO:0001965" /></query>
