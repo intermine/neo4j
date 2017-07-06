@@ -1,0 +1,4 @@
+
+org.intermine.neo4j
+org.intermine.neo4j.cypher
+org.intermine.neo4j.metadata

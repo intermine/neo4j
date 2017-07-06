@@ -2,6 +2,7 @@
 classes/
 class/
 *.class 
+out/
 
 # Emacs
 *~
@@ -17,7 +18,10 @@ hs_err_pid*
 # Eclipse
 /.classpath
 /.project
+.settings/
+webapps/ROOT/META-INF/
 
 # Intellij IDEA
 .idea/
 *.iml
+/build/
