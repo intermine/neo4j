@@ -6,7 +6,7 @@ MATCH (disease :Disease),
 (disease_genes_homologues)-[]-(disease_genes_homologues_homologue :homologue),
 (disease_genes_homologues_homologue)-[]-(disease_genes_homologues_homologue_organism :organism)
 
-WHERE disease.name CONTAINS 'parkinson' AND disease_genes_homologues_homologue_organism.name = 'Drosophila melanogaster' AND disease_genes_organism.name = 'Homo sapiens' AND NOT disease_genes_homologues_homologue.organism = 'Disease.genes.organism'
+WHERE disease.name CONTAINS 'parkinson' AND disease_genes_homologues_homologue_organism.name = 'Drosophila melanogaster' AND disease_genes_organism.name = 'Homo sapiens' AND disease_genes_homologues_homologue_organism != disease_genes_organism
 RETURN disease.identifier,
 disease.name,
 disease_genes.symbol,
