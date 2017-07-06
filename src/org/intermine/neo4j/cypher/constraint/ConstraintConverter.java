@@ -2,6 +2,7 @@ package org.intermine.neo4j.cypher.constraint;
 
 import org.intermine.metadata.ConstraintOp;
 import org.intermine.pathquery.PathConstraint;
+import org.intermine.pathquery.PathConstraintLoop;
 
 /**
  * Handles Conversion of PathQuery operators to Cypher operators.
@@ -45,7 +46,10 @@ public class ConstraintConverter {
     public static ConstraintType getConstraintType(PathConstraint pathConstraint){
         ConstraintOp op = pathConstraint.getOp();
 
-        if(op == ConstraintOp.AND){
+        if(pathConstraint instanceof PathConstraintLoop){
+            return ConstraintType.LOOP;
+        }
+        else if(op == ConstraintOp.AND){
             return ConstraintType.AND;
         }
         else if(op == ConstraintOp.CONTAINS){
