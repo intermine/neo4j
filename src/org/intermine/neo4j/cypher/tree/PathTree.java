@@ -2,10 +2,12 @@ package org.intermine.neo4j.cypher.tree;
 
 import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.OntologyConverter;
+import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.PathQuery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -62,7 +64,11 @@ public class PathTree {
                     if (DEBUG) {
                         System.out.println("Root created " + variableName);
                     }
-                    this.root = new TreeNode(variableName, token, TreeNodeType.NODE, null);
+                    this.root = new TreeNode(variableName,
+                                            token,
+                                            TreeNodeType.NODE,
+                                            null,
+                                            OuterJoinStatus.INNER);
                 }
                 else{
                     // Traverse through the tree to reach the required leaf node
@@ -81,8 +87,11 @@ public class PathTree {
                         // so tokens for that have already been created. In this case we can simply do nothing
                         // and wait till we encounter a token for which TreeNode is not yet created.
                         if(child == null){
-                            treeNode.addChild(str,
-                                            new TreeNode(variableName, str, treeNodeType, treeNode));
+                            treeNode.addChild(str, new TreeNode(variableName,
+                                                                str,
+                                                                treeNodeType,
+                                                                treeNode,
+                                                                OuterJoinStatus.INNER));
                             break;
                         }
                         treeNode = child;
@@ -91,9 +100,31 @@ public class PathTree {
                 // Add an underscore in the variable name for the next child.
                 variableName += "_";
             }
+
+            setOuterJoinInPathTree(pathQuery);
+
             if(DEBUG){
                 System.out.println();
             }
+        }
+    }
+
+    private void setOuterJoinInPathTree(PathQuery pathQuery){
+        Map<String, OuterJoinStatus> outerJoinStatusMap = pathQuery.getOuterJoinStatus();
+        for (String path : outerJoinStatusMap.keySet()){
+            if (outerJoinStatusMap.get(path) == OuterJoinStatus.OUTER){
+                setOuterJoinInChildren(getTreeNode(path));
+            }
+        }
+    }
+
+    private void setOuterJoinInChildren(TreeNode treeNode){
+        if (treeNode == null){
+            return;
+        }
+        treeNode.setOuterJoinStatus(OuterJoinStatus.OUTER);
+        for (String key : treeNode.getChildrenKeys()){
+            setOuterJoinInChildren(treeNode.getChild(key));
         }
     }
 
@@ -104,6 +135,15 @@ public class PathTree {
      */
     public TreeNode getRoot() {
         return root;
+    }
+
+    /**
+     * Gets the path of the Root Node
+     *
+     * @return the root TreeNode
+     */
+    public String getRootPath() {
+        return root.getName();
     }
 
     /**

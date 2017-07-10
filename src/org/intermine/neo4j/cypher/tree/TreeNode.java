@@ -1,6 +1,7 @@
 package org.intermine.neo4j.cypher.tree;
 
 import org.intermine.neo4j.cypher.OntologyConverter;
+import org.intermine.pathquery.OuterJoinStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +32,15 @@ public class TreeNode {
     // Children of the TreeNode
     private Map<String, TreeNode> children;
 
-    TreeNode(String variableName, String name, TreeNodeType treeNodeType, TreeNode parent){
+    // Outer Join Status
+    private OuterJoinStatus outerJoinStatus;
+
+    TreeNode(String variableName,
+             String name,
+             TreeNodeType treeNodeType,
+             TreeNode parent,
+             OuterJoinStatus outerJoinStatus){
+
         Boolean DEBUG = false;
 
         this.variableName = variableName;
@@ -39,7 +48,8 @@ public class TreeNode {
         this.treeNodeType = treeNodeType;
         this.graphicalName = OntologyConverter.convertInterMineToNeo4j(name);
         this.parent = parent;
-        children = new HashMap<>();
+        this.children = new HashMap<>();
+        this.outerJoinStatus = outerJoinStatus;
         if(DEBUG){
             if(parent == null){
                 System.out.println("Create node " + name + " as root");
@@ -144,6 +154,14 @@ public class TreeNode {
      */
     public void setTreeNodeType(TreeNodeType treeNodeType) {
         this.treeNodeType = treeNodeType;
+    }
+
+    public OuterJoinStatus getOuterJoinStatus() {
+        return outerJoinStatus;
+    }
+
+    public void setOuterJoinStatus(OuterJoinStatus outerJoinStatus) {
+        this.outerJoinStatus = outerJoinStatus;
     }
 
     /**

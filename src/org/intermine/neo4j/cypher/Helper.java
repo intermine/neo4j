@@ -115,6 +115,8 @@ public class Helper {
         Set<PathConstraint> pathConstraints = pathQuery.getConstraints().keySet();
         for (PathConstraint pathConstraint : pathConstraints){
             paths.add(pathConstraint.getPath());
+
+            // Loop constraint has an additional path
             if (pathConstraint instanceof PathConstraintLoop){
                 paths.add(PathConstraint.getValue(pathConstraint));
             }
