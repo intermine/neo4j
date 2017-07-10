@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="intermine" default="classes" basedir=".">
+
+  <target name="init">
+    <tstamp/>
+
+    <property name="commons-codec" value="lib/commons-codec-1.9.jar"/>
+    <property name="commons-lang" value="lib/commons-lang-2.6.jar"/>
+    <property name="commons-httpclient" value="lib/commons-httpclient-3.0.jar"/>
+    <property name="commons-io" value="lib/commons-io-1.2.jar"/>
+    <property name="commons-logging" value="lib/commons-logging-1.1.1.jar"/>
+
+    <property name="antlr" value="lib/antlr-2.7.6-caching.jar"/>
+    <property name="json" value="lib/json20110106.jar"/>
+    <property name="stax-api" value="lib/stax-api-1.0.jar"/>
+    <property name="stax-ri" value="lib/stax-ri-1.0.jar"/>
+    <property name="log4j" value="lib/log4j.jar"/>
+    <property name="servlet-api" value="lib/servlet-api-3.1.0.jar"/>
+    
+    <property name="intermine-model" value="lib/intermine-model.jar"/>
+    <property name="intermine-client" value="lib/intermine-client.jar"/>
+    <property name="intermine-pathquery" value="lib/intermine-pathquery.jar"/>
+    <property name="intermine-api" value="lib/intermine-api.jar"/>
+
+    <property name="neo4j-java-driver" value="lib/neo4j-java-driver-1.3.0.jar"/>
+    <property name="apoc" value="lib/apoc-3.2.0.3-all.jar"/>
+
+    <property name="jdom" value="lib/jdom-1.1.1.jar"/>
+
+    <property name="jar" value="intermine-neo4j.jar"/>
+
+    <mkdir dir="classes"/>
+  </target>
+
+  <target name="about">
+    <echo> 
+      This build.xml file builds the org.intermine.neo4j utilities.
+    </echo>
+  </target>
+
+  <target name="classes" depends="init">
+    <javac srcdir="src"
+	   classpath="classes
+                      :${intermine-model}:${intermine-client}:${intermine-pathquery}:${intermine-api}
+                      :${neo4j-java-driver}:${apoc}
+                      :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
+                      :${jdom}
+                      :${servlet-api}"
+           deprecation="true"
+           includeantruntime="false"
+	   destdir="classes">
+      <compilerarg value="-Xlint:unchecked"/>
+    </javac>
+  </target>
+
+  <target name="javadoc" depends="classes">
+    <javadoc destdir="javadoc"
+           classpath="classes
+                      :${intermine-model}:${intermine-client}:${intermine-pathquery}:${intermine-api}
+                      :${neo4j-java-driver}:${apoc}
+                      :${commons-codec}:${commons-lang}:${commons-httpclient}:${commons-io}:${commons-logging}:${json}:${stax-api}:${stax-ri}:${log4j}
+                      :${jdom}
+                      :${servlet-api}">
+      <fileset dir="src" />
+    </javadoc>
+  </target>
+
+  <target name="jar" depends="classes">
+    <jar destfile="${jar}" basedir="classes"/>
+    <copy file="${jar}" todir="webapps/ROOT/WEB-INF/lib"/> 
+  </target>
+
+  <target name="clean">
+    <delete dir="classes"/>
+    <mkdir dir="classes"/>
+  </target>
+  
+</project>
+

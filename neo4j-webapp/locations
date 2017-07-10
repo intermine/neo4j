@@ -1,0 +1,13 @@
+# fill in chromosome locations
+./run Neo4jEdgeLoader Gene chromosomeLocation locatedOn
+./run Neo4jEdgeLoader Exon chromosomeLocation locatedOn
+./run Neo4jEdgeLoader GeneFlankingRegion chromosomeLocation locatedOn
+./run Neo4jEdgeLoader Intron chromosomeLocation locatedOn
+./run Neo4jEdgeLoader IntergenicRegion chromosomeLocation locatedOn
+
+# fill in supercontig locations
+./run Neo4jEdgeLoader Gene supercontigLocation locatedOn
+./run Neo4jEdgeLoader Exon supercontigLocation locatedOn
+./run Neo4jEdgeLoader GeneFlankingRegion supercontigLocation locatedOn
+./run Neo4jEdgeLoader Intron supercontigLocation locatedOn
+./run Neo4jEdgeLoader IntergenicRegion supercontigLocation locatedOn

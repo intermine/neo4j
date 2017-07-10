@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app>
+
+  <display-name>InterMine-Neo4j PathQuery Endpoint Development</display-name>
+  <description>
+    This is a middleware app to query Neo4j and/or InterMine from a posted PathQuery.
+  </description>
+
+  <context-param>
+    <param-name>intermine.root.url</param-name>
+    <param-value>https://mines.legumeinfo.org/beanmine</param-value>
+    <description>the root URL for the mine of interest, e.g. https://mines.legumeinfo.org/beanmine</description>
+  </context-param>
+
+  <context-param>
+    <param-name>neo4j.bolt.url</param-name>
+    <param-value>bolt://intermine.ncgr.org:7687</param-value>
+    <description>the Neo4j Bolt URL, e.g. bolt://localhost:7687</description>
+  </context-param>
+  <context-param>
+    <param-name>neo4j.bolt.user</param-name>
+    <param-value>neo4juser</param-value>
+    <description>the Neo4j username</description>
+  </context-param>
+  <context-param>
+    <param-name>neo4j.bolt.password</param-name>
+    <param-value>readonly</param-value>
+    <description>the Neo4j password</description>
+  </context-param>
+
+  <context-param>
+    <param-name>intermine.edge.classes</param-name>
+    <param-value>Homologue,LinkageGroupPosition,LinkageGroupRange,Location,OntologyAnnotation,GOAnnotation</param-value>
+    <description>comma-separated list of IM classes that are edges (relationships) in the Neo4j database</description>
+  </context-param>
+  <context-param>
+    <param-name>neo4j.edge.types</param-name>
+    <param-value>homologue,linkageGroupPosition,linkageGroupRange,location,annotation,annotation</param-value>
+    <description>the corresponding list of Neo4j relationship types IN THE SAME ORDER</description>
+  </context-param>
+	
+
+  <servlet>
+    <servlet-name>PathQueryTestServlet</servlet-name>
+    <description>
+      This servlet tests HTTP, PathQuery and Neo4j responses to a PathQuery request.
+    </description>
+    <servlet-class>org.intermine.neo4j.PathQueryTestServlet</servlet-class>
+    <load-on-startup>5</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PathQueryTestServlet</servlet-name>
+    <url-pattern>/service/query/test</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>PathQueryServlet</servlet-name>
+    <description>
+      This servlet returns a Neo4j response to a PathQuery request.
+    </description>
+    <servlet-class>org.intermine.neo4j.PathQueryServlet</servlet-class>
+    <load-on-startup>5</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PathQueryServlet</servlet-name>
+    <url-pattern>/service/query/results</url-pattern>
+  </servlet-mapping>
+
+
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+
+
+</web-app>
