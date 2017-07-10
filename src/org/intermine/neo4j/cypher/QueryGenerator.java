@@ -48,17 +48,6 @@ public class QueryGenerator {
         PathTree pathTree = new PathTree(pathQuery);
         Query query = new Query();
 
-        try {
-            System.out.println(pathQuery.getOuterJoinGroups());
-            System.out.println(pathQuery.getOuterMap());
-            System.out.println(pathQuery.getOuterJoinStatus());
-
-        } catch (PathException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(pathTree.getRootPath());
-
         createMatchClause(query, pathTree.getRoot());
         createWhereClause(query, pathTree, pathQuery);
         createReturnClause(query, pathTree, pathQuery);
@@ -140,41 +129,32 @@ public class QueryGenerator {
                              " :" + treeNode.getGraphicalName() + ")");
         }
         else if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
-            if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
-                if (treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE) {
-                    // If current TreeNode is a Graph Node and its parent is also a Graph Node,
-                    // then add a dummy relationship.
-                    query.addToMatch("(" + treeNode.getParent().getVariableName() + ")" +
-                                    "-[]-(" + treeNode.getVariableName() +
-                                    " :" + treeNode.getGraphicalName() + ")");
-                }
-                else if (treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-                    // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
-                    // then match an actual relationship of the current node with its grand parent node.
-                    query.addToMatch("(" + treeNode.getParent().getParent().getVariableName() + ")" +
-                                    "-[" + treeNode.getParent().getVariableName() +
-                                    ":" + treeNode.getParent().getGraphicalName() + "]" +
-                                    "-(" + treeNode.getVariableName() +
-                                    " :" + treeNode.getGraphicalName() + ")");
-                }
+            String matchStatement;
+            if (treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE) {
+                // If current TreeNode is a Graph Node and its parent is also a Graph Node,
+                // then add a dummy relationship.
+                matchStatement = "(" + treeNode.getParent().getVariableName() + ")" +
+                                        "-[]-(" + treeNode.getVariableName() +
+                                        " :" + treeNode.getGraphicalName() + ")";
+            }
+            else if (treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
+                // then match an actual relationship of the current node with its grand parent node.
+                matchStatement = "(" + treeNode.getParent().getParent().getVariableName() + ")" +
+                                "-[" + treeNode.getParent().getVariableName() +
+                                ":" + treeNode.getParent().getGraphicalName() + "]" +
+                                "-(" + treeNode.getVariableName() +
+                                " :" + treeNode.getGraphicalName() + ")";
             }
             else {
-                if (treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE) {
-                    // If current TreeNode is a Graph Node and its parent is also a Graph Node,
-                    // then add a dummy relationship.
-                    query.addToOptionalMatch("(" + treeNode.getParent().getVariableName() + ")" +
-                                    "-[]-(" + treeNode.getVariableName() +
-                                    " :" + treeNode.getGraphicalName() + ")");
-                }
-                else if (treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-                    // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
-                    // then match an actual relationship of the current node with its grand parent node.
-                    query.addToOptionalMatch("(" + treeNode.getParent().getParent().getVariableName() + ")" +
-                                    "-[" + treeNode.getParent().getVariableName() +
-                                    ":" + treeNode.getParent().getGraphicalName() + "]" +
-                                    "-(" + treeNode.getVariableName() +
-                                    " :" + treeNode.getGraphicalName() + ")");
-                }
+                return;
+            }
+
+            if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
+                query.addToMatch(matchStatement);
+            }
+            else {
+                query.addToOptionalMatch(matchStatement);
             }
 
         }
