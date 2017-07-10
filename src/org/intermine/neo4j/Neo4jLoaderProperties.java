@@ -37,7 +37,8 @@ public class Neo4jLoaderProperties {
     int maxRows;
     int maxSequenceLength;
     boolean verbose;
-
+    boolean debug;
+    
     /**
      * Default constructor, loads properties from DEFAULT_PROPERTIES_FILE
      */
@@ -79,6 +80,8 @@ public class Neo4jLoaderProperties {
         // booleans
         String verboseString = props.getProperty("verbose");
         if (verboseString!=null) verbose = Boolean.parseBoolean(verboseString);
+        String debugString = props.getProperty("debug");
+        if (debugString!=null) debug = Boolean.parseBoolean(debugString);
     }
 
     /**

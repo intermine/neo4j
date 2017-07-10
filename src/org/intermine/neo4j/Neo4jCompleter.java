@@ -173,6 +173,7 @@ public class Neo4jCompleter {
                             ReferenceDescriptor rd = refDescriptors.get(refName);
                             ClassDescriptor rcd = rd.getReferencedClassDescriptor();
                             String refLabel = Neo4jLoader.getFullNodeLabel(rcd);
+                            String relType = nmp.getRelationshipType(nodeClass,refName);
                             refQuery.clearView();
                             refQuery.clearConstraints();
                             refQuery.addView(nodeClass+".id");
@@ -180,29 +181,33 @@ public class Neo4jCompleter {
                             refQuery.addConstraint(new PathConstraintAttribute(nodeClass+".id", ConstraintOp.EQUALS, String.valueOf(id)));
                             Iterator<List<Object>> rs = service.getRowListIterator(refQuery);
                             while (rs.hasNext()) {
-                                Object[] r = rs.next().toArray();
-                                int idn = Integer.parseInt(r[0].toString());      // node id
-                                if (r[1]!=null) {                                 // refs can be null!
-                                    int idr = Integer.parseInt(r[1].toString());  // ref id
-                                    // MERGE this reference node
-                                    String merge = "MERGE (n:"+refLabel+" {id:"+idr+"})";
-                                    try (Session session = driver.session()) {
-                                        try (Transaction tx = session.beginTransaction()) {
-                                            tx.run(merge);
-                                            tx.success();
-                                            tx.close();
+                                try {
+                                    Object[] r = rs.next().toArray();
+                                    int idn = Integer.parseInt(r[0].toString());      // node id
+                                    if (r[1]!=null) {                                 // refs can be null!
+                                        int idr = Integer.parseInt(r[1].toString());  // ref id
+                                        // MERGE this reference node
+                                        try (Session session = driver.session()) {
+                                            String merge = "MERGE (n:"+refLabel+" {id:"+idr+"})";
+                                            try (Transaction tx = session.beginTransaction()) {
+                                                tx.run(merge);
+                                                tx.success();
+                                                tx.close();
+                                            }
                                         }
-                                    }
-                                    // MERGE this node-->reference relationship
-                                    String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+refName+"]->(r)";
-                                    try (Session session = driver.session()) {
-                                        try (Transaction tx = session.beginTransaction()) {
-                                            tx.run(match);
-                                            tx.success();
-                                            tx.close();
+                                        // MERGE this node-->reference relationship
+                                        try (Session session = driver.session()) {
+                                            String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+relType+"]->(r)";
+                                            try (Transaction tx = session.beginTransaction()) {
+                                                tx.run(match);
+                                                tx.success();
+                                                tx.close();
+                                            }
                                         }
+                                        System.out.print("r");
                                     }
-                                    System.out.print("r");
+                                } catch (Exception e) {
+                                    System.err.println(e);
                                 }
                             }
                         }
@@ -212,6 +217,7 @@ public class Neo4jCompleter {
                             CollectionDescriptor cd = collDescriptors.get(collName);
                             ClassDescriptor ccd = cd.getReferencedClassDescriptor();
                             String collLabel = Neo4jLoader.getFullNodeLabel(ccd);
+                            String collType = nmp.getRelationshipType(nodeClass,collName);
                             collQuery.clearView();
                             collQuery.clearConstraints();
                             collQuery.addView(nodeClass+".id");
@@ -220,29 +226,33 @@ public class Neo4jCompleter {
                             Iterator<List<Object>> rs = service.getRowListIterator(collQuery);
                             int collCount = 0;
                             while (rs.hasNext()) {
-                                collCount++;
-                                Object[] r = rs.next().toArray();
-                                int idn = Integer.parseInt(r[0].toString());      // node id
-                                int idc = Integer.parseInt(r[1].toString());      // collection id
-                                // MERGE this collections node
-                                String merge = "MERGE (n:"+collLabel+" {id:"+idc+"})";
-                                try (Session session = driver.session()) {
-                                    try (Transaction tx = session.beginTransaction()) {
-                                        tx.run(merge);
-                                        tx.success();
-                                        tx.close();
+                                try {
+                                    collCount++;
+                                    Object[] r = rs.next().toArray();
+                                    int idn = Integer.parseInt(r[0].toString());      // node id
+                                    int idc = Integer.parseInt(r[1].toString());      // collection id
+                                    // MERGE this collections node
+                                    try (Session session = driver.session()) {
+                                        String merge = "MERGE (n:"+collLabel+" {id:"+idc+"})";
+                                        try (Transaction tx = session.beginTransaction()) {
+                                            tx.run(merge);
+                                            tx.success();
+                                            tx.close();
+                                        }
                                     }
-                                }
-                                // MERGE this node-->collection relationship
-                                String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collName+"]->(c)";
-                                try (Session session = driver.session()) {
-                                    try (Transaction tx = session.beginTransaction()) {
-                                        tx.run(match);
-                                        tx.success();
-                                        tx.close();
+                                    // MERGE this node-->collection relationship
+                                    try (Session session = driver.session()) {
+                                        String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collType+"]->(c)";
+                                        try (Transaction tx = session.beginTransaction()) {
+                                            tx.run(match);
+                                            tx.success();
+                                            tx.close();
+                                        }
                                     }
+                                    System.out.print("c");
+                                } catch (Exception e) {
+                                    System.err.println(e);
                                 }
-                                System.out.print("c");
                             }
                         }
 
