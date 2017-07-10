@@ -1,1 +1,0 @@
-<query model="genomic" view="Gene.symbol" sortOrder="Gene.length DESC Gene.name ASC"/>

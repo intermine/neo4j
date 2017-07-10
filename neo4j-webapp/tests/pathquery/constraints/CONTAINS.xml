@@ -1,3 +1,0 @@
-<query model="genomic" view="Gene.CDSs.ontologyAnnotations.dataSets.bioEntities.crossReferences.identifier Gene.CDSs.ontologyAnnotations.dataSets.bioEntities.synonyms.value" constraintLogic="(A)">
-    <constraint path="Gene.CDSs.ontologyAnnotations.dataSets.bioEntities.synonyms.value" value="5asdsadaf" op="CONTAINS" code="A"/>
-</query>

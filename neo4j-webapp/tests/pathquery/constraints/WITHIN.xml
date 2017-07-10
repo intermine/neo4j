@@ -1,7 +1,0 @@
-<query model="genomic" view="Gene.symbol Gene.pathways.identifier">
-    <constraint path="Gene.chromosomeLocation" value="" op="WITHIN">
-        <value>X:12345..45678</value>
-        <value>2L:12345..45678</value>
-        <value>3R:12345</value>
-    </constraint>
-</query>

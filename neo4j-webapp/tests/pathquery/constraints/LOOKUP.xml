@@ -1,9 +1,0 @@
-<query name="Gene_OrthologueGO" model="genomic" view="Gene.secondaryIdentifier Gene.symbol Gene.homologues.homologue.primaryIdentifier Gene.homologues.homologue.symbol Gene.homologues.type Gene.homologues.homologue.organism.name Gene.homologues.dataSets.name Gene.homologues.homologue.goAnnotation.ontologyTerm.name Gene.homologues.homologue.goAnnotation.evidence.code.code" longDescription="Show GO terms applied to Anopheles Gambiae orthologues of a specific gene. (Data Source: TreeFam, Drosophila Consortium, GO Consortium)." sortOrder="Gene.secondaryIdentifier asc" constraintLogic="B and C">
-    <join path="Gene.homologues.homologue.goAnnotation" style="OUTER"/>
-    <pathDescription pathString="Gene.homologues" description="Homologue"/>
-    <pathDescription pathString="Gene.homologues.dataSets" description="Homologues &gt; dataset"/>
-    <pathDescription pathString="Gene.homologues.homologue.organism" description="Homologue &gt; organism"/>
-    <pathDescription pathString="Gene.homologues.homologue" description="Homologue"/>
-    <constraint path="Gene" code="B" editable="true" description="" op="LOOKUP" value="CG6235" extraValue="D. melanogaster"/>
-    <constraint path="Gene.homologues.homologue.organism.name" code="C" editable="true" op="=" value="Anopheles gambiae"/>
-</query>

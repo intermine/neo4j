@@ -1,1 +1,0 @@
-<query name="" model="genomic" view="QTL.primaryIdentifier QTL.associatedGeneticMarkers.primaryIdentifier" longDescription="" sortOrder="QTL.primaryIdentifier asc"><constraint path="QTL.primaryIdentifier" op="=" value="Seed weight 3-2"/></query>

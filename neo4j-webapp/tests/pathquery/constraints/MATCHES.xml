@@ -1,3 +1,0 @@
-<query model="genomic" view="Gene.symbol Gene.organism.name Gene.alleles.symbol Gene.alleles.phenotypeAnnotations.annotationType Gene.alleles.phenotypeAnnotations.description" constraintLogic="(A)">
-    <constraint path="Gene.symbol" value="ad*" op="LIKE" code="A"/>
-</query>

@@ -1,1 +1,0 @@
-<query name="Organism_Protein" model="genomic" view="Protein.primaryIdentifier Protein.primaryAccession" longDescription="Show all the proteins from a particular organism." sortOrder="Protein.primaryIdentifier asc"><constraint path="Protein.organism.name" editable="true" description="Show all the proteins from the organism:" op="=" value="Drosophila melanogaster" /></query>

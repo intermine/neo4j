@@ -1,3 +1,0 @@
-<query model="genomic" view="Gene.symbol Gene.pathways.identifier">
-    <constraint path="Gene.homologues.homologue.organism.taxonId" op="=" value="123"/>
-</query>
