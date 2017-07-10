@@ -3,6 +3,8 @@ task wrapper(type: Wrapper) {
 }
 
 apply plugin: "java"
+apply plugin: "war"
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
   
@@ -50,3 +52,11 @@ dependencies {
   compile files('lib/stax-ri-1.0.jar')//not found in maven
   testCompile group: 'junit', name: 'junit', version: '4.8.2'
 }
+
+/*
+task templateParser(type: JavaExec) {
+  classpath sourceSets.main.runtimeClasspath
+  classpath sourceSets.main.resources
+  mainClassName = "TemplateParser"
+  main = "TemplateParser"
+}*/

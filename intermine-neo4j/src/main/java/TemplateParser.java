@@ -19,23 +19,23 @@ import java.util.List;
  */
 public class TemplateParser {
     public static void main(String args[]) throws JDOMException {
-    	File inputFile = new File("resources/templates.xml");
+    	InputStream inputStream = TemplateParser.class.getResourceAsStream("templates.xml");
 
         SAXBuilder saxBuilder = new SAXBuilder();
 
         Document document = null;
         try {
-            document = saxBuilder.build(inputFile);
+            document = saxBuilder.build(inputStream);
         } catch (IOException e) {
-        	System.out.println("Could not read file : " + inputFile.getPath());
+        	System.out.println("Could not read file template.xml");
             return;
         }
 
         Element classElement = document.getRootElement();
         List<Element> templates = classElement.getChildren();
 
-        String BASE_DIR_PATHQUERY = "tests/pathquery/templates/";
-        String BASE_DIR_CYPHER = "tests/cypher/templates/";
+        String BASE_DIR_PATHQUERY = "pathquery/templates/";
+        String BASE_DIR_CYPHER = "cypher/templates/";
 
         for (int temp = 0; temp < templates.size(); temp++) {
             Element pathQuery = templates.get(temp).getChild("query");
