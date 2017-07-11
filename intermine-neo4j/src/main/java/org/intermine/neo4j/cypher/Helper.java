@@ -41,7 +41,7 @@ public class Helper {
     }
 
     /**
-     * Add quotes to a string. For example, "Gene" --> "'Gene'"
+     * Add quotes to a string. For example, "Gene" becomes "'Gene'"
      *
      * @param string    the given string
      * @return string   after adding quotes
@@ -52,7 +52,7 @@ public class Helper {
 
     /**
      * Adds quotes to all the strings stored in the collection.
-     * For example, ["Gene", "Protein"] --> ["'Gene'", "'Protein'"]
+     * For example, ["Gene", "Protein"] become ["'Gene'", "'Protein'"]
      *
      * @param collection The given collection of strings
      * @return           A set containing strings after adding quotes.

@@ -231,7 +231,6 @@ public class Neo4jModelParser {
      * Also returns the IM model, just as InterMineModelParser does.
      *
      * @param reader a file reader providing the XML file
-     * @return an InterMine Model
      * @throws ModelParserException if something goes wrong with parsing the class descriptors.
      */
     public void process(Reader reader) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
@@ -242,8 +241,7 @@ public class Neo4jModelParser {
     /**
      * Run process() on the data model file given in a Neo4jLoaderProperties
      *
-     * @param an instantiated Neo4jLoaderProperties object
-     * @return an InterMine Model
+     * @param props an instantiated Neo4jLoaderProperties object
      * @throws ModelParserException if something goes wrong with parsing the class descriptors.
      */
     public void process(Neo4jLoaderProperties props) throws IOException, SAXException, ParserConfigurationException, ModelParserException {

@@ -26,7 +26,7 @@ public class ExtraValue {
     }
 
     /**
-     * Reads extra value label & property from neo4jloader.properties, creates an ExtraValue
+     * Reads extra value label and property from neo4jloader.properties, creates an ExtraValue
      * object and returns it.
      *
      * @return The ExtraValue object
@@ -69,7 +69,6 @@ public class ExtraValue {
      *
      * @param nodeLabel label of the node on which the constraint is applied
      * @return true if the Node with disambiguating value is the neighbor of the node, false otherwise
-     * @throws IOException
      */
     protected static boolean isExtraConstraint(String nodeLabel)  {
         try {
