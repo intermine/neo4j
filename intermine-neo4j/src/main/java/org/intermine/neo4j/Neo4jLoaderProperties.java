@@ -2,6 +2,7 @@ package org.intermine.neo4j;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -23,8 +24,9 @@ import org.neo4j.driver.v1.GraphDatabase;
  */
 public class Neo4jLoaderProperties {
 
-    private static final Logger LOG = Logger.getLogger(Neo4jLoaderProperties.class);
     public static final String DEFAULT_PROPERTIES_FILE = "neo4jloader.properties";
+
+    private static final Logger LOG = Logger.getLogger(Neo4jLoaderProperties.class);
 
     String intermineServiceUrl;
     String neo4jUrl;
@@ -45,11 +47,7 @@ public class Neo4jLoaderProperties {
      */
     public Neo4jLoaderProperties() throws FileNotFoundException, IOException {
         Properties props = new Properties();
-        try {
-            props.load(getClass().getClassLoader().getResourceAsStream("neo4jloader.properties"));
-        } catch (Exception ex) {
-           LOG.error("Exception reading neo4jloader.properties ");
-        }
+        props.load(getClass().getClassLoader().getResourceAsStream(DEFAULT_PROPERTIES_FILE));
         load(props);
     }
 
@@ -58,11 +56,7 @@ public class Neo4jLoaderProperties {
      */
     public Neo4jLoaderProperties(String filename) throws FileNotFoundException, IOException {
         Properties props = new Properties();
-        try {
-            props.load(getClass().getClassLoader().getResourceAsStream("neo4jloader.properties"));
-        } catch (Exception ex) {
-            LOG.error("Exception reading " + filename);
-        }
+        props.load(getClass().getClassLoader().getResourceAsStream(filename));
         load(props);
     }
 
@@ -127,7 +121,7 @@ public class Neo4jLoaderProperties {
      * Return an InterMine Model
      */
     public Model getModel() throws FileNotFoundException, ModelParserException {
-        return new InterMineModelParser().process(new InputStreamReader(new FileInputStream(dataModelFilename)));
+        return new InterMineModelParser().process(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(dataModelFilename)));
     }
 
     /**
