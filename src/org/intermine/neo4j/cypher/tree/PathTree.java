@@ -112,8 +112,13 @@ public class PathTree {
     private void setOuterJoinInPathTree(PathQuery pathQuery){
         Map<String, OuterJoinStatus> outerJoinStatusMap = pathQuery.getOuterJoinStatus();
         for (String path : outerJoinStatusMap.keySet()){
-            if (outerJoinStatusMap.get(path) == OuterJoinStatus.OUTER){
-                setOuterJoinInChildren(getTreeNode(path));
+            TreeNode treeNode = getTreeNode(path);
+            if (treeNode != null && outerJoinStatusMap.get(path) == OuterJoinStatus.OUTER){
+                // TO DO : Ponder whether we should set outer join for all children or just for
+                // the current node.
+
+                treeNode.setOuterJoinStatus(OuterJoinStatus.OUTER);
+                //setOuterJoinInChildren(getTreeNode(path));
             }
         }
     }
