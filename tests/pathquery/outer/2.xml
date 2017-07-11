@@ -1,0 +1,4 @@
+<query name="" model="genomic" view="Gene.primaryIdentifier Gene.chromosome.primaryIdentifier Gene.chromosome.sequenceOntologyTerm.identifier Gene.chromosome.sequenceOntologyTerm.dataSets.url Gene.chromosome.sequenceOntologyTerm.dataSets.publication.doi Gene.chromosome.sequenceOntologyTerm.dataSets.publication.authors.name" longDescription="" sortOrder="Gene.primaryIdentifier asc">
+    <join path="Gene.chromosome.sequenceOntologyTerm.dataSets" style="OUTER"/>
+    <join path="Gene.chromosome.sequenceOntologyTerm.dataSets.publication.authors" style="OUTER"/>
+</query>

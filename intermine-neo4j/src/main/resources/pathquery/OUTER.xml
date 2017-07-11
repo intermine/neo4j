@@ -1,5 +1,0 @@
-<query model="genomic" view="Gene.symbol Gene.pathways.identifier">
-    <join path="Gene.pathways" style="OUTER"/>
-    <constraint path="Gene.homologues.homologue.organism.taxonId" op="!=" value="7227"/>
-    <constraint path="Gene.description" op="CONTAINS" value="a"/>
-</query>

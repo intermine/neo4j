@@ -41,5 +41,6 @@ public enum ConstraintType {
     OVERLAPS,
     STRICT_NOT_EQUALS,
     WITHIN,
+    LOOP,
     UNSUPPORTED_CONSTRAINT
 }
