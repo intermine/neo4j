@@ -1,11 +1,10 @@
 package org.intermine.neo4j.cypher;
 
 import apoc.coll.Coll;
+import org.intermine.metadata.Model;
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
-import org.intermine.pathquery.OrderElement;
-import org.intermine.pathquery.PathConstraint;
-import org.intermine.pathquery.PathConstraintLoop;
-import org.intermine.pathquery.PathQuery;
+import org.intermine.pathquery.*;
 import org.intermine.webservice.client.core.ContentType;
 import org.intermine.webservice.client.core.Request;
 import org.intermine.webservice.client.lists.ItemList;
@@ -90,7 +89,7 @@ public class Helper {
      * @param path A path which contains many tokens separated by dots
      * @return List of all tokens of the path
      */
-    public static List<String> getTokensFromPath(String path){
+    public static List<String> getTokensFromPathString(String path){
         StringTokenizer st = new StringTokenizer(path, ".");
         List<String> strings = new ArrayList<>();
         while(st.hasMoreTokens()){
@@ -99,33 +98,54 @@ public class Helper {
         return strings;
     }
 
+    public static String getVariableNameFromPath(Path path){
+        // TO DO : Use another way of creating variable names.
+        // Underscore separated names may get unnecessarily large.
+
+        return path.toString().toLowerCase().replaceAll("\\.", "_");
+    }
+
     /**
      * Extracts all paths from the path query object
      *
      * @param pathQuery the path query object
      * @return A set containing all the paths in the path query
      */
-    public static Set<String> getAllPaths(PathQuery pathQuery){
-        Set<String> paths = new HashSet<>();
+    public static Set<Path> getAllPaths(PathQuery pathQuery) throws PathException {
+        Set<Path> paths = new HashSet<>();
+        Model model = null;
+        try {
+            model = new Neo4jLoaderProperties().getModel();
+        } catch (ModelParserException e) {
+            e.printStackTrace();
+            System.out.println("getAllPaths() method : Could not get model from the XML file.");
+            System.exit(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("getAllPaths() method : Could not get model from the XML file.");
+            System.exit(0);
+        }
 
         // Get paths from views
-        paths.addAll(pathQuery.getView());
+        for (String pathString : pathQuery.getView()) {
+            paths.add(new Path(model, pathString));
+        }
 
         // Get paths from constraints
         Set<PathConstraint> pathConstraints = pathQuery.getConstraints().keySet();
         for (PathConstraint pathConstraint : pathConstraints){
-            paths.add(pathConstraint.getPath());
+            paths.add(new Path(model, pathConstraint.getPath()));
 
             // Loop constraint has an additional path
             if (pathConstraint instanceof PathConstraintLoop){
-                paths.add(PathConstraint.getValue(pathConstraint));
+                paths.add(new Path(model, PathConstraint.getValue(pathConstraint)));
             }
         }
 
         // Get paths from sort order
         List<OrderElement> orderElements = pathQuery.getOrderBy();
         for (OrderElement orderElement : orderElements){
-            paths.add(orderElement.getOrderPath());
+            paths.add(new Path(model, orderElement.getOrderPath()));
         }
 
         return paths;

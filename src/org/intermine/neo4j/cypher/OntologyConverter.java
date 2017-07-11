@@ -1,6 +1,7 @@
 package org.intermine.neo4j.cypher;
 
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
+import org.intermine.pathquery.Path;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +41,13 @@ public class OntologyConverter {
             set.add(convertInterMineToNeo4j(string));
         }
         return set;
+    }
+
+    public static TreeNodeType getTreeNodeType(Path path) {
+        if (path.endIsAttribute()) {
+            return TreeNodeType.PROPERTY;
+        }
+        return TreeNodeType.NODE;
     }
 
     /**
