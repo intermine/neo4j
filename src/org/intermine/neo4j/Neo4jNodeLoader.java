@@ -64,20 +64,20 @@ public class Neo4jNodeLoader {
         String nodeClass = args[0];
         int id = Integer.parseInt(args[1]);
 
-        // Load parameters
+        // get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
 
         // Neo4j setup
         Driver driver = props.getGraphDatabaseDriver();
 
+        // InterMine setup
+        QueryService service = props.getQueryService();
+
         // load the class, attribute, reference and collection instructions for Neo4j
         Neo4jModelParser nmp = new Neo4jModelParser();
         nmp.process(props);
 
-        // InterMine setup
-        QueryService service = props.getQueryService();
-
-        // load local model XML file, which contains additional info for IM->Neo4j
+        // load InterMine model from the local XML file
         Model model = props.getModel();
 
         // PathQuery objects used in various places
@@ -125,12 +125,12 @@ public class Neo4jNodeLoader {
         Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
         while (rows.hasNext()) {
             Object[] row = rows.next().toArray();
+            String nodeLabel = nodeClass;
             System.out.print(nodeClass+":"+id+":");
 
             // MERGE this node by its id
-            String nodeLabel = nodeClass;
-            String merge = "MERGE (n:"+nodeLabel+" {id:"+id+"})";
             try (Session session = driver.session()) {
+                String merge = "MERGE (n:"+nodeLabel+" {id:"+id+"})";
                 try (Transaction tx = session.beginTransaction()) {
                     tx.run(merge);
                     tx.success();
@@ -146,6 +146,7 @@ public class Neo4jNodeLoader {
                 ReferenceDescriptor rd = refDescriptors.get(refName);
                 ClassDescriptor rcd = rd.getReferencedClassDescriptor();
                 String refLabel = Neo4jLoader.getFullNodeLabel(rcd);
+                String relType = nmp.getRelationshipType(nodeClass, refName);
                 refQuery.clearView();
                 refQuery.clearConstraints();
                 refQuery.addView(nodeClass+".id");
@@ -153,31 +154,35 @@ public class Neo4jNodeLoader {
                 refQuery.addConstraint(new PathConstraintAttribute(nodeClass+".id", ConstraintOp.EQUALS, String.valueOf(id)));
                 Iterator<List<Object>> rs = service.getRowListIterator(refQuery);
                 while (rs.hasNext()) {
-                    Object[] r = rs.next().toArray();
-                    int idn = Integer.parseInt(r[0].toString());      // node id
-                    if (r[1]!=null) {                                 // refs can be null!
-                        int idr = Integer.parseInt(r[1].toString());  // ref id
-                        if (idr!=idn) {                               // avoid loops
-                            // merge this reference node by its id
-                            merge = "MERGE (n:"+refLabel+" {id:"+idr+"})";
-                            try (Session session = driver.session()) {
-                                try (Transaction tx = session.beginTransaction()) {
-                                    tx.run(merge);
-                                    tx.success();
-                                    tx.close();
+                    try {
+                        Object[] r = rs.next().toArray();
+                        int idn = Integer.parseInt(r[0].toString());      // node id
+                        if (r[1]!=null) {                                 // refs can be null!
+                            int idr = Integer.parseInt(r[1].toString());  // ref id
+                            if (idr!=idn) {                               // avoid loops
+                                // merge this reference node by its id
+                                try (Session session = driver.session()) {
+                                    String merge = "MERGE (n:"+refLabel+" {id:"+idr+"})";
+                                    try (Transaction tx = session.beginTransaction()) {
+                                        tx.run(merge);
+                                        tx.success();
+                                        tx.close();
+                                    }
                                 }
-                            }
-                            // merge this node-->reference relationship
-                            String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+refName+"]->(r)";
-                            try (Session session = driver.session()) {
-                                try (Transaction tx = session.beginTransaction()) {
-                                    tx.run(match);
-                                    tx.success();
-                                    tx.close();
+                                // merge this node-->reference relationship
+                                try (Session session = driver.session()) {
+                                    String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+relType+"]->(r)";
+                                    try (Transaction tx = session.beginTransaction()) {
+                                        tx.run(match);
+                                        tx.success();
+                                        tx.close();
+                                    }
                                 }
+                                System.out.print("r");
                             }
-                            System.out.print("r");
                         }
+                    } catch (Exception e) {
+                        System.err.println(e);
                     }
                 }
             }
@@ -187,6 +192,7 @@ public class Neo4jNodeLoader {
                 CollectionDescriptor cd = collDescriptors.get(collName);
                 ClassDescriptor ccd = cd.getReferencedClassDescriptor();
                 String collLabel = Neo4jLoader.getFullNodeLabel(ccd);
+                String collType = nmp.getRelationshipType(nodeClass, collName);
                 collQuery.clearView();
                 collQuery.clearConstraints();
                 collQuery.addView(nodeClass+".id");
@@ -196,29 +202,33 @@ public class Neo4jNodeLoader {
                 int collCount = 0;
                 while (rs.hasNext()) {
                     collCount++;
-                    Object[] r = rs.next().toArray();
-                    int idn = Integer.parseInt(r[0].toString());      // node id
-                    int idc = Integer.parseInt(r[1].toString());      // collection id
-                    if (idc!=idn) {                                   // avoid loops
-                        // merge this collections node
-                        merge = "MERGE (n:"+collLabel+" {id:"+idc+"})";
-                        try (Session session = driver.session()) {
-                            try (Transaction tx = session.beginTransaction()) {
-                                tx.run(merge);
-                                tx.success();
-                                tx.close();
+                    try {
+                        Object[] r = rs.next().toArray();
+                        int idn = Integer.parseInt(r[0].toString());      // node id
+                        int idc = Integer.parseInt(r[1].toString());      // collection id
+                        if (idc!=idn) {                                   // avoid loops
+                            // merge this collections node
+                            try (Session session = driver.session()) {
+                                String merge = "MERGE (n:"+collLabel+" {id:"+idc+"})";
+                                try (Transaction tx = session.beginTransaction()) {
+                                    tx.run(merge);
+                                    tx.success();
+                                    tx.close();
+                                }
                             }
-                        }
-                        // merge this node-->coll relationship
-                        String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collName+"]->(c)";
-                        try (Session session = driver.session()) {
-                            try (Transaction tx = session.beginTransaction()) {
-                                tx.run(match);
-                                tx.success();
-                                tx.close();
+                            // merge this node-->coll relationship
+                            try (Session session = driver.session()) {
+                                String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collType+"]->(c)";
+                                try (Transaction tx = session.beginTransaction()) {
+                                    tx.run(match);
+                                    tx.success();
+                                    tx.close();
+                                }
                             }
+                            System.out.print("c");
                         }
-                        System.out.print("c");
+                    } catch (Exception e) {
+                        System.err.println(e);
                     }
                 }
             }
