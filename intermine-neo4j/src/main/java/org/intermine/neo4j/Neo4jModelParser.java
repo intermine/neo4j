@@ -2,6 +2,7 @@ package org.intermine.neo4j;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,6 +19,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.IOUtils;
 
 import org.intermine.metadata.AttributeDescriptor;
 import org.intermine.metadata.ClassDescriptor;
@@ -38,7 +40,10 @@ public class Neo4jModelParser {
 
     static final String NEO4J_IGNORE_ATTRIBUTE = "neo4j-ignore";
     static final String NEO4J_RELATIONSHIP_ATTRIBUTE = "neo4j-relationship";
-    
+
+    // the InterMineModel represented by this XML file
+    Model model;
+
     // classes, attributes, references and collections to ignore during Neo4j loading
     Set<String> ignoredClasses;           // e.g. "Sequence"
     Set<String> ignoredAttributes;        // e.g. "BioEntity.chadoFeatureId"
@@ -81,13 +86,10 @@ public class Neo4jModelParser {
 
         // process the XML file for Neo4j instructions
         Neo4jModelParser nmp = new Neo4jModelParser();
-        nmp.process(new InputStreamReader(new FileInputStream(dataModelFilename)));
-
-        // get the plain IM model
-        Model model = new InterMineModelParser().process(new InputStreamReader(new FileInputStream(dataModelFilename)));
+        nmp.process(new FileReader(dataModelFilename));
 
         // output the model with Neo4j notations
-        for (ClassDescriptor classDescriptor : model.getClassDescriptors()) {
+        for (ClassDescriptor classDescriptor : nmp.getModel().getClassDescriptors()) {
             boolean isIgnored = nmp.isIgnored(classDescriptor);
             boolean isRelationship = nmp.isRelationship(classDescriptor);
             if (isRelationship) {
@@ -102,34 +104,32 @@ public class Neo4jModelParser {
                 System.out.print(" --> "+nmp.getRelationshipType(classDescriptor));
             }
             System.out.println("");
-            if (!isIgnored) {
-                // show attributes
-                Set<AttributeDescriptor> attrDescriptors = classDescriptor.getAttributeDescriptors();
-                for (AttributeDescriptor ad : attrDescriptors) {
-                    if (nmp.isIgnored(ad)) System.out.print("X");
-                    System.out.println("\ta "+ad.getName());
+            // show attributes
+            Set<AttributeDescriptor> attrDescriptors = classDescriptor.getAttributeDescriptors();
+            for (AttributeDescriptor ad : attrDescriptors) {
+                if (nmp.isIgnored(ad)) System.out.print("X");
+                System.out.println("\ta "+ad.getName());
+            }
+            // show references
+            Set<ReferenceDescriptor> refDescriptors = classDescriptor.getReferenceDescriptors();
+            for (ReferenceDescriptor rd : refDescriptors) {
+                if (nmp.isIgnored(rd)) System.out.print("X");
+                System.out.print("\tr "+rd.getName());
+                if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()).equals(rd.getName())) {
+                    System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()));
+                } else {
+                    System.out.println("");
                 }
-                // show references
-                Set<ReferenceDescriptor> refDescriptors = classDescriptor.getReferenceDescriptors();
-                for (ReferenceDescriptor rd : refDescriptors) {
-                    if (nmp.isIgnored(rd)) System.out.print("X");
-                    System.out.print("\tr "+rd.getName());
-                    if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()).equals(rd.getName())) {
-                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()));
-                    } else {
-                        System.out.println("");
-                    }
-                }
-                // show collections
-                Set<CollectionDescriptor> collDescriptors = classDescriptor.getCollectionDescriptors();
-                for (CollectionDescriptor cd : collDescriptors) {
-                    if (nmp.isIgnored(cd)) System.out.print("X");
-                    System.out.print("\tc "+cd.getName());
-                    if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()).equals(cd.getName())) {
-                        System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()));
-                    } else {
-                        System.out.println("");
-                    }
+            }
+            // show collections
+            Set<CollectionDescriptor> collDescriptors = classDescriptor.getCollectionDescriptors();
+            for (CollectionDescriptor cd : collDescriptors) {
+                if (nmp.isIgnored(cd)) System.out.print("X");
+                System.out.print("\tc "+cd.getName());
+                if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()).equals(cd.getName())) {
+                    System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()));
+                } else {
+                    System.out.println("");
                 }
             }
         }
@@ -162,26 +162,23 @@ public class Neo4jModelParser {
      * @return the relationship type, or null if the given class is not meant to be a Neo4j relationship
      */
     public String getRelationshipType(ClassDescriptor cd) {
-        if (relationshipTypes.containsKey(cd.getSimpleName())) {
-            return(relationshipTypes.get(cd.getSimpleName()));
-        } else {
-            return null;
-        }
+        if (relationshipTypes.containsKey(cd.getSimpleName())) return(relationshipTypes.get(cd.getSimpleName()));
+        // default
+        return null;
     }
 
     /**
-     * Return the relationship type for the given class and reference or collection name, if it is to be renamed in the Neo4j graph; null otherwise.
+     * Return the relationship type for the given reference or collection, if it is to be renamed in the Neo4j graph; refName otherwise.
      * @param className the name of the class
      * @param refName the name of the reference or collection
      * @return the relationship type, either the renamed value or refName if it is not designated to be renamed in Neo4j
      */
     public String getRelationshipType(String className, String refName) {
         String key = className+"."+refName;
-        if (relationshipTypes.containsKey(key)) {
-            return(relationshipTypes.get(key));
-        } else {
-            return refName;
-        }
+        // found for this class
+        if (relationshipTypes.containsKey(key)) return(relationshipTypes.get(key));
+        // default
+        return refName;
     }
 
     /**
@@ -234,8 +231,29 @@ public class Neo4jModelParser {
      * @throws ModelParserException if something goes wrong with parsing the class descriptors.
      */
     public void process(Reader reader) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
+        // we need to copy the data so we can read it twice
+        String xmlData = IOUtils.toString(reader);
+        // parse the file for the InterMine Model
+        model = new InterMineModelParser().process(new InputStreamReader(IOUtils.toInputStream(xmlData,"UTF-8")));
         // parse the file for Neo4j relevant stuff
-        SAXParser.parse(new InputSource(reader), new ModelHandler());
+        SAXParser.parse(new InputSource(new InputStreamReader(IOUtils.toInputStream(xmlData,"UTF-8"))), new ModelHandler());
+        // update relationshipTypes to include references and collections in subclasses
+        // have to use a standalone map to avoid concurrent updates
+        LinkedHashMap<String,String> addMap = new LinkedHashMap<String,String>();
+        for (String key : relationshipTypes.keySet()) {
+            String[] parts = key.split("\\.");
+            if (parts.length==2) {
+                String className = parts[0];
+                String refName = parts[1];
+                String relType = relationshipTypes.get(key);
+                ClassDescriptor cd = model.getClassDescriptorByName(className);
+                Set<ClassDescriptor> subDescriptors = model.getAllSubs(cd);
+                for (ClassDescriptor scd : subDescriptors) {
+                    addMap.put(scd.getSimpleName()+"."+refName, relType);
+                }
+            }
+        }
+        relationshipTypes.putAll(addMap);
     }
 
     /**
@@ -245,9 +263,17 @@ public class Neo4jModelParser {
      * @throws ModelParserException if something goes wrong with parsing the class descriptors.
      */
     public void process(Neo4jLoaderProperties props) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
-        process(new InputStreamReader(new FileInputStream(props.dataModelFilename)));
+        // parse the XML file
+        process(new FileReader(props.dataModelFilename));
     }
 
+    /**
+     * Just a getter.
+     */
+    public Model getModel() {
+        return model;
+    }
+    
     /**
      * Just a getter.
      */
@@ -290,16 +316,17 @@ public class Neo4jModelParser {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attrs) {
 
+            // added Neo4j attributes
+            boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
+            String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
+            
             if ("class".equals(qName)) {
 
                 String name = attrs.getValue("name");
                 String supers = attrs.getValue("extends");
                 cls = new SkeletonClass(name, supers);
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
-                String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
-                if (neo4jIgnore) {
-                    ignoredClasses.add(name);
-                } else if (!StringUtils.isEmpty(neo4jRelationship)) {
+                if (neo4jIgnore) ignoredClasses.add(name);
+                if (!StringUtils.isEmpty(neo4jRelationship)) {
                     ignoredClasses.add(name);
                     relationshipTypes.put(name, neo4jRelationship);
                 }
@@ -307,37 +334,22 @@ public class Neo4jModelParser {
             } else if ("attribute".equals(qName)) {
 
                 String name = attrs.getValue("name");
-                if (StringUtils.isEmpty(name)) {
-                    throw new IllegalArgumentException("Error - `" + cls.name + "` has an attribute" + " with an empty/null name");
-                }
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
+                if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("Error - `" + cls.name + "` has an attribute" + " with an empty/null name");
                 if (neo4jIgnore) ignoredAttributes.add(cls.name+"."+name);
 
             } else if ("reference".equals(qName)) {
 
                 String name = attrs.getValue("name");
-                if (StringUtils.isEmpty(name)) {
-                    throw new IllegalArgumentException("Error - `" + cls.name + "` has a reference" + " with an empty/null name");
-                }
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
+                if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("Error - `" + cls.name + "` has a reference" + " with an empty/null name");
                 if (neo4jIgnore) ignoredReferences.add(cls.name+"."+name);
-                String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
-                if (!StringUtils.isEmpty(neo4jRelationship)) {
-                    relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
-                }
+                if (!StringUtils.isEmpty(neo4jRelationship)) relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
 
             } else if ("collection".equals(qName)) {
 
                 String name = attrs.getValue("name");
-                if (StringUtils.isEmpty(name)) {
-                    throw new IllegalArgumentException("Error - `" + cls.name + "` has a collection" + " with an empty/null name");
-                }
-                boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
+                if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("Error - `" + cls.name + "` has a collection" + " with an empty/null name");
                 if (neo4jIgnore) ignoredCollections.add(cls.name+"."+name);
-                String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
-                if (!StringUtils.isEmpty(neo4jRelationship)) {
-                    relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
-                }
+                if (!StringUtils.isEmpty(neo4jRelationship)) relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
 
             }
         }

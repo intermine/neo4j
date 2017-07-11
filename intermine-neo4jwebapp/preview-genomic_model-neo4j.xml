@@ -17,7 +17,7 @@
 	<reference name="anatomyTerm" referenced-type="AnatomyTerm"/>
 	<reference name="developmentTerm" referenced-type="DevelopmentTerm"/>
 	<collection name="cvTerms" referenced-type="CVTerm"/>
-	<collection name="publications" referenced-type="Publication"/>
+	<collection name="publications" referenced-type="Publication" neo4j-relationship="MENTIONED_IN"/>
 	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="TFmodule" extends="RegulatoryRegion" is-interface="true"></class>
@@ -61,7 +61,7 @@
 	<attribute name="name" type="java.lang.String"/>
 	<attribute name="url" type="java.lang.String"/>
 	<attribute name="description" type="java.lang.String"/>
-	<collection name="publications" referenced-type="Publication"/>
+	<collection name="publications" referenced-type="Publication" neo4j-relationship="PUBLISHED_IN"/>
 	<collection name="dataSets" referenced-type="DataSet" reverse-reference="dataSource" neo4j-ignore="true"/>
 </class>
 <class name="GOTerm" extends="OntologyTerm" is-interface="true"></class>
@@ -93,12 +93,12 @@
 	<attribute name="cytoLocation" type="java.lang.String"/>
 	<attribute name="scoreType" type="java.lang.String"/>
 	<attribute name="score" type="java.lang.Double"/>
-	<reference name="chromosome" referenced-type="Chromosome"/>
-	<reference name="chromosomeLocation" referenced-type="Location"/>
-	<reference name="sequence" referenced-type="Sequence"/>
-	<reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
-	<collection name="childFeatures" referenced-type="SequenceFeature"/>
-	<collection name="overlappingFeatures" referenced-type="SequenceFeature"/>
+	<reference name="chromosome" referenced-type="Chromosome" neo4j-ignore="true"/>
+	<reference name="chromosomeLocation" referenced-type="Location" neo4j-ignore="true"/>
+	<reference name="sequence" referenced-type="Sequence" neo4j-ignore="true"/>
+	<reference name="sequenceOntologyTerm" referenced-type="SOTerm" neo4j-relationship="HAS_TERM"/>
+	<collection name="childFeatures" referenced-type="SequenceFeature" neo4j-relationship="PARENT_OF"/>
+	<collection name="overlappingFeatures" referenced-type="SequenceFeature" neo4j-relationship="OVERLAPS"/>
 </class>
 <class name="MRNAExpressionTerm" extends="OntologyTerm" is-interface="true">
 	<attribute name="type" type="java.lang.String"/>
@@ -115,25 +115,25 @@
 </class>
 <class name="MeshTerm" is-interface="true">
 	<attribute name="name" type="java.lang.String"/>
-	<collection name="publications" referenced-type="Publication" reverse-reference="meshTerms"/>
+	<collection name="publications" referenced-type="Publication" reverse-reference="meshTerms" neo4j-relationship="MENTIONED_IN"/>
 </class>
 <class name="Disease" is-interface="true">
 	<attribute name="source" type="java.lang.String"/>
 	<attribute name="identifier" type="java.lang.String"/>
 	<attribute name="name" type="java.lang.String"/>
 	<collection name="genes" referenced-type="Gene" reverse-reference="diseases"/>
-	<collection name="publications" referenced-type="Publication"/>
+	<collection name="publications" referenced-type="Publication" neo4j-relationship="MENTIONED_IN"/>
 </class>
 <class name="Gene" extends="SequenceFeature" is-interface="true">
 	<attribute name="briefDescription" type="java.lang.String"/>
 	<attribute name="description" type="java.lang.String"/>
-	<reference name="downstreamIntergenicRegion" referenced-type="IntergenicRegion"/>
-	<reference name="upstreamIntergenicRegion" referenced-type="IntergenicRegion"/>
+	<reference name="downstreamIntergenicRegion" referenced-type="IntergenicRegion" neo4j-ignore="true"/>
+	<reference name="upstreamIntergenicRegion" referenced-type="IntergenicRegion" neo4j-ignore="true"/>
 	<collection name="regulatoryRegions" referenced-type="RegulatoryRegion" reverse-reference="gene" neo4j-ignore="true"/>
 	<collection name="rnaSeqResults" referenced-type="RNASeqResult" reverse-reference="gene" neo4j-ignore="true"/>
 	<collection name="transcripts" referenced-type="Transcript" reverse-reference="gene" neo4j-ignore="true"/>
-	<collection name="goAnnotation" referenced-type="GOAnnotation"/>
-	<collection name="pathways" referenced-type="Pathway" reverse-reference="genes"/>
+	<collection name="goAnnotation" referenced-type="GOAnnotation" neo4j-relationship="ANNOTATED_BY"/>
+	<collection name="pathways" referenced-type="Pathway" reverse-reference="genes" neo4j-relationship="PARTICIPATES_IN"/>
 	<collection name="CDSs" referenced-type="CDS" reverse-reference="gene" neo4j-ignore="true"/>
 	<collection name="flankingRegions" referenced-type="GeneFlankingRegion" reverse-reference="gene" neo4j-ignore="true"/>
 	<collection name="mRNAExpressionResults" referenced-type="MRNAExpressionResult" reverse-reference="gene" neo4j-ignore="true"/>
@@ -154,7 +154,7 @@
 	<attribute name="withText" type="java.lang.String"/>
 	<reference name="code" referenced-type="GOEvidenceCode"/>
 	<collection name="with" referenced-type="BioEntity"/>
-	<collection name="publications" referenced-type="Publication"/>
+	<collection name="publications" referenced-type="Publication" neo4j-relationship="MENTIONED_IN"/>
 </class>
 <class name="MicroArrayAssay" is-interface="true">
 	<attribute name="displayOrder" type="java.lang.Integer"/>
@@ -177,15 +177,15 @@
 	<attribute name="symbol" type="java.lang.String"/>
 	<attribute name="primaryIdentifier" type="java.lang.String"/>
 	<attribute name="name" type="java.lang.String"/>
-	<reference name="organism" referenced-type="Organism"/>
-	<collection name="synonyms" referenced-type="Synonym" reverse-reference="subject"/>
-	<collection name="publications" referenced-type="Publication" reverse-reference="bioEntities"/>
-	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="subject"/>
-	<collection name="interactions" referenced-type="Interaction" reverse-reference="participant1"/>
-	<collection name="crossReferences" referenced-type="CrossReference" reverse-reference="subject"/>
+	<reference name="organism" referenced-type="Organism" neo4j-relationship="PART_OF"/>
+	<collection name="synonyms" referenced-type="Synonym" reverse-reference="subject" neo4j-relationship="SYNONYM_OF"/>
+	<collection name="publications" referenced-type="Publication" reverse-reference="bioEntities" neo4j-relationship="MENTIONED_IN"/>
+	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="subject" neo4j-relationship="ANNOTATED_BY"/>
+	<collection name="interactions" referenced-type="Interaction" reverse-reference="participant1" neo4j-relationship="PARTICIPATES_IN"/>
+	<collection name="crossReferences" referenced-type="CrossReference" reverse-reference="subject" neo4j-relationship="CROSS_REFERENCED_BY"/>
 	<collection name="dataSets" referenced-type="DataSet" reverse-reference="bioEntities" neo4j-ignore="true"/>
-	<collection name="locatedFeatures" referenced-type="Location" reverse-reference="locatedOn"/>
-	<collection name="locations" referenced-type="Location" reverse-reference="feature"/>
+	<collection name="locatedFeatures" referenced-type="Location" reverse-reference="locatedOn" neo4j-ignore="true"/>
+	<collection name="locations" referenced-type="Location" reverse-reference="feature" neo4j-ignore="true"/>
 </class>
 <class name="AnatomyTerm" extends="OntologyTerm" is-interface="true"></class>
 <class name="ChromosomalDeletion" extends="ChromosomeStructureVariation" is-interface="true"></class>
@@ -246,7 +246,7 @@
 	<attribute name="confidence" type="java.lang.Double"/>
 	<attribute name="name" type="java.lang.String"/>
 	<attribute name="relationshipType" type="java.lang.String"/>
-	<reference name="interaction" referenced-type="Interaction" reverse-reference="details"/>
+	<reference name="interaction" referenced-type="Interaction" reverse-reference="details" neo4j-relationship="PART_OF"/>
 	<reference name="experiment" referenced-type="InteractionExperiment" reverse-reference="interactions"/>
 	<collection name="allInteractors" referenced-type="Interactor"/>
 	<collection name="interactingRegions" referenced-type="InteractionRegion" reverse-reference="interaction"/>
@@ -264,7 +264,7 @@
 </class>
 <class name="OrthologueEvidence" is-interface="true">
 	<reference name="evidenceCode" referenced-type="OrthologueEvidenceCode"/>
-	<collection name="publications" referenced-type="Publication"/>
+	<collection name="publications" referenced-type="Publication" neo4j-relationship="MENTIONED_IN"/>
 </class>
 <class name="Tissue" is-interface="true">
 	<attribute name="name" type="java.lang.String"/>
@@ -285,7 +285,7 @@
 	<attribute name="lastName" type="java.lang.String"/>
 	<attribute name="initials" type="java.lang.String"/>
 	<attribute name="firstName" type="java.lang.String"/>
-	<collection name="publications" referenced-type="Publication" reverse-reference="authors"/>
+	<collection name="publications" referenced-type="Publication" reverse-reference="authors" neo4j-relationship="AUTHOR_OF"/>
 </class>
 <class name="Ontology" is-interface="true">
 	<attribute name="name" type="java.lang.String"/>
@@ -307,7 +307,7 @@
 </class>
 <class name="ReversePrimer" extends="Primer" is-interface="true"></class>
 <class name="IntergenicRegion" extends="SequenceFeature" is-interface="true">
-	<collection name="adjacentGenes" referenced-type="Gene"/>
+	<collection name="adjacentGenes" referenced-type="Gene" neo4j-relationship="ADJACENT_TO"/>
 </class>
 <class name="SnoRNA" extends="NcRNA" is-interface="true"></class>
 <class name="Protein" extends="BioEntity" is-interface="true">
@@ -328,7 +328,7 @@
 	<collection name="proteinDomainRegions" referenced-type="ProteinDomainRegion" reverse-reference="protein"/>
 	<collection name="CDSs" referenced-type="CDS" reverse-reference="protein"/>
 	<collection name="genes" referenced-type="Gene" reverse-reference="proteins"/>
-	<collection name="pathways" referenced-type="Pathway"/>
+	<collection name="pathways" referenced-type="Pathway" neo4j-relationship="PARTICIPATES_IN"/>
 	<collection name="features" referenced-type="UniProtFeature" reverse-reference="protein"/>
 	<collection name="transcripts" referenced-type="Transcript" reverse-reference="protein"/>
 	<collection name="comments" referenced-type="Comment"/>
@@ -373,7 +373,7 @@
 </class>
 <class name="GOAnnotation" extends="OntologyAnnotation" is-interface="true" neo4j-relationship="ANNOTATED_BY">
 	<attribute name="annotationExtension" type="java.lang.String"/>
-	<collection name="evidence" referenced-type="GOEvidence"/>
+	<collection name="evidence" referenced-type="GOEvidence" neo4j-relationship="EVIDENCED_BY"/>
 </class>
 <class name="Sequence" is-interface="true">
 	<attribute name="md5checksum" type="java.lang.String"/>
@@ -392,11 +392,11 @@
 	<attribute name="type" type="java.lang.String"/>
 	<attribute name="description" type="java.lang.String"/>
 	<collection name="foundIn" referenced-type="ProteinDomain"/>
-	<collection name="goAnnotation" referenced-type="GOAnnotation"/>
+	<collection name="goAnnotation" referenced-type="GOAnnotation" neo4j-relationship="ANNOTATED_BY"/>
 	<collection name="parentFeatures" referenced-type="ProteinDomain"/>
 	<collection name="proteinDomainRegions" referenced-type="ProteinDomainRegion" reverse-reference="proteinDomain"/>
 	<collection name="contains" referenced-type="ProteinDomain"/>
-	<collection name="childFeatures" referenced-type="ProteinDomain"/>
+	<collection name="childFeatures" referenced-type="ProteinDomain" neo4j-relationship="PARENT_OF"/>
 </class>
 <class name="Treatment" is-interface="true">
 	<attribute name="action" type="java.lang.String"/>
@@ -472,7 +472,7 @@
 	<attribute name="includeGene" type="java.lang.Boolean"/>
 	<attribute name="distance" type="java.lang.String"/>
 	<attribute name="direction" type="java.lang.String"/>
-	<reference name="gene" referenced-type="Gene" reverse-reference="flankingRegions"/>
+	<reference name="gene" referenced-type="Gene" reverse-reference="flankingRegions" neo4j-relationship="ADJACENT_TO"/>
 </class>
 <class name="Image" is-interface="true">
 	<attribute name="url" type="java.lang.String"/>
@@ -490,7 +490,7 @@
 	<reference name="publication" referenced-type="Publication"/>
 	<collection name="interactionDetectionMethods" referenced-type="InteractionTerm"/>
 	<collection name="comments" referenced-type="Comment"/>
-	<collection name="interactions" referenced-type="InteractionDetail" reverse-reference="experiment"/>
+	<collection name="interactions" referenced-type="InteractionDetail" reverse-reference="experiment" neo4j-relationship="EVIDENCE_FOR"/>
 	<collection name="participantIdentificationMethods" referenced-type="InteractionTerm"/>
 </class>
 <class name="UniProtFeature" is-interface="true">
@@ -509,8 +509,8 @@
 	<attribute name="description" type="java.lang.String"/>
 	<reference name="ontology" referenced-type="Ontology"/>
 	<collection name="relations" referenced-type="OntologyRelation"/>
-	<collection name="synonyms" referenced-type="OntologyTermSynonym"/>
-	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="ontologyTerm"/>
+	<collection name="synonyms" referenced-type="OntologyTermSynonym" neo4j-relationship="SYNONYM_OF"/>
+	<collection name="ontologyAnnotations" referenced-type="OntologyAnnotation" reverse-reference="ontologyTerm" neo4j-relationship="ANNOTATES"/>
 	<collection name="parents" referenced-type="OntologyTerm"/>
 	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 	<collection name="crossReferences" referenced-type="OntologyTerm"/>
@@ -536,7 +536,7 @@
 	<attribute name="type" type="java.lang.String"/>
 	<reference name="gene" referenced-type="Gene" reverse-reference="homologues" neo4j-relationship="PARTNER_OF"/>
 	<reference name="homologue" referenced-type="Gene" neo4j-relationship="PARTNER_OF"/>
-	<collection name="evidence" referenced-type="OrthologueEvidence"/>
+	<collection name="evidence" referenced-type="OrthologueEvidence" neo4j-relationship="EVIDENCED_BY"/>
 	<collection name="crossReferences" referenced-type="CrossReference"/>
 	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
@@ -581,7 +581,7 @@
 <class name="Comment" is-interface="true">
 	<attribute name="type" type="java.lang.String"/>
 	<attribute name="description" type="java.lang.String"/>
-	<collection name="publications" referenced-type="Publication"/>
+	<collection name="publications" referenced-type="Publication" neo4j-relationship="PUBLISHED_IN"/>
 </class>
 <class name="SnRNA" extends="NcRNA" is-interface="true"></class>
 <class name="MicroarrayOligo" extends="Oligo" is-interface="true">
@@ -589,7 +589,7 @@
 	<reference name="transcript" referenced-type="Transcript" reverse-reference="microarrayOligos"/>
 </class>
 <class name="SequenceCollection" extends="BioEntity" is-interface="true">
-	<reference name="sequenceOntologyTerm" referenced-type="SOTerm"/>
+	<reference name="sequenceOntologyTerm" referenced-type="SOTerm" neo4j-relationship="HAS_TERM"/>
 </class>
 <class name="Chromosome" extends="SequenceFeature" is-interface="true"></class>
 <class name="Location" is-interface="true" neo4j-relationship="LOCATED_ON">
@@ -610,6 +610,6 @@
 	<attribute name="startStatus" type="java.lang.String"/>
 	<reference name="interaction" referenced-type="InteractionDetail" reverse-reference="interactingRegions"/>
 	<reference name="ontologyTerm" referenced-type="OntologyTerm"/>
-	<collection name="locations" referenced-type="Location"/>
+	<collection name="locations" referenced-type="Location" neo4j-ignore="true"/>
 </class>
 </model>

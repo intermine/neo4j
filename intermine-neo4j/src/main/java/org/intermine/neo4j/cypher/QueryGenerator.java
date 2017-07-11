@@ -48,7 +48,9 @@ public class QueryGenerator {
         PathTree pathTree = new PathTree(pathQuery);
         Query query = new Query();
 
+        // This creates the Match clause and also the Optional Match (if required)
         createMatchClause(query, pathTree.getRoot());
+
         createWhereClause(query, pathTree, pathQuery);
         createReturnClause(query, pathTree, pathQuery);
         createOrderByClause(query, pathTree, pathQuery);
@@ -177,7 +179,7 @@ public class QueryGenerator {
     private static void createReturnClause(Query query, PathTree pathTree, PathQuery pathQuery) {
         for (String path : pathQuery.getView()) {
             TreeNode treeNode = pathTree.getTreeNode(path);
-            if (treeNode.getTreeNodeType() == TreeNodeType.PROPERTY) {
+            if (treeNode != null && treeNode.getTreeNodeType() == TreeNodeType.PROPERTY) {
                 // Return ONLY IF a property is queried !!
                 // Nodes & Relationships cannot be returned.
                 query.addToReturn(treeNode.getParent().getVariableName() + "." +

@@ -3,12 +3,11 @@ package org.intermine.neo4j.cypher.tree;
 import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
+import org.intermine.pathquery.Path;
+import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Describes a Path Tree.
@@ -22,83 +21,94 @@ public class PathTree {
     public PathTree(PathQuery pathQuery){
         Boolean DEBUG = false;
 
-        Set<String> paths = Helper.getAllPaths(pathQuery);
+        Set<Path> paths = new HashSet<>();
+        try {
+            paths.addAll(Helper.getAllPaths(pathQuery));
+        } catch (PathException e) {
+            e.printStackTrace();
+            System.out.println("Helper.getAllPaths() - could not get all the paths.");
+            System.exit(0);
+        }
 
         if(DEBUG){
-            System.out.println(paths);
+            System.out.println("Printing all paths :");
+            for (Path path : paths) {
+                System.out.println(path);
+            }
+            System.out.println();
         }
 
         // Initialize root node with null, since no node currently exists in the PathTree.
-        root = null;
+        this.root = null;
 
         // Create tree using all the paths
-        for (String path : paths){
-            List<String> tokens = Helper.getTokensFromPath(path);
+        for (Path path : paths){
+            Path rootPath = path.decomposePath().get(0);
 
-            // Start variable name as an empty string. Gradually add each token for each node.
-            String variableName = "";
-
-            // List used to keep track of what portion of the path we have traversed.
-            // At start, no portion of the path is traversed. So it is an empty list.
-            List<String> pathSoFar = new ArrayList<>(tokens.size());
-
-            if(DEBUG){
-                System.out.println(path + "\n");
+            if (DEBUG) {
+                System.out.println("Processing path : " + path);
             }
 
-            // We will create a TreeNode for each token of the Path.
-            for (String token : tokens){
-                // Since we have traversed till this token, add it to pathSoFar.
-                pathSoFar.add(token);
+            for (Path traversedPath : path.decomposePath()){
 
-                // TO DO : Use another way of creating variable names.
-                // Underscore separated names may get unnecessarily large.
+                if (DEBUG) {
+                    System.out.println("Traversing path : " + traversedPath);
+                }
 
-                // Add token to variable name
-                variableName += (token.toLowerCase());
+                String variableName = Helper.getVariableNameFromPath(traversedPath);
 
-                // TO DO - Set TreeNodeType of TreeNode using methods from Ontology Converter
-                if(this.root == null){
-                    // Create the root TreeNode. It is always represents a Graph Node.
-                    // Parent is null for root.
+                if (traversedPath.isRootPath()) {
+                    if (this.root == null) {
+                        // Create the root TreeNode. It is always represents a Graph Node.
+                        // Parent is null for root.
+                        if (DEBUG) {
+                            System.out.println("Root created " + variableName);
+                        }
+                        this.root = new TreeNode(variableName,
+                                                rootPath.toString(),
+                                                TreeNodeType.NODE,
+                                                null,
+                                                OuterJoinStatus.INNER);
+                    }
+                    else {
+                        if (DEBUG) {
+                            System.out.println("Root already exists");
+                        }
+                    }
+                }
+                else {
                     if (DEBUG) {
-                        System.out.println("Root created " + variableName);
+                        System.out.println("Searching parent node for path " + traversedPath);
                     }
-                    this.root = new TreeNode(variableName,
-                                            token,
-                                            TreeNodeType.NODE,
-                                            null,
-                                            OuterJoinStatus.INNER);
-                }
-                else{
-                    // Traverse through the tree to reach the required leaf node
-                    TreeNode treeNode = root;
-                    for (String str : pathSoFar){
-                        if (pathSoFar.indexOf(str) == 0){
-                            // Skip the root
-                            continue;
-                        }
-                        // Get current TreeNode's child
-                        TreeNode child = treeNode.getChild(str);
-                        TreeNodeType treeNodeType = OntologyConverter.getTreeNodeType(str);
+                    // First reach the Parent TreeNode for the current TreeNode
+                    TreeNode parentNode = getTreeNode(traversedPath.getPrefix().toString());
 
-                        // If child does not exist, create a new one.
-                        // If it exists already, then this path prefix was also found in a previous path,
-                        // so tokens for that have already been created. In this case we can simply do nothing
-                        // and wait till we encounter a token for which TreeNode is not yet created.
-                        if(child == null){
-                            treeNode.addChild(str, new TreeNode(variableName,
-                                                                str,
-                                                                treeNodeType,
-                                                                treeNode,
-                                                                OuterJoinStatus.INNER));
-                            break;
+                    if (DEBUG) {
+                        System.out.println("Parent node found " + parentNode);
+                    }
+
+                    String nodeName = traversedPath.getLastElement();
+
+                    // If child TreeNode does not exist, create a new one.
+                    // If it exists already, then this TreeNode has already been created for
+                    // some previous path, so we do nothing.
+                    if (parentNode.getChild(nodeName) == null) {
+                        TreeNodeType treeNodeType = OntologyConverter.getTreeNodeType(traversedPath);
+                        if (DEBUG) {
+                            System.out.println("Creating node " + variableName);
                         }
-                        treeNode = child;
+                        parentNode.addChild(nodeName, new TreeNode(variableName,
+                                                                nodeName,
+                                                                treeNodeType,
+                                                                parentNode,
+                                                                OuterJoinStatus.INNER));
+                    }
+                    else {
+                        if (DEBUG) {
+                            System.out.println("Node already exists " + parentNode.getChild(nodeName));
+                        }
                     }
                 }
-                // Add an underscore in the variable name for the next child.
-                variableName += "_";
             }
 
             setOuterJoinInPathTree(pathQuery);
@@ -112,8 +122,13 @@ public class PathTree {
     private void setOuterJoinInPathTree(PathQuery pathQuery){
         Map<String, OuterJoinStatus> outerJoinStatusMap = pathQuery.getOuterJoinStatus();
         for (String path : outerJoinStatusMap.keySet()){
-            if (outerJoinStatusMap.get(path) == OuterJoinStatus.OUTER){
-                setOuterJoinInChildren(getTreeNode(path));
+            TreeNode treeNode = getTreeNode(path);
+            if (treeNode != null && outerJoinStatusMap.get(path) == OuterJoinStatus.OUTER){
+                // TO DO : Ponder whether we should set outer join for all children or just for
+                // the current node.
+
+                treeNode.setOuterJoinStatus(OuterJoinStatus.OUTER);
+                //setOuterJoinInChildren(getTreeNode(path));
             }
         }
     }
@@ -149,14 +164,14 @@ public class PathTree {
     /**
      * Traverses the PathTree as per the given path and returns the TreeNode found
      *
-     * @param path the given path
+     * @param pathString the given path
      * @return the TreeNode object if it is found, null otherwise
      */
-    public TreeNode getTreeNode(String path){
+    public TreeNode getTreeNode(String pathString){
         if(root == null){
             return null;
         }
-        List<String> nodes = Helper.getTokensFromPath(path);
+        List<String> nodes = Helper.getTokensFromPathString(pathString);
         TreeNode treeNode = root;
         for (String node: nodes){
             if (nodes.indexOf(node) == 0){
