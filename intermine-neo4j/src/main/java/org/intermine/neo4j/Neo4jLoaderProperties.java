@@ -4,9 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.IOException;
-
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.intermine.metadata.InterMineModelParser;
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
@@ -23,6 +23,7 @@ import org.neo4j.driver.v1.GraphDatabase;
  */
 public class Neo4jLoaderProperties {
 
+    private static final Logger LOG = Logger.getLogger(Neo4jLoaderProperties.class);
     public static final String DEFAULT_PROPERTIES_FILE = "neo4jloader.properties";
 
     String intermineServiceUrl;
@@ -43,7 +44,11 @@ public class Neo4jLoaderProperties {
      */
     public Neo4jLoaderProperties() throws FileNotFoundException, IOException {
         Properties props = new Properties();
-        props.load(new FileInputStream(DEFAULT_PROPERTIES_FILE));
+        try {
+            props.load(getClass().getClassLoader().getResourceAsStream("neo4jloader.properties"));
+        } catch (Exception ex) {
+           LOG.error("Exception reading neo4jloader.properties ");
+        }
         load(props);
     }
 
@@ -52,7 +57,11 @@ public class Neo4jLoaderProperties {
      */
     public Neo4jLoaderProperties(String filename) throws FileNotFoundException, IOException {
         Properties props = new Properties();
-        props.load(new FileInputStream(filename));
+        try {
+            props.load(getClass().getClassLoader().getResourceAsStream("neo4jloader.properties"));
+        } catch (Exception ex) {
+            LOG.error("Exception reading " + filename);
+        }
         load(props);
     }
 
