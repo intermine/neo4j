@@ -1,0 +1,3 @@
+<query name="" model="genomic" view="Protein.genes.chromosome.primaryIdentifier Protein.primaryIdentifier Protein.genes.primaryIdentifier Protein.genes.diseases.identifier Protein.genes.diseases.publications.pubMedId Protein.genes.chromosome.organism.commonName" longDescription="" sortOrder="Protein.primaryIdentifier asc">
+    <join path="Protein.genes.chromosome" style="OUTER"/>
+</query>

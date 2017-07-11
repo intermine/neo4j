@@ -4,6 +4,7 @@ import apoc.coll.Coll;
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.pathquery.OrderElement;
 import org.intermine.pathquery.PathConstraint;
+import org.intermine.pathquery.PathConstraintLoop;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.core.ContentType;
 import org.intermine.webservice.client.core.Request;
@@ -114,6 +115,11 @@ public class Helper {
         Set<PathConstraint> pathConstraints = pathQuery.getConstraints().keySet();
         for (PathConstraint pathConstraint : pathConstraints){
             paths.add(pathConstraint.getPath());
+
+            // Loop constraint has an additional path
+            if (pathConstraint instanceof PathConstraintLoop){
+                paths.add(PathConstraint.getValue(pathConstraint));
+            }
         }
 
         // Get paths from sort order

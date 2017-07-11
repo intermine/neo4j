@@ -4,7 +4,7 @@ MATCH (gene :Gene),
 (gene)-[]-(gene_upstreamintergenicregion :upstreamIntergenicRegion),
 (gene_upstreamintergenicregion)-[]-(gene_upstreamintergenicregion_adjacentgenes :adjacentGenes)
 
-WHERE ANY (key in keys(gene) WHERE gene[key]='CG10021') AND NOT gene_downstreamintergenicregion.adjacentGenes = 'Gene' AND NOT gene_upstreamintergenicregion.adjacentGenes = 'Gene'
+WHERE ANY (key in keys(gene) WHERE gene[key]='CG10021') AND gene_downstreamintergenicregion_adjacentgenes != gene AND gene_upstreamintergenicregion_adjacentgenes != gene
 RETURN gene.secondaryIdentifier,
 gene.symbol,
 gene_downstreamintergenicregion_adjacentgenes.primaryIdentifier,

@@ -12,7 +12,7 @@ public class TestQueryGenerator {
 
     public static void main(String args[]) throws IOException {
 
-        String FILENAME = "constraints/WITHIN";
+        String FILENAME = "outer/2";
 
         String PATHQUERY_FILENAME = "tests/pathquery/" + FILENAME + ".xml";
         String pathQuery = Util.readFile(PATHQUERY_FILENAME);

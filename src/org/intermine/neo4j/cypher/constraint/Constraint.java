@@ -228,6 +228,15 @@ public class Constraint {
         ")";
     }
 
+    private String getLoopConstraint(TreeNode treeNode, PathConstraint pathConstraint, PathTree pathTree) {
+        TreeNode valueTreeNode = pathTree.getTreeNode(PathConstraint.getValue(pathConstraint));
+        return treeNode.getVariableName() +
+                " " +
+                pathConstraint.getOp() +
+                " " +
+                valueTreeNode.getVariableName();
+    }
+
     public Constraint(PathConstraint pathConstraint, PathTree pathTree){
         this.type = ConstraintConverter.getConstraintType(pathConstraint);
         TreeNode treeNode = pathTree.getTreeNode(pathConstraint.getPath());
@@ -357,8 +366,12 @@ public class Constraint {
                 constraint = negation(getIsAConstraint(treeNode, pathConstraint));
                 break;
 
-            case HAS:
+            case LOOP:
+                constraint = getLoopConstraint(treeNode, pathConstraint, pathTree);
+                break;
 
+            // Ignore as these are obsolete
+            case HAS:
             case DOES_NOT_HAVE:
 
             case UNSUPPORTED_CONSTRAINT:
