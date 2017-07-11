@@ -257,14 +257,13 @@ public class Neo4jModelParser {
     }
 
     /**
-     * Run process() on the data model file given in a Neo4jLoaderProperties
+     * Run process() on the data model file given in a Neo4jLoaderProperties, presumed to be in the classpath
      *
      * @param props an instantiated Neo4jLoaderProperties object
      * @throws ModelParserException if something goes wrong with parsing the class descriptors.
      */
     public void process(Neo4jLoaderProperties props) throws IOException, SAXException, ParserConfigurationException, ModelParserException {
-        // parse the XML file
-        process(new FileReader(props.dataModelFilename));
+        process(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(props.dataModelFilename)));
     }
 
     /**
