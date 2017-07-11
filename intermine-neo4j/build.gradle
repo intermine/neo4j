@@ -3,7 +3,6 @@ task wrapper(type: Wrapper) {
 }
 
 apply plugin: "java"
-apply plugin: "war"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
