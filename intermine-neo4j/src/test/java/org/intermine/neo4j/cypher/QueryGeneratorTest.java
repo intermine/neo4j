@@ -32,20 +32,18 @@ public class QueryGeneratorTest {
     }
 
     @Test
-    @Ignore
     public void verifyContains() throws IOException {   
         String containsConstraint = getConstraint("CONTAINS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
         String expectedCypher = getChyper("CONTAINS.cypher");
-        Assert.assertEquals(expectedCypher, actualCypher);
+        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
-    @Ignore
     public void verifyEquals() throws IOException {
         String containsConstraint = getConstraint("EQUALS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
         String expectedCypher = getChyper("EQUALS.cypher");
-        Assert.assertEquals(expectedCypher, actualCypher);
+        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 }
