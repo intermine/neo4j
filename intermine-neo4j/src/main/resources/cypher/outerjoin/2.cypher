@@ -1,5 +1,6 @@
-MATCH (gene :Gene)
-
+MATCH (gene :Gene),
+(gene)-[]-(gene_chromosome :chromosome)
+OPTIONAL MATCH (gene_chromosome)-[gene_chromosome_sequenceontologyterm:sequenceOntologyTerm]-(gene_chromosome_sequenceontologyterm_datasets :dataSets)
 
 RETURN gene.primaryIdentifier,
 gene_chromosome.primaryIdentifier,

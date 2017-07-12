@@ -1,12 +1,16 @@
 package org.intermine.neo4j.cypher.tree;
 
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.Path;
 import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -18,7 +22,7 @@ public class PathTree {
 
     private TreeNode root;
 
-    public PathTree(PathQuery pathQuery) throws PathException {
+    public PathTree(PathQuery pathQuery) throws PathException, ModelParserException, ParserConfigurationException, SAXException, IOException {
 
         Set<Path> paths = new HashSet<>();
         paths.addAll(Helper.getAllPaths(pathQuery));
@@ -32,17 +36,12 @@ public class PathTree {
 
             for (Path traversedPath : path.decomposePath()){
 
-                String variableName = Helper.getVariableNameFromPath(traversedPath);
-                String graphicalName = OntologyConverter.getGraphicalName(traversedPath);
-
                 if (traversedPath.isRootPath()) {
                     if (this.root == null) {
                         // Create the root TreeNode. It is always represents a Graph Node.
                         // Parent is null for root.
                         this.root = new TreeNode(rootPath.toString(),
-                                                variableName,
-                                                graphicalName,
-                                                TreeNodeType.NODE,
+                                                traversedPath,
                                                 null,
                                                 OuterJoinStatus.INNER);
                     }
@@ -57,11 +56,8 @@ public class PathTree {
                     // If it exists already, then this TreeNode has already been created for
                     // some previous path, so we do nothing.
                     if (parentNode.getChild(nodeName) == null) {
-                        TreeNodeType treeNodeType = OntologyConverter.getTreeNodeType(traversedPath);
                         parentNode.addChild(nodeName, new TreeNode(nodeName,
-                                                                variableName,
-                                                                graphicalName,
-                                                                treeNodeType,
+                                                                traversedPath,
                                                                 parentNode,
                                                                 OuterJoinStatus.INNER));
                     }

@@ -1,8 +1,19 @@
 package org.intermine.neo4j.cypher.tree;
 
+import org.intermine.metadata.ClassDescriptor;
+import org.intermine.metadata.CollectionDescriptor;
+import org.intermine.metadata.ModelParserException;
+import org.intermine.metadata.ReferenceDescriptor;
+import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.Neo4jModelParser;
+import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
+import org.intermine.pathquery.Path;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +45,72 @@ public class TreeNode {
 
     // Outer Join Status
     private OuterJoinStatus outerJoinStatus;
+
+    TreeNode(String name,
+             Path path,
+             TreeNode parent,
+             OuterJoinStatus outerJoinStatus) throws IOException, ModelParserException, SAXException, ParserConfigurationException {
+        this.name = name;
+        this.variableName = Helper.getVariableNameFromPath(path);
+        this.outerJoinStatus = outerJoinStatus;
+        this.children = new HashMap<>();
+        this.parent = parent;
+
+        // Set Graphical Name and TreeNodeType using Neo4jModelParser
+        if (path.isRootPath()) {
+            this.graphicalName = path.toString();
+            this.treeNodeType = TreeNodeType.NODE;
+        }
+        else if (path.endIsAttribute()) {
+            this.graphicalName = path.getLastElement();
+            this.treeNodeType = TreeNodeType.PROPERTY;
+        }
+        else {
+            Neo4jModelParser modelParser = new Neo4jModelParser();
+            modelParser.process(new Neo4jLoaderProperties());
+
+            if (path.endIsCollection()) {
+                ClassDescriptor parentClassDescriptor = path.getPrefix().getEndClassDescriptor();
+                CollectionDescriptor cd = parentClassDescriptor.getCollectionDescriptorByName(path.getLastElement());
+                if (cd == null){
+                    for (ClassDescriptor pCd: parentClassDescriptor.getSuperDescriptors()){
+                        cd = pCd.getCollectionDescriptorByName(path.getLastElement());
+                        if (cd != null) {
+                            break;
+                        }
+                    }
+                }
+                if (modelParser.isIgnored(cd)) {
+                    this.graphicalName = cd.getName();
+                    this.treeNodeType = TreeNodeType.NODE;
+                }
+                else {
+                    this.graphicalName = modelParser.getRelationshipType(parentClassDescriptor.getName(), cd.getName());
+                    this.treeNodeType = TreeNodeType.RELATIONSHIP;
+                }
+            }
+            else if (path.endIsReference()) {
+                ClassDescriptor parentClassDescriptor = path.getPrefix().getEndClassDescriptor();
+                ReferenceDescriptor rd = parentClassDescriptor.getReferenceDescriptorByName(path.getLastElement());
+                if (rd == null){
+                    for (ClassDescriptor pCd: parentClassDescriptor.getSuperDescriptors()){
+                        rd = pCd.getReferenceDescriptorByName(path.getLastElement());
+                        if (rd != null) {
+                            break;
+                        }
+                    }
+                }
+                if (modelParser.isIgnored(rd)) {
+                    this.graphicalName = rd.getName();
+                    this.treeNodeType = TreeNodeType.NODE;
+                }
+                else {
+                    this.graphicalName = modelParser.getRelationshipType(parentClassDescriptor.getName(), rd.getName());
+                    this.treeNodeType = TreeNodeType.RELATIONSHIP;
+                }
+            }
+        }
+    }
 
     TreeNode(String graphicalName,
              String variableName,

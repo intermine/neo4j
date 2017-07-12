@@ -1,5 +1,6 @@
 package org.intermine.neo4j.cypher;
 
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.neo4j.cypher.constraint.Constraint;
 import org.intermine.neo4j.cypher.tree.PathTree;
@@ -7,7 +8,9 @@ import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
 import org.intermine.pathquery.*;
 import org.intermine.webservice.client.services.QueryService;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class QueryGenerator {
      * @return the cypher query
      * @throws IOException
      */
-    public static String pathQueryToCypher(String input) throws IOException, PathException {
+    public static String pathQueryToCypher(String input) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
 
         // Get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();

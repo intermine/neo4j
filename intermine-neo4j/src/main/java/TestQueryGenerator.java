@@ -1,6 +1,9 @@
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.cypher.QueryGenerator;
 import org.intermine.pathquery.PathException;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 
@@ -11,7 +14,7 @@ import java.io.IOException;
  */
 public class TestQueryGenerator {
 
-    public static void main(String args[]) throws IOException, PathException {
+    public static void main(String args[]) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
 
         String FILENAME = "outerjoin/2";
 
