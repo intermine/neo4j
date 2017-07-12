@@ -3,6 +3,7 @@ task wrapper(type: Wrapper) {
 }
 
 apply plugin: "java"
+apply plugin: "application"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -53,10 +54,42 @@ dependencies {
   testCompile group: 'junit', name: 'junit', version: '4.8.2'
 }
 
-/*
-task templateParser(type: JavaExec) {
+task loader(type: JavaExec) {
+  description = "Neo4j Loader: loads a mine into Neo4j using parameters in neo4jloader.properties. Usage ./gradlew loader"
   classpath sourceSets.main.runtimeClasspath
-  classpath sourceSets.main.resources
-  mainClassName = "TemplateParser"
-  main = "TemplateParser"
-}*/
+  mainClassName = "org.intermine.neo4j.Neo4jLoader"
+  main = "org.intermine.neo4j.Neo4jLoader"
+}
+
+task nodeLoader(type: JavaExec) {
+  if(project.hasProperty('Args')){
+        args(Args.split(','))
+    }
+  description = "Neo4j Node Loader: loads a single node into Neo4j identified by its class and InterMine id. Usage: ./gradlew nodeLoader -PArgs=Gene,4295368"
+  classpath sourceSets.main.runtimeClasspath
+  main = "org.intermine.neo4j.Neo4jNodeLoader"
+}
+
+task completer(type: JavaExec) {
+  description = "Neo4j Completer: completes the references and collections. Usage: ./gradlew completer"
+  classpath sourceSets.main.runtimeClasspath
+  main = "org.intermine.neo4j.Neo4jCompleter"
+}
+
+task edgeLoader(type: JavaExec) {
+  if(project.hasProperty('Args')){
+        args(Args.split(','))
+    }
+  description = "Neo4j Edge Loader: loads edges into Neo4j given by source class, edge reference or collection, and target as referenced in the edge class. Usage: ./gradlew edgeLoader -PArgs=Gene,chromosomeLocation,locatedOn"
+  classpath sourceSets.main.runtimeClasspath
+  main = "org.intermine.neo4j.Neo4jEdgeLoader"
+}
+
+task imModelXMLDumper(type: JavaExec) {
+  if(project.hasProperty('Args')){
+        args(Args.split(','))
+    }
+  description = "InterMineModelXMLDumper: simple utility to dump an InterMine model in XML form to standard output. Usage: ./gradlew imModelXMLDumper -PArgs=http://www.synbiomine.org/synbiomine/service"
+  classpath sourceSets.main.runtimeClasspath
+  main = "org.intermine.neo4j.InterMineModelXMLDumper"
+}
