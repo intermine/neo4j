@@ -3,6 +3,7 @@ package org.intermine.neo4j.cypher;
 import org.intermine.metadata.ClassDescriptor;
 import org.intermine.metadata.CollectionDescriptor;
 import org.intermine.metadata.ReferenceDescriptor;
+import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.neo4j.Neo4jModelParser;
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
 import org.intermine.pathquery.Path;
@@ -37,6 +38,11 @@ public class OntologyConverter {
         else {
             System.out.println("is not property and not node");
             Neo4jModelParser modelParser = new Neo4jModelParser();
+            try {
+                modelParser.process(new Neo4jLoaderProperties());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if (path.endIsCollection()) {
                 System.out.println("is collection");
                 ClassDescriptor parentClassDescriptor = path.getPrefix().getEndClassDescriptor();
