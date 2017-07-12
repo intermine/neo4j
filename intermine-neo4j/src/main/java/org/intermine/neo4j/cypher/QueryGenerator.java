@@ -48,6 +48,8 @@ public class QueryGenerator {
         PathTree pathTree = new PathTree(pathQuery);
         Query query = new Query();
 
+        System.out.println(Helper.getAllPaths(pathQuery));
+
         // This creates the Match clause and also the Optional Match (if required)
         createMatchClause(query, pathTree.getRoot());
 

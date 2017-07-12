@@ -1,9 +1,5 @@
-MATCH (gene :Gene),
-(gene)-[]-(gene_chromosome :chromosome),
-(gene_chromosome)-[]-(gene_chromosome_sequenceontologyterm :sequenceOntologyTerm),
-(gene_chromosome_sequenceontologyterm_datasets)-[]-(gene_chromosome_sequenceontologyterm_datasets_publication :publication)
-OPTIONAL MATCH (gene_chromosome_sequenceontologyterm)-[]-(gene_chromosome_sequenceontologyterm_datasets :dataSets),
-(gene_chromosome_sequenceontologyterm_datasets_publication)-[]-(gene_chromosome_sequenceontologyterm_datasets_publication_authors :authors)
+MATCH (gene :Gene)
+
 
 RETURN gene.primaryIdentifier,
 gene_chromosome.primaryIdentifier,

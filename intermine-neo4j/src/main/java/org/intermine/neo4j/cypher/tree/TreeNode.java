@@ -35,18 +35,19 @@ public class TreeNode {
     // Outer Join Status
     private OuterJoinStatus outerJoinStatus;
 
-    TreeNode(String variableName,
+    TreeNode(String graphicalName,
+             String variableName,
              String name,
              TreeNodeType treeNodeType,
              TreeNode parent,
              OuterJoinStatus outerJoinStatus){
 
-        Boolean DEBUG = false;
+        Boolean DEBUG = true;
 
         this.variableName = variableName;
         this.name = name;
         this.treeNodeType = treeNodeType;
-        this.graphicalName = OntologyConverter.convertInterMineToNeo4j(name);
+        this.graphicalName = graphicalName;
         this.parent = parent;
         this.children = new HashMap<>();
         this.outerJoinStatus = outerJoinStatus;
@@ -54,9 +55,10 @@ public class TreeNode {
             if(parent == null){
                 System.out.println("Create node " + name + " as root");
             } else {
-                System.out.println("Create node " + name +
-                ", parent " + parent.getName() +
-                ", variableName " + variableName);
+                System.out.println("Create node " + variableName +
+                                    ":" + treeNodeType.name() +
+                                    ", graphicalName - " + graphicalName +
+                                    ", parent - " + parent.getVariableName());
             }
         }
     }

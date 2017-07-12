@@ -19,19 +19,9 @@ public class PathTree {
     private TreeNode root;
 
     public PathTree(PathQuery pathQuery) throws PathException {
-        Boolean DEBUG = false;
 
         Set<Path> paths = new HashSet<>();
         paths.addAll(Helper.getAllPaths(pathQuery));
-
-
-        if(DEBUG){
-            System.out.println("Printing all paths :");
-            for (Path path : paths) {
-                System.out.println(path);
-            }
-            System.out.println();
-        }
 
         // Initialize root node with null, since no node currently exists in the PathTree.
         this.root = null;
@@ -40,47 +30,26 @@ public class PathTree {
         for (Path path : paths){
             Path rootPath = path.decomposePath().get(0);
 
-            if (DEBUG) {
-                System.out.println("Processing path : " + path);
-            }
-
             for (Path traversedPath : path.decomposePath()){
 
-                if (DEBUG) {
-                    System.out.println("Traversing path : " + traversedPath);
-                }
-
                 String variableName = Helper.getVariableNameFromPath(traversedPath);
+                String graphicalName = OntologyConverter.getGraphicalName(traversedPath);
 
                 if (traversedPath.isRootPath()) {
                     if (this.root == null) {
                         // Create the root TreeNode. It is always represents a Graph Node.
                         // Parent is null for root.
-                        if (DEBUG) {
-                            System.out.println("Root created " + variableName);
-                        }
-                        this.root = new TreeNode(variableName,
-                                                rootPath.toString(),
+                        this.root = new TreeNode(rootPath.toString(),
+                                                variableName,
+                                                graphicalName,
                                                 TreeNodeType.NODE,
                                                 null,
                                                 OuterJoinStatus.INNER);
                     }
-                    else {
-                        if (DEBUG) {
-                            System.out.println("Root already exists");
-                        }
-                    }
                 }
                 else {
-                    if (DEBUG) {
-                        System.out.println("Searching parent node for path " + traversedPath);
-                    }
                     // First reach the Parent TreeNode for the current TreeNode
                     TreeNode parentNode = getTreeNode(traversedPath.getPrefix().toString());
-
-                    if (DEBUG) {
-                        System.out.println("Parent node found " + parentNode);
-                    }
 
                     String nodeName = traversedPath.getLastElement();
 
@@ -89,28 +58,17 @@ public class PathTree {
                     // some previous path, so we do nothing.
                     if (parentNode.getChild(nodeName) == null) {
                         TreeNodeType treeNodeType = OntologyConverter.getTreeNodeType(traversedPath);
-                        if (DEBUG) {
-                            System.out.println("Creating node " + variableName);
-                        }
-                        parentNode.addChild(nodeName, new TreeNode(variableName,
-                                                                nodeName,
+                        parentNode.addChild(nodeName, new TreeNode(nodeName,
+                                                                variableName,
+                                                                graphicalName,
                                                                 treeNodeType,
                                                                 parentNode,
                                                                 OuterJoinStatus.INNER));
-                    }
-                    else {
-                        if (DEBUG) {
-                            System.out.println("Node already exists " + parentNode.getChild(nodeName));
-                        }
                     }
                 }
             }
 
             setOuterJoinInPathTree(pathQuery);
-
-            if(DEBUG){
-                System.out.println();
-            }
         }
     }
 
