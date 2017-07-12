@@ -26,7 +26,7 @@ public class QueryGenerator {
      * @return the cypher query
      * @throws IOException
      */
-    public static String pathQueryToCypher(String input) throws IOException {
+    public static String pathQueryToCypher(String input) throws IOException, PathException {
 
         // Get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();

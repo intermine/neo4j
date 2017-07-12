@@ -1,12 +1,12 @@
 MATCH (protein :Protein),
-(protein)-[]-(protein_primaryaccession :primaryAccession),
 (protein)-[]-(protein_genes :genes),
 (protein_genes)-[]-(protein_genes_goannotation :goAnnotation),
-(protein_genes_goannotation)-[]-(protein_genes_goannotation_ontologyterm :ontologyTerm),
-(protein_genes_goannotation_ontologyterm)-[]-(protein_genes_goannotation_ontologyterm_namespace :namespace)
+(protein_genes_goannotation)-[]-(protein_genes_goannotation_ontologyterm :ontologyTerm)
 
 WHERE protein.primaryAccession = 'P04755' AND protein_genes_goannotation_ontologyterm.namespace = 'cellular_component'
-RETURN protein_genes.symbol,
+RETURN protein.primaryAccession,
+protein_genes.symbol,
 protein_genes_goannotation_ontologyterm.identifier,
-protein_genes_goannotation_ontologyterm.name
+protein_genes_goannotation_ontologyterm.name,
+protein_genes_goannotation_ontologyterm.namespace
 ORDER BY protein.primaryAccession ASC

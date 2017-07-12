@@ -3,7 +3,6 @@ MATCH (gene :Gene),
 (gene)-[]-(gene_transcripts :transcripts),
 (gene_transcripts)-[]-(gene_transcripts_microarrayoligos :microarrayOligos),
 (gene_transcripts_microarrayoligos)-[]-(gene_transcripts_microarrayoligos_sequence :sequence),
-(gene_transcripts_microarrayoligos_sequence)-[]-(gene_transcripts_microarrayoligos_sequence_residues :residues),
 (gene)-[]-(gene_chromosome :chromosome)
 
 WHERE gene_chromosome.primaryIdentifier = '2R' AND gene_chromosomelocation.end < 20450439 AND gene_chromosomelocation.start > 19910266
@@ -13,5 +12,6 @@ gene_chromosomelocation.end,
 gene.secondaryIdentifier,
 gene.symbol,
 gene_transcripts.primaryIdentifier,
-gene_transcripts_microarrayoligos.primaryIdentifier
+gene_transcripts_microarrayoligos.primaryIdentifier,
+gene_transcripts_microarrayoligos_sequence.residues
 ORDER BY gene_chromosome.primaryIdentifier ASC

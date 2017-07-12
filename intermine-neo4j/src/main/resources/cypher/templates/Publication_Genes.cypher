@@ -1,11 +1,11 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_publications :publications),
-(gene_publications)-[]-(gene_publications_year :year),
-(gene_publications)-[]-(gene_publications_title :title),
-(gene_publications)-[]-(gene_publications_pubmedid :pubMedId),
-(gene_publications)-[]-(gene_publications_firstauthor :firstAuthor)
+(gene)-[]-(gene_publications :publications)
 
 WHERE gene_publications.pubMedId = 11875036
 RETURN gene.secondaryIdentifier,
-gene.symbol
+gene.symbol,
+gene_publications.pubMedId,
+gene_publications.title,
+gene_publications.firstAuthor,
+gene_publications.year
 ORDER BY gene.secondaryIdentifier ASC

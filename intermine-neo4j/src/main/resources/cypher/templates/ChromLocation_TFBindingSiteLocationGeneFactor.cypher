@@ -1,9 +1,9 @@
 MATCH (tfbindingsite :TFBindingSite),
+(tfbindingsite)-[]-(tfbindingsite_chromosomelocation :chromosomeLocation),
 (tfbindingsite)-[]-(tfbindingsite_gene :gene),
 (tfbindingsite_gene)-[]-(tfbindingsite_gene_regulatoryregions :regulatoryRegions),
 (tfbindingsite_gene_regulatoryregions)-[]-(tfbindingsite_gene_regulatoryregions_datasets :dataSets),
 (tfbindingsite_gene_regulatoryregions_datasets)-[]-(tfbindingsite_gene_regulatoryregions_datasets_datasource :dataSource),
-(tfbindingsite)-[]-(tfbindingsite_chromosomelocation :chromosomeLocation),
 (tfbindingsite)-[]-(tfbindingsite_chromosome :chromosome),
 (tfbindingsite)-[]-(tfbindingsite_factor :factor)
 

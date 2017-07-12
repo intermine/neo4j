@@ -1,9 +1,8 @@
 MATCH (gene :Gene),
 (gene)-[]-(gene_chromosomelocation :chromosomeLocation),
 (gene)-[]-(gene_chromosome :chromosome),
-(gene)-[]-(gene_overlappingfeatures :overlappingFeatures),
 (gene_overlappingfeatures)-[]-(gene_overlappingfeatures_chromosomelocation :chromosomeLocation)
-
+OPTIONAL MATCH (gene)-[]-(gene_overlappingfeatures :overlappingFeatures)
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG11566')
 RETURN gene.secondaryIdentifier,
 gene.symbol,

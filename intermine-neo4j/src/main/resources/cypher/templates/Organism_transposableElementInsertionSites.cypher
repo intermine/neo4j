@@ -1,11 +1,10 @@
 MATCH (transposableelementinsertionsite :TransposableElementInsertionSite),
-(transposableelementinsertionsite)-[]-(transposableelementinsertionsite_organism :organism),
-(transposableelementinsertionsite)-[]-(transposableelementinsertionsite_chromosomelocation :chromosomeLocation),
-(transposableelementinsertionsite)-[]-(transposableelementinsertionsite_chromosome :chromosome),
-(transposableelementinsertionsite)-[]-(transposableelementinsertionsite_cytolocation :cytoLocation)
-
+(transposableelementinsertionsite)-[]-(transposableelementinsertionsite_organism :organism)
+OPTIONAL MATCH (transposableelementinsertionsite)-[]-(transposableelementinsertionsite_chromosomelocation :chromosomeLocation),
+(transposableelementinsertionsite)-[]-(transposableelementinsertionsite_chromosome :chromosome)
 WHERE transposableelementinsertionsite_organism.name = 'Drosophila melanogaster'
 RETURN transposableelementinsertionsite.primaryIdentifier,
+transposableelementinsertionsite.cytoLocation,
 transposableelementinsertionsite_chromosome.primaryIdentifier,
 transposableelementinsertionsite_chromosomelocation.start,
 transposableelementinsertionsite_chromosomelocation.end,

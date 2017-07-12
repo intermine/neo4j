@@ -1,9 +1,8 @@
 MATCH (transposableelement :TransposableElement),
 (transposableelement)-[]-(transposableelement_organism :organism),
-(transposableelement)-[]-(transposableelement_chromosomelocation :chromosomeLocation),
-(transposableelement)-[]-(transposableelement_chromosome :chromosome),
 (transposableelement)-[]-(transposableelement_insertedelement :insertedElement)
-
+OPTIONAL MATCH (transposableelement)-[]-(transposableelement_chromosomelocation :chromosomeLocation),
+(transposableelement)-[]-(transposableelement_chromosome :chromosome)
 WHERE transposableelement_organism.name = 'Drosophila melanogaster'
 RETURN transposableelement_insertedelement.primaryIdentifier,
 transposableelement_insertedelement.symbol,

@@ -1,6 +1,5 @@
 MATCH (intergenicregion :IntergenicRegion),
 (intergenicregion)-[]-(intergenicregion_organism :organism),
-(intergenicregion_organism)-[]-(intergenicregion_organism_shortname :shortName),
 (intergenicregion)-[]-(intergenicregion_chromosomelocation :chromosomeLocation),
 (intergenicregion_chromosomelocation)-[]-(intergenicregion_chromosomelocation_locatedon :locatedOn),
 (intergenicregion)-[]-(intergenicregion_datasets :dataSets),

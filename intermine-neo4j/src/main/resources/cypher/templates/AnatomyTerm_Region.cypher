@@ -6,8 +6,7 @@ MATCH (crm :CRM),
 (crm_gene_regulatoryregions_datasets)-[]-(crm_gene_regulatoryregions_datasets_datasource :dataSource),
 (crm)-[]-(crm_chromosome :chromosome),
 (crm)-[]-(crm_anatomyontology :anatomyOntology),
-(crm)-[]-(crm_publications :publications),
-(crm_publications)-[]-(crm_publications_pubmedid :pubMedId)
+(crm)-[]-(crm_publications :publications)
 
 WHERE crm_anatomyontology.name = '*neuro*' AND crm_gene_regulatoryregions_datasets.name = 'REDfly Drosophila transcriptional cis-regulatory modules'
 RETURN crm_anatomyontology.name,
@@ -16,5 +15,6 @@ crm_chromosome.primaryIdentifier,
 crm_chromosomelocation.start,
 crm_chromosomelocation.end,
 crm.length,
+crm_publications.pubMedId,
 crm_gene_regulatoryregions_datasets_datasource.name
 ORDER BY crm_anatomyontology.name ASC

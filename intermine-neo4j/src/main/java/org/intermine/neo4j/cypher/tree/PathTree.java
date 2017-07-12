@@ -18,17 +18,12 @@ public class PathTree {
 
     private TreeNode root;
 
-    public PathTree(PathQuery pathQuery){
+    public PathTree(PathQuery pathQuery) throws PathException {
         Boolean DEBUG = false;
 
         Set<Path> paths = new HashSet<>();
-        try {
-            paths.addAll(Helper.getAllPaths(pathQuery));
-        } catch (PathException e) {
-            e.printStackTrace();
-            System.out.println("Helper.getAllPaths() - could not get all the paths.");
-            System.exit(0);
-        }
+        paths.addAll(Helper.getAllPaths(pathQuery));
+
 
         if(DEBUG){
             System.out.println("Printing all paths :");
