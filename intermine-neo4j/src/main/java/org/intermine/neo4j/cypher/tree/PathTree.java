@@ -2,7 +2,6 @@ package org.intermine.neo4j.cypher.tree;
 
 import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.cypher.Helper;
-import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.Path;
 import org.intermine.pathquery.PathException;

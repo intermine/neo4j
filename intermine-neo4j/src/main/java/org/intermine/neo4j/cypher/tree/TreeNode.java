@@ -7,7 +7,6 @@ import org.intermine.metadata.ReferenceDescriptor;
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.neo4j.Neo4jModelParser;
 import org.intermine.neo4j.cypher.Helper;
-import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.Path;
 import org.xml.sax.SAXException;

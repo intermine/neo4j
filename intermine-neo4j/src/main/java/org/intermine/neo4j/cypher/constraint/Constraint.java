@@ -2,7 +2,6 @@ package org.intermine.neo4j.cypher.constraint;
 
 
 import org.intermine.neo4j.cypher.Helper;
-import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
