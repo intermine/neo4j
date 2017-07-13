@@ -1,12 +1,16 @@
 package org.intermine.neo4j.cypher.tree;
 
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.Path;
 import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -18,25 +22,10 @@ public class PathTree {
 
     private TreeNode root;
 
-    public PathTree(PathQuery pathQuery){
-        Boolean DEBUG = false;
+    public PathTree(PathQuery pathQuery) throws PathException, ModelParserException, ParserConfigurationException, SAXException, IOException {
 
         Set<Path> paths = new HashSet<>();
-        try {
-            paths.addAll(Helper.getAllPaths(pathQuery));
-        } catch (PathException e) {
-            e.printStackTrace();
-            System.out.println("Helper.getAllPaths() - could not get all the paths.");
-            System.exit(0);
-        }
-
-        if(DEBUG){
-            System.out.println("Printing all paths :");
-            for (Path path : paths) {
-                System.out.println(path);
-            }
-            System.out.println();
-        }
+        paths.addAll(Helper.getAllPaths(pathQuery));
 
         // Initialize root node with null, since no node currently exists in the PathTree.
         this.root = null;
@@ -45,77 +34,40 @@ public class PathTree {
         for (Path path : paths){
             Path rootPath = path.decomposePath().get(0);
 
-            if (DEBUG) {
-                System.out.println("Processing path : " + path);
-            }
-
             for (Path traversedPath : path.decomposePath()){
 
-                if (DEBUG) {
-                    System.out.println("Traversing path : " + traversedPath);
-                }
-
-                String variableName = Helper.getVariableNameFromPath(traversedPath);
+                String nodeName;
 
                 if (traversedPath.isRootPath()) {
                     if (this.root == null) {
-                        // Create the root TreeNode. It is always represents a Graph Node.
-                        // Parent is null for root.
-                        if (DEBUG) {
-                            System.out.println("Root created " + variableName);
-                        }
-                        this.root = new TreeNode(variableName,
-                                                rootPath.toString(),
-                                                TreeNodeType.NODE,
+                        nodeName = rootPath.toString();
+                        // Create the root TreeNode. It always represents a Graph Node.
+                        // Parent is null for the root.
+                        this.root = new TreeNode(nodeName,
+                                                traversedPath,
                                                 null,
                                                 OuterJoinStatus.INNER);
                     }
-                    else {
-                        if (DEBUG) {
-                            System.out.println("Root already exists");
-                        }
-                    }
                 }
                 else {
-                    if (DEBUG) {
-                        System.out.println("Searching parent node for path " + traversedPath);
-                    }
                     // First reach the Parent TreeNode for the current TreeNode
                     TreeNode parentNode = getTreeNode(traversedPath.getPrefix().toString());
 
-                    if (DEBUG) {
-                        System.out.println("Parent node found " + parentNode);
-                    }
-
-                    String nodeName = traversedPath.getLastElement();
+                    nodeName = traversedPath.getLastElement();
 
                     // If child TreeNode does not exist, create a new one.
                     // If it exists already, then this TreeNode has already been created for
                     // some previous path, so we do nothing.
                     if (parentNode.getChild(nodeName) == null) {
-                        TreeNodeType treeNodeType = OntologyConverter.getTreeNodeType(traversedPath);
-                        if (DEBUG) {
-                            System.out.println("Creating node " + variableName);
-                        }
-                        parentNode.addChild(nodeName, new TreeNode(variableName,
-                                                                nodeName,
-                                                                treeNodeType,
+                        parentNode.addChild(nodeName, new TreeNode(nodeName,
+                                                                traversedPath,
                                                                 parentNode,
                                                                 OuterJoinStatus.INNER));
-                    }
-                    else {
-                        if (DEBUG) {
-                            System.out.println("Node already exists " + parentNode.getChild(nodeName));
-                        }
                     }
                 }
             }
 
             setOuterJoinInPathTree(pathQuery);
-
-            if(DEBUG){
-                System.out.println();
-            }
         }
     }
 
@@ -164,14 +116,14 @@ public class PathTree {
     /**
      * Traverses the PathTree as per the given path and returns the TreeNode found
      *
-     * @param pathString the given path
+     * @param path the given path
      * @return the TreeNode object if it is found, null otherwise
      */
-    public TreeNode getTreeNode(String pathString){
+    public TreeNode getTreeNode(String path){
         if(root == null){
             return null;
         }
-        List<String> nodes = Helper.getTokensFromPathString(pathString);
+        List<String> nodes = Helper.getTokensFromPathString(path);
         TreeNode treeNode = root;
         for (String node: nodes){
             if (nodes.indexOf(node) == 0){
@@ -183,6 +135,10 @@ public class PathTree {
             }
         }
         return treeNode;
+    }
+
+    public TreeNode getTreeNode(Path path){
+        return getTreeNode(path.toString());
     }
 
     /**

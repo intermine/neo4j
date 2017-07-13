@@ -1,9 +1,9 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_upstreamintergenicregion :upstreamIntergenicRegion),
-(gene_upstreamintergenicregion)-[]-(gene_upstreamintergenicregion_overlappingfeatures :overlappingFeatures),
-(gene_upstreamintergenicregion_overlappingfeatures)-[]-(gene_upstreamintergenicregion_overlappingfeatures_chromosomelocation :chromosomeLocation),
-(gene_upstreamintergenicregion_overlappingfeatures)-[]-(gene_upstreamintergenicregion_overlappingfeatures_chromosome :chromosome),
-(gene_upstreamintergenicregion_overlappingfeatures)-[]-(gene_upstreamintergenicregion_overlappingfeatures_datasets :dataSets)
+(gene)-[:upstreamIntergenicRegion]-(gene_upstreamintergenicregion :IntergenicRegion),
+(gene_upstreamintergenicregion)-[:OVERLAPS]-(gene_upstreamintergenicregion_overlappingfeatures :SequenceFeature),
+(gene_upstreamintergenicregion_overlappingfeatures)-[:chromosomeLocation]-(gene_upstreamintergenicregion_overlappingfeatures_chromosomelocation :Location),
+(gene_upstreamintergenicregion_overlappingfeatures)-[:chromosome]-(gene_upstreamintergenicregion_overlappingfeatures_chromosome :Chromosome),
+(gene_upstreamintergenicregion_overlappingfeatures)-[:dataSets]-(gene_upstreamintergenicregion_overlappingfeatures_datasets :DataSet)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='zen') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.secondaryIdentifier,

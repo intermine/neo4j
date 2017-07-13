@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_homologues :homologues),
-(gene_homologues)-[]-(gene_homologues_datasets :dataSets),
-(gene_homologues)-[]-(gene_homologues_homologue :homologue),
-(gene_homologues_homologue)-[]-(gene_homologues_homologue_organism :organism)
+(gene)-[:homologues]-(gene_homologues :Homologue),
+(gene_homologues)-[:dataSets]-(gene_homologues_datasets :DataSet),
+(gene_homologues)-[:PARTNER_OF]-(gene_homologues_homologue :Gene),
+(gene_homologues_homologue)-[:PART_OF]-(gene_homologues_homologue_organism :Organism)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='zen') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } )) AND gene_homologues_homologue_organism.name = '*Drosophila*'
 RETURN gene.primaryIdentifier,

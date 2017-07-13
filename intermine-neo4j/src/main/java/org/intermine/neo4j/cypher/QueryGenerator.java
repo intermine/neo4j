@@ -1,13 +1,17 @@
 package org.intermine.neo4j.cypher;
 
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.Neo4jModelParser;
 import org.intermine.neo4j.cypher.constraint.Constraint;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
 import org.intermine.pathquery.*;
 import org.intermine.webservice.client.services.QueryService;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,7 +30,7 @@ public class QueryGenerator {
      * @return the cypher query
      * @throws IOException
      */
-    public static String pathQueryToCypher(String input) throws IOException {
+    public static String pathQueryToCypher(String input) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
 
         // Get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
@@ -121,8 +125,12 @@ public class QueryGenerator {
      * @param query    the Cypher Query object
      * @param treeNode the root node of the PathTree
      */
-    private static void createMatchClause(Query query, TreeNode treeNode) {
+    private static void createMatchClause(Query query, TreeNode treeNode) throws IOException, ModelParserException, SAXException, ParserConfigurationException {
         if (treeNode == null) {
+            throw new IllegalArgumentException("Root node of PathTree cannot be null.");
+        }
+        else if (treeNode.getTreeNodeType() == TreeNodeType.PROPERTY) {
+            // Properties don't need to be matched in the Match statement of cypher.
             return;
         }
         else if (treeNode.getParent() == null) {
@@ -131,32 +139,31 @@ public class QueryGenerator {
                              " :" + treeNode.getGraphicalName() + ")");
         }
         else if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
-            String matchStatement;
-            if (treeNode.getParent().getTreeNodeType() == TreeNodeType.NODE) {
-                // If current TreeNode is a Graph Node and its parent is also a Graph Node,
-                // then add a dummy relationship.
-                matchStatement = "(" + treeNode.getParent().getVariableName() + ")" +
-                                        "-[]-(" + treeNode.getVariableName() +
-                                        " :" + treeNode.getGraphicalName() + ")";
-            }
-            else if (treeNode.getParent().getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-                // If current TreeNode is a Graph Node and its parent is a Graph Relationship,
-                // then match an actual relationship of the current node with its grand parent node.
-                matchStatement = "(" + treeNode.getParent().getParent().getVariableName() + ")" +
-                                "-[" + treeNode.getParent().getVariableName() +
-                                ":" + treeNode.getParent().getGraphicalName() + "]" +
-                                "-(" + treeNode.getVariableName() +
-                                " :" + treeNode.getGraphicalName() + ")";
-            }
-            else {
-                return;
-            }
+
+            Neo4jModelParser modelParser = new Neo4jModelParser();
+            modelParser.process(new Neo4jLoaderProperties());
+
+            TreeNode parentTreeNode = treeNode.getParent();
+            String className = parentTreeNode.getPath().getEndClassDescriptor().getSimpleName();
+            String refName = treeNode.getName();
+
+            String relationshipType = modelParser.getRelationshipType(className, refName);
+
+            String match = "(" +
+                            parentTreeNode.getVariableName() +
+                            ")-[:" +
+                            relationshipType +
+                            "]-(" +
+                            treeNode.getVariableName() +
+                            " :" +
+                            treeNode.getGraphicalName() +
+                            ")";
 
             if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
-                query.addToMatch(matchStatement);
+                query.addToMatch(match);
             }
             else {
-                query.addToOptionalMatch(matchStatement);
+                query.addToOptionalMatch(match);
             }
 
         }

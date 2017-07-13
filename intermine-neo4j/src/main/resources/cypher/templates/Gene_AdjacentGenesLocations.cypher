@@ -1,12 +1,12 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_chromosomelocation :chromosomeLocation),
-(gene)-[]-(gene_chromosome :chromosome),
-(gene)-[]-(gene_downstreamintergenicregion :downstreamIntergenicRegion),
-(gene_downstreamintergenicregion)-[]-(gene_downstreamintergenicregion_adjacentgenes :adjacentGenes),
-(gene_downstreamintergenicregion_adjacentgenes)-[]-(gene_downstreamintergenicregion_adjacentgenes_chromosomelocation :chromosomeLocation),
-(gene)-[]-(gene_upstreamintergenicregion :upstreamIntergenicRegion),
-(gene_upstreamintergenicregion)-[]-(gene_upstreamintergenicregion_chromosomelocation :chromosomeLocation),
-(gene_upstreamintergenicregion)-[]-(gene_upstreamintergenicregion_adjacentgenes :adjacentGenes)
+(gene)-[:chromosomeLocation]-(gene_chromosomelocation :Location),
+(gene)-[:chromosome]-(gene_chromosome :Chromosome),
+(gene)-[:downstreamIntergenicRegion]-(gene_downstreamintergenicregion :IntergenicRegion),
+(gene_downstreamintergenicregion)-[:ADJACENT_TO]-(gene_downstreamintergenicregion_adjacentgenes :Gene),
+(gene_downstreamintergenicregion_adjacentgenes)-[:chromosomeLocation]-(gene_downstreamintergenicregion_adjacentgenes_chromosomelocation :Location),
+(gene)-[:upstreamIntergenicRegion]-(gene_upstreamintergenicregion :IntergenicRegion),
+(gene_upstreamintergenicregion)-[:chromosomeLocation]-(gene_upstreamintergenicregion_chromosomelocation :Location),
+(gene_upstreamintergenicregion)-[:ADJACENT_TO]-(gene_upstreamintergenicregion_adjacentgenes :Gene)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG10021') AND gene_downstreamintergenicregion_adjacentgenes != gene AND gene_upstreamintergenicregion_adjacentgenes != gene
 RETURN gene.secondaryIdentifier,

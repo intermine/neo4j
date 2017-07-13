@@ -1,8 +1,8 @@
 MATCH (disease :Disease),
-(disease)-[]-(disease_genes :genes),
-(disease_genes)-[]-(disease_genes_homologues :homologues),
-(disease_genes_homologues)-[]-(disease_genes_homologues_datasets :dataSets),
-(disease_genes_homologues)-[]-(disease_genes_homologues_homologue :homologue)
+(disease)-[:genes]-(disease_genes :Gene),
+(disease_genes)-[:homologues]-(disease_genes_homologues :Homologue),
+(disease_genes_homologues)-[:dataSets]-(disease_genes_homologues_datasets :DataSet),
+(disease_genes_homologues)-[:PARTNER_OF]-(disease_genes_homologues_homologue :Gene)
 
 WHERE ( ANY (key in keys(disease_genes_homologues_homologue) WHERE disease_genes_homologues_homologue[key]='psn') AND (disease_genes_homologues_homologue)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN disease_genes_homologues_homologue.primaryIdentifier,

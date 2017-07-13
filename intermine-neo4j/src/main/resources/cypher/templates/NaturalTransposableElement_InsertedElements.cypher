@@ -1,7 +1,7 @@
 MATCH (naturaltransposableelement :NaturalTransposableElement),
-(naturaltransposableelement)-[]-(naturaltransposableelement_transposableelements :transposableElements),
-(naturaltransposableelement_transposableelements)-[]-(naturaltransposableelement_transposableelements_chromosomelocation :chromosomeLocation),
-(naturaltransposableelement_transposableelements)-[]-(naturaltransposableelement_transposableelements_chromosome :chromosome)
+(naturaltransposableelement)-[:transposableElements]-(naturaltransposableelement_transposableelements :TransposableElement),
+(naturaltransposableelement_transposableelements)-[:chromosomeLocation]-(naturaltransposableelement_transposableelements_chromosomelocation :Location),
+(naturaltransposableelement_transposableelements)-[:chromosome]-(naturaltransposableelement_transposableelements_chromosome :Chromosome)
 
 WHERE ( ANY (key in keys(naturaltransposableelement) WHERE naturaltransposableelement[key]='FBte0000007') AND (naturaltransposableelement)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN naturaltransposableelement.primaryIdentifier,

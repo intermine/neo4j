@@ -1,10 +1,10 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_goannotation :goAnnotation),
-(gene_goannotation)-[]-(gene_goannotation_ontologyterm :ontologyTerm),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_overlappingfeatures :overlappingFeatures),
-(gene_overlappingfeatures)-[]-(gene_overlappingfeatures_datasets :dataSets),
-(gene_overlappingfeatures_datasets)-[]-(gene_overlappingfeatures_datasets_datasource :dataSource)
+(gene)-[:ANNOTATED_BY]-(gene_goannotation :GOAnnotation),
+(gene_goannotation)-[:ontologyTerm]-(gene_goannotation_ontologyterm :OntologyTerm),
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:OVERLAPS]-(gene_overlappingfeatures :SequenceFeature),
+(gene_overlappingfeatures)-[:dataSets]-(gene_overlappingfeatures_datasets :DataSet),
+(gene_overlappingfeatures_datasets)-[:dataSource]-(gene_overlappingfeatures_datasets_datasource :DataSource)
 
 WHERE gene_organism.name = 'Drosophila melanogaster' AND gene_goannotation_ontologyterm.name = '*ion channel*'
 RETURN gene.secondaryIdentifier,

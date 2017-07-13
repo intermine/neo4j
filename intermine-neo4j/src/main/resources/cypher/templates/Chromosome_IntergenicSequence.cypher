@@ -1,10 +1,9 @@
 MATCH (intergenicregion :IntergenicRegion),
-(intergenicregion)-[]-(intergenicregion_organism :organism),
-(intergenicregion_organism)-[]-(intergenicregion_organism_shortname :shortName),
-(intergenicregion)-[]-(intergenicregion_chromosomelocation :chromosomeLocation),
-(intergenicregion_chromosomelocation)-[]-(intergenicregion_chromosomelocation_locatedon :locatedOn),
-(intergenicregion)-[]-(intergenicregion_datasets :dataSets),
-(intergenicregion_datasets)-[]-(intergenicregion_datasets_datasource :dataSource)
+(intergenicregion)-[:PART_OF]-(intergenicregion_organism :Organism),
+(intergenicregion)-[:chromosomeLocation]-(intergenicregion_chromosomelocation :Location),
+(intergenicregion_chromosomelocation)-[:locatedOn]-(intergenicregion_chromosomelocation_locatedon :BioEntity),
+(intergenicregion)-[:dataSets]-(intergenicregion_datasets :DataSet),
+(intergenicregion_datasets)-[:dataSource]-(intergenicregion_datasets_datasource :DataSource)
 
 WHERE intergenicregion_organism.shortName = 'D. melanogaster' AND intergenicregion_chromosomelocation_locatedon.primaryIdentifier = '2L'
 RETURN intergenicregion_chromosomelocation.start,

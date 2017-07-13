@@ -1,8 +1,19 @@
 package org.intermine.neo4j.cypher.tree;
 
+import org.intermine.metadata.ClassDescriptor;
+import org.intermine.metadata.CollectionDescriptor;
+import org.intermine.metadata.ModelParserException;
+import org.intermine.metadata.ReferenceDescriptor;
+import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.Neo4jModelParser;
+import org.intermine.neo4j.cypher.Helper;
 import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.pathquery.OuterJoinStatus;
+import org.intermine.pathquery.Path;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -35,30 +46,38 @@ public class TreeNode {
     // Outer Join Status
     private OuterJoinStatus outerJoinStatus;
 
-    TreeNode(String variableName,
-             String name,
-             TreeNodeType treeNodeType,
+    // Path which is represented by this TreeNode
+    Path path;
+
+    TreeNode(String name,
+             Path path,
              TreeNode parent,
-             OuterJoinStatus outerJoinStatus){
-
-        Boolean DEBUG = false;
-
-        this.variableName = variableName;
+             OuterJoinStatus outerJoinStatus) throws IOException, ModelParserException, SAXException, ParserConfigurationException {
         this.name = name;
-        this.treeNodeType = treeNodeType;
-        this.graphicalName = OntologyConverter.convertInterMineToNeo4j(name);
-        this.parent = parent;
-        this.children = new HashMap<>();
+        this.variableName = Helper.getVariableNameFromPath(path);
         this.outerJoinStatus = outerJoinStatus;
-        if(DEBUG){
-            if(parent == null){
-                System.out.println("Create node " + name + " as root");
-            } else {
-                System.out.println("Create node " + name +
-                ", parent " + parent.getName() +
-                ", variableName " + variableName);
-            }
+        this.children = new HashMap<>();
+        this.parent = parent;
+        this.path = path;
+
+        // Set Graphical Name and TreeNodeType using Neo4jModelParser
+        if (path.isRootPath()) {
+            this.graphicalName = path.toString();
+            this.treeNodeType = TreeNodeType.NODE;
         }
+        else if (path.endIsAttribute()) {
+            this.graphicalName = path.getLastElement();
+            this.treeNodeType = TreeNodeType.PROPERTY;
+        }
+        else {
+            // When end of the path is either a Collection or Reference
+            this.graphicalName = path.getEndClassDescriptor().getSimpleName();
+            this.treeNodeType = TreeNodeType.NODE;
+        }
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     /**
