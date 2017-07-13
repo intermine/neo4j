@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_probesets :probeSets),
-(gene_probesets)-[]-(gene_probesets_datasets :dataSets),
-(gene_probesets_datasets)-[]-(gene_probesets_datasets_datasource :dataSource)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:probeSets]-(gene_probesets :ProbeSet),
+(gene_probesets)-[:dataSets]-(gene_probesets_datasets :DataSet),
+(gene_probesets_datasets)-[:dataSource]-(gene_probesets_datasets_datasource :DataSource)
 
 WHERE gene_organism.name = 'Drosophila melanogaster' AND ANY (key in keys(gene) WHERE gene[key]='CG4722') AND gene_probesets_datasets_datasource.name = 'Ensembl'
 RETURN gene.secondaryIdentifier,

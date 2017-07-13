@@ -1,13 +1,13 @@
 MATCH (crm :CRM),
-(crm)-[]-(crm_chromosomelocation :chromosomeLocation),
-(crm)-[]-(crm_chromosome :chromosome),
-(crm)-[]-(crm_datasets :dataSets),
-(crm_datasets)-[]-(crm_datasets_datasource :dataSource),
-(crm)-[]-(crm_overlappingfeatures :overlappingFeatures),
-(crm_overlappingfeatures)-[]-(crm_overlappingfeatures_chromosomelocation :chromosomeLocation),
-(crm_overlappingfeatures)-[]-(crm_overlappingfeatures_chromosome :chromosome),
-(crm_overlappingfeatures)-[]-(crm_overlappingfeatures_datasets :dataSets),
-(crm_overlappingfeatures_datasets)-[]-(crm_overlappingfeatures_datasets_datasource :dataSource)
+(crm)-[:chromosomeLocation]-(crm_chromosomelocation :Location),
+(crm)-[:chromosome]-(crm_chromosome :Chromosome),
+(crm)-[:dataSets]-(crm_datasets :DataSet),
+(crm_datasets)-[:dataSource]-(crm_datasets_datasource :DataSource),
+(crm)-[:OVERLAPS]-(crm_overlappingfeatures :SequenceFeature),
+(crm_overlappingfeatures)-[:chromosomeLocation]-(crm_overlappingfeatures_chromosomelocation :Location),
+(crm_overlappingfeatures)-[:chromosome]-(crm_overlappingfeatures_chromosome :Chromosome),
+(crm_overlappingfeatures)-[:dataSets]-(crm_overlappingfeatures_datasets :DataSet),
+(crm_overlappingfeatures_datasets)-[:dataSource]-(crm_overlappingfeatures_datasets_datasource :DataSource)
 
 WHERE crm_chromosome.primaryIdentifier = '2L'
 RETURN crm.primaryIdentifier,

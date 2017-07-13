@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_pathways :pathways),
-(gene_pathways)-[]-(gene_pathways_datasets :dataSets)
+(gene)-[:PARTICIPATES_IN]-(gene_pathways :Pathway),
+(gene_pathways)-[:dataSets]-(gene_pathways_datasets :DataSet)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='bsk') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.secondaryIdentifier,

@@ -1,5 +1,5 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_publications :publications)
+(gene)-[:MENTIONED_IN]-(gene_publications :Publication)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='brat')
 RETURN gene.secondaryIdentifier,

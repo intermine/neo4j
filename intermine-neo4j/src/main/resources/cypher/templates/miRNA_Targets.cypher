@@ -1,9 +1,9 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_mirnatargets :miRNAtargets),
-(gene_mirnatargets)-[]-(gene_mirnatargets_target :target),
-(gene_mirnatargets_target)-[]-(gene_mirnatargets_target_gene :gene)
-OPTIONAL MATCH (gene_mirnatargets)-[]-(gene_mirnatargets_datasets :dataSets)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:miRNAtargets]-(gene_mirnatargets :MiRNATarget),
+(gene_mirnatargets)-[:target]-(gene_mirnatargets_target :MRNA),
+(gene_mirnatargets_target)-[:gene]-(gene_mirnatargets_target_gene :Gene)
+OPTIONAL MATCH (gene_mirnatargets)-[:dataSets]-(gene_mirnatargets_datasets :DataSet)
 WHERE ANY (key in keys(gene) WHERE gene[key]='mir-79') AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.secondaryIdentifier,
 gene.symbol,

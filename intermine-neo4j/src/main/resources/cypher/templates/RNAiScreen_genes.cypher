@@ -1,7 +1,7 @@
 MATCH (rnaiscreen :RNAiScreen),
-(rnaiscreen)-[]-(rnaiscreen_rnairesults :rnaiResults),
-(rnaiscreen_rnairesults)-[]-(rnaiscreen_rnairesults_gene :gene),
-(rnaiscreen)-[]-(rnaiscreen_publication :publication)
+(rnaiscreen)-[:rnaiResults]-(rnaiscreen_rnairesults :RNAiResult),
+(rnaiscreen_rnairesults)-[:gene]-(rnaiscreen_rnairesults_gene :Gene),
+(rnaiscreen)-[:publication]-(rnaiscreen_publication :Publication)
 
 WHERE rnaiscreen.name = 'RNAi pathway'
 RETURN rnaiscreen_rnairesults_gene.primaryIdentifier,

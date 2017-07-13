@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_alleles :alleles),
-(gene_alleles)-[]-(gene_alleles_organism :organism)
+(gene)-[:alleles]-(gene_alleles :Allele),
+(gene_alleles)-[:PART_OF]-(gene_alleles_organism :Organism)
 
 WHERE gene_alleles_organism.name = 'Drosophila melanogaster' AND gene_alleles.alleleClass = '*hypomorph*'
 RETURN gene_alleles.primaryIdentifier,

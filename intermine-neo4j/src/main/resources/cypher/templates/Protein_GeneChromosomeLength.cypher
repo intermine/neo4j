@@ -1,7 +1,7 @@
 MATCH (protein :Protein),
-(protein)-[]-(protein_genes :genes),
-(protein_genes)-[]-(protein_genes_chromosomelocation :chromosomeLocation),
-(protein_genes)-[]-(protein_genes_chromosome :chromosome)
+(protein)-[:genes]-(protein_genes :Gene),
+(protein_genes)-[:chromosomeLocation]-(protein_genes_chromosomelocation :Location),
+(protein_genes)-[:chromosome]-(protein_genes_chromosome :Chromosome)
 
 WHERE ANY (key in keys(protein) WHERE protein[key]='P19107')
 RETURN protein.primaryAccession,

@@ -1,8 +1,8 @@
 MATCH (microarrayoligo :MicroarrayOligo),
-(microarrayoligo)-[]-(microarrayoligo_transcript :transcript),
-(microarrayoligo_transcript)-[]-(microarrayoligo_transcript_gene :gene),
-(microarrayoligo_transcript_gene)-[]-(microarrayoligo_transcript_gene_chromosomelocation :chromosomeLocation),
-(microarrayoligo_transcript_gene)-[]-(microarrayoligo_transcript_gene_chromosome :chromosome)
+(microarrayoligo)-[:transcript]-(microarrayoligo_transcript :Transcript),
+(microarrayoligo_transcript)-[:gene]-(microarrayoligo_transcript_gene :Gene),
+(microarrayoligo_transcript_gene)-[:chromosomeLocation]-(microarrayoligo_transcript_gene_chromosomelocation :Location),
+(microarrayoligo_transcript_gene)-[:chromosome]-(microarrayoligo_transcript_gene_chromosome :Chromosome)
 
 WHERE microarrayoligo.primaryIdentifier = 1000030702
 RETURN microarrayoligo.primaryIdentifier,

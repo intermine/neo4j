@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_alleles :alleles),
-(gene_alleles)-[]-(gene_alleles_organism :organism),
-(gene_alleles)-[]-(gene_alleles_phenotypeannotations :phenotypeAnnotations)
+(gene)-[:alleles]-(gene_alleles :Allele),
+(gene_alleles)-[:PART_OF]-(gene_alleles_organism :Organism),
+(gene_alleles)-[:phenotypeAnnotations]-(gene_alleles_phenotypeannotations :PhenotypeAnnotation)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='Ubx')
 RETURN gene.secondaryIdentifier,

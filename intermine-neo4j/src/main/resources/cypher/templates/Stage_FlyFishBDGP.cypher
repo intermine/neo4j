@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_mrnaexpressionresults :mRNAExpressionResults),
-(gene_mrnaexpressionresults)-[]-(gene_mrnaexpressionresults_stages :stages),
-(gene_mrnaexpressionresults)-[]-(gene_mrnaexpressionresults_dataset :dataSet)
+(gene)-[:mRNAExpressionResults]-(gene_mrnaexpressionresults :MRNAExpressionResult),
+(gene_mrnaexpressionresults)-[:stages]-(gene_mrnaexpressionresults_stages :DevelopmentTerm),
+(gene_mrnaexpressionresults)-[:dataSet]-(gene_mrnaexpressionresults_dataset :DataSet)
 
 WHERE gene_mrnaexpressionresults_stages.name = 'embryonic stage 7'
 RETURN gene.secondaryIdentifier,

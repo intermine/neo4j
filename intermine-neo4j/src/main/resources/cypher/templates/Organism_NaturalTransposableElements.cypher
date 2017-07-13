@@ -1,5 +1,5 @@
 MATCH (naturaltransposableelement :NaturalTransposableElement),
-(naturaltransposableelement)-[]-(naturaltransposableelement_organism :organism)
+(naturaltransposableelement)-[:PART_OF]-(naturaltransposableelement_organism :Organism)
 
 WHERE naturaltransposableelement_organism.name = 'Drosophila melanogaster'
 RETURN naturaltransposableelement.primaryIdentifier,

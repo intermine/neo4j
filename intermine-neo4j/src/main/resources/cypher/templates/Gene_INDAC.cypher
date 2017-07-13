@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_transcripts :transcripts),
-(gene_transcripts)-[]-(gene_transcripts_microarrayoligos :microarrayOligos)
+(gene)-[:transcripts]-(gene_transcripts :Transcript),
+(gene_transcripts)-[:microarrayOligos]-(gene_transcripts_microarrayoligos :MicroarrayOligo)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='CG1046') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.secondaryIdentifier,

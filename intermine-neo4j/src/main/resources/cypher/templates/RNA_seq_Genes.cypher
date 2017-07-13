@@ -1,5 +1,5 @@
 MATCH (rnaseqresult :RNASeqResult),
-(rnaseqresult)-[]-(rnaseqresult_gene :gene)
+(rnaseqresult)-[:gene]-(rnaseqresult_gene :Gene)
 
 WHERE rnaseqresult.stage = 'embryo 02-04hr' AND rnaseqresult.expressionLevel = 'High expression' AND rnaseqresult.expressionScore >= 4001
 RETURN rnaseqresult.stage,

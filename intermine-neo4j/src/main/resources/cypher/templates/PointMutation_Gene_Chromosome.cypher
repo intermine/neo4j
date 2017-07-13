@@ -1,10 +1,10 @@
 MATCH (pointmutation :PointMutation),
-(pointmutation)-[]-(pointmutation_chromosomelocation :chromosomeLocation),
-(pointmutation)-[]-(pointmutation_chromosome :chromosome),
-(pointmutation)-[]-(pointmutation_datasets :dataSets),
-(pointmutation_datasets)-[]-(pointmutation_datasets_datasource :dataSource),
-(pointmutation)-[]-(pointmutation_overlappingfeatures :overlappingFeatures),
-(pointmutation_overlappingfeatures)-[]-(pointmutation_overlappingfeatures_chromosomelocation :chromosomeLocation)
+(pointmutation)-[:chromosomeLocation]-(pointmutation_chromosomelocation :Location),
+(pointmutation)-[:chromosome]-(pointmutation_chromosome :Chromosome),
+(pointmutation)-[:dataSets]-(pointmutation_datasets :DataSet),
+(pointmutation_datasets)-[:dataSource]-(pointmutation_datasets_datasource :DataSource),
+(pointmutation)-[:OVERLAPS]-(pointmutation_overlappingfeatures :SequenceFeature),
+(pointmutation_overlappingfeatures)-[:chromosomeLocation]-(pointmutation_overlappingfeatures_chromosomelocation :Location)
 
 WHERE pointmutation.primaryIdentifier = 'trp[14]-2'
 RETURN pointmutation.primaryIdentifier,

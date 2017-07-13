@@ -1,7 +1,7 @@
 MATCH (proteindomain :ProteinDomain),
-(proteindomain)-[]-(proteindomain_proteindomainregions :proteinDomainRegions),
-(proteindomain_proteindomainregions)-[]-(proteindomain_proteindomainregions_protein :protein),
-(proteindomain_proteindomainregions_protein)-[]-(proteindomain_proteindomainregions_protein_genes :genes)
+(proteindomain)-[:proteinDomainRegions]-(proteindomain_proteindomainregions :ProteinDomainRegion),
+(proteindomain_proteindomainregions)-[:protein]-(proteindomain_proteindomainregions_protein :Protein),
+(proteindomain_proteindomainregions_protein)-[:genes]-(proteindomain_proteindomainregions_protein_genes :Gene)
 
 WHERE ANY (key in keys(proteindomain) WHERE proteindomain[key]='*kinase*')
 RETURN proteindomain.name,

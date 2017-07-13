@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_regulatoryregions :regulatoryRegions),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_chromosomelocation :chromosomeLocation),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_chromosome :chromosome)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:regulatoryRegions]-(gene_regulatoryregions :RegulatoryRegion),
+(gene_regulatoryregions)-[:chromosomeLocation]-(gene_regulatoryregions_chromosomelocation :Location),
+(gene_regulatoryregions)-[:chromosome]-(gene_regulatoryregions_chromosome :Chromosome)
 
 WHERE gene_organism.name = 'Drosophila melanogaster' AND ( ANY (key in keys(gene) WHERE gene[key]='CG1454') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.secondaryIdentifier,

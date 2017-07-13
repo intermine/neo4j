@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_publications :publications)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:MENTIONED_IN]-(gene_publications :Publication)
 
 WHERE gene_organism.name = 'Drosophila pseudoobscura'
 RETURN gene.secondaryIdentifier,

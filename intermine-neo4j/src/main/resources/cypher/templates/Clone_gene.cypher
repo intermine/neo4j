@@ -1,5 +1,5 @@
 MATCH (cdnaclone :CDNAClone)
-OPTIONAL MATCH (cdnaclone)-[]-(cdnaclone_gene :gene)
+OPTIONAL MATCH (cdnaclone)-[:gene]-(cdnaclone_gene :Gene)
 WHERE ANY (key in keys(cdnaclone) WHERE cdnaclone[key]='LD14383')
 RETURN cdnaclone.primaryIdentifier,
 cdnaclone_gene.primaryIdentifier,

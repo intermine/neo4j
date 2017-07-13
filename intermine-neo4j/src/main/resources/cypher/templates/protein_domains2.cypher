@@ -1,6 +1,6 @@
 MATCH (protein :Protein),
-(protein)-[]-(protein_proteindomainregions :proteinDomainRegions),
-(protein_proteindomainregions)-[]-(protein_proteindomainregions_proteindomain :proteinDomain)
+(protein)-[:proteinDomainRegions]-(protein_proteindomainregions :ProteinDomainRegion),
+(protein_proteindomainregions)-[:proteinDomain]-(protein_proteindomainregions_proteindomain :ProteinDomain)
 
 WHERE ( ANY (key in keys(protein) WHERE protein[key]='notch') AND (protein)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN protein.uniprotAccession,

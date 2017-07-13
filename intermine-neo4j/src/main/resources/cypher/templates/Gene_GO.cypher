@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_goannotation :goAnnotation),
-(gene_goannotation)-[]-(gene_goannotation_evidence :evidence),
-(gene_goannotation_evidence)-[]-(gene_goannotation_evidence_code :code),
-(gene_goannotation)-[]-(gene_goannotation_ontologyterm :ontologyTerm)
+(gene)-[:ANNOTATED_BY]-(gene_goannotation :GOAnnotation),
+(gene_goannotation)-[:EVIDENCED_BY]-(gene_goannotation_evidence :GOEvidence),
+(gene_goannotation_evidence)-[:code]-(gene_goannotation_evidence_code :GOEvidenceCode),
+(gene_goannotation)-[:ontologyTerm]-(gene_goannotation_ontologyterm :OntologyTerm)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='Notch')
 RETURN gene.symbol,

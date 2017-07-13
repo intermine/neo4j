@@ -1,5 +1,5 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_publications :publications)
+(gene)-[:MENTIONED_IN]-(gene_publications :Publication)
 
 WHERE gene_publications.pubMedId = 11875036
 RETURN gene.secondaryIdentifier,

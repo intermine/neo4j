@@ -1,12 +1,12 @@
 MATCH (tfbindingsite :TFBindingSite),
-(tfbindingsite)-[]-(tfbindingsite_sequence :sequence),
-(tfbindingsite)-[]-(tfbindingsite_gene :gene),
-(tfbindingsite)-[]-(tfbindingsite_chromosomelocation :chromosomeLocation),
-(tfbindingsite)-[]-(tfbindingsite_chromosome :chromosome),
-(tfbindingsite)-[]-(tfbindingsite_datasets :dataSets),
-(tfbindingsite_datasets)-[]-(tfbindingsite_datasets_datasource :dataSource),
-(tfbindingsite)-[]-(tfbindingsite_factor :factor),
-(tfbindingsite)-[]-(tfbindingsite_publications :publications)
+(tfbindingsite)-[:sequence]-(tfbindingsite_sequence :Sequence),
+(tfbindingsite)-[:gene]-(tfbindingsite_gene :Gene),
+(tfbindingsite)-[:chromosomeLocation]-(tfbindingsite_chromosomelocation :Location),
+(tfbindingsite)-[:chromosome]-(tfbindingsite_chromosome :Chromosome),
+(tfbindingsite)-[:dataSets]-(tfbindingsite_datasets :DataSet),
+(tfbindingsite_datasets)-[:dataSource]-(tfbindingsite_datasets_datasource :DataSource),
+(tfbindingsite)-[:factor]-(tfbindingsite_factor :Gene),
+(tfbindingsite)-[:MENTIONED_IN]-(tfbindingsite_publications :Publication)
 
 WHERE tfbindingsite_datasets.name = 'REDfly Drosophila transcription factor binding sites' AND tfbindingsite.primaryIdentifier = 'TF000031'
 RETURN tfbindingsite.primaryIdentifier,

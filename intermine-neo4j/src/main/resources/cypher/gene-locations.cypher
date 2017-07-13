@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_chromosomelocation :chromosomeLocation),
-(gene)-[]-(gene_chromosome :chromosome)
+(gene)-[:chromosomeLocation]-(gene_chromosomelocation :Location),
+(gene)-[:chromosome]-(gene_chromosome :Chromosome)
 
 
 RETURN gene.primaryIdentifier,

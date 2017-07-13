@@ -1,12 +1,12 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_regulatoryregions :regulatoryRegions),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_sequence :sequence),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_sequenceontologyterm :sequenceOntologyTerm),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_chromosomelocation :chromosomeLocation),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_chromosome :chromosome),
-(gene_regulatoryregions)-[]-(gene_regulatoryregions_datasets :dataSets),
-(gene_regulatoryregions_datasets)-[]-(gene_regulatoryregions_datasets_datasource :dataSource)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:regulatoryRegions]-(gene_regulatoryregions :RegulatoryRegion),
+(gene_regulatoryregions)-[:sequence]-(gene_regulatoryregions_sequence :Sequence),
+(gene_regulatoryregions)-[:HAS_TERM]-(gene_regulatoryregions_sequenceontologyterm :SOTerm),
+(gene_regulatoryregions)-[:chromosomeLocation]-(gene_regulatoryregions_chromosomelocation :Location),
+(gene_regulatoryregions)-[:chromosome]-(gene_regulatoryregions_chromosome :Chromosome),
+(gene_regulatoryregions)-[:dataSets]-(gene_regulatoryregions_datasets :DataSet),
+(gene_regulatoryregions_datasets)-[:dataSource]-(gene_regulatoryregions_datasets_datasource :DataSource)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='dpp') AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.primaryIdentifier,

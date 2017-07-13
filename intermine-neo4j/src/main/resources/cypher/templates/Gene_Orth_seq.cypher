@@ -1,12 +1,12 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_sequence :sequence),
-(gene)-[]-(gene_homologues :homologues),
-(gene_homologues)-[]-(gene_homologues_evidence :evidence),
-(gene_homologues_evidence)-[]-(gene_homologues_evidence_evidencecode :evidenceCode),
-(gene_homologues)-[]-(gene_homologues_datasets :dataSets),
-(gene_homologues)-[]-(gene_homologues_homologue :homologue),
-(gene_homologues_homologue)-[]-(gene_homologues_homologue_sequence :sequence),
-(gene_homologues_homologue)-[]-(gene_homologues_homologue_organism :organism)
+(gene)-[:sequence]-(gene_sequence :Sequence),
+(gene)-[:homologues]-(gene_homologues :Homologue),
+(gene_homologues)-[:EVIDENCED_BY]-(gene_homologues_evidence :OrthologueEvidence),
+(gene_homologues_evidence)-[:evidenceCode]-(gene_homologues_evidence_evidencecode :OrthologueEvidenceCode),
+(gene_homologues)-[:dataSets]-(gene_homologues_datasets :DataSet),
+(gene_homologues)-[:PARTNER_OF]-(gene_homologues_homologue :Gene),
+(gene_homologues_homologue)-[:sequence]-(gene_homologues_homologue_sequence :Sequence),
+(gene_homologues_homologue)-[:PART_OF]-(gene_homologues_homologue_organism :Organism)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='cdc2') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } )) AND gene_homologues_homologue_organism.shortName = 'C. elegans' AND gene_homologues_datasets.name = 'Panther data set'
 RETURN gene.primaryIdentifier,

@@ -1,9 +1,9 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_chromosomelocation :chromosomeLocation),
-(gene)-[]-(gene_transcripts :transcripts),
-(gene_transcripts)-[]-(gene_transcripts_microarrayoligos :microarrayOligos),
-(gene_transcripts_microarrayoligos)-[]-(gene_transcripts_microarrayoligos_sequence :sequence),
-(gene)-[]-(gene_chromosome :chromosome)
+(gene)-[:chromosomeLocation]-(gene_chromosomelocation :Location),
+(gene)-[:transcripts]-(gene_transcripts :Transcript),
+(gene_transcripts)-[:microarrayOligos]-(gene_transcripts_microarrayoligos :MicroarrayOligo),
+(gene_transcripts_microarrayoligos)-[:sequence]-(gene_transcripts_microarrayoligos_sequence :Sequence),
+(gene)-[:chromosome]-(gene_chromosome :Chromosome)
 
 WHERE gene_chromosome.primaryIdentifier = '2R' AND gene_chromosomelocation.end < 20450439 AND gene_chromosomelocation.start > 19910266
 RETURN gene_chromosome.primaryIdentifier,

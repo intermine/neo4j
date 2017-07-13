@@ -1,5 +1,5 @@
 MATCH (meshterm :MeshTerm),
-(meshterm)-[]-(meshterm_publications :publications)
+(meshterm)-[:MENTIONED_IN]-(meshterm_publications :Publication)
 
 WHERE meshterm.name CONTAINS 'Ataxia'
 RETURN meshterm.name,

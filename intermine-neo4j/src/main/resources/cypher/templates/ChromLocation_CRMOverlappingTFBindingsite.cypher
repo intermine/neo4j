@@ -1,9 +1,9 @@
 MATCH (crm :CRM),
-(crm)-[]-(crm_chromosomelocation :chromosomeLocation),
-(crm)-[]-(crm_chromosome :chromosome),
-(crm)-[]-(crm_overlappingfeatures :overlappingFeatures),
-(crm_overlappingfeatures)-[]-(crm_overlappingfeatures_chromosomelocation :chromosomeLocation),
-(crm_overlappingfeatures)-[]-(crm_overlappingfeatures_chromosome :chromosome)
+(crm)-[:chromosomeLocation]-(crm_chromosomelocation :Location),
+(crm)-[:chromosome]-(crm_chromosome :Chromosome),
+(crm)-[:OVERLAPS]-(crm_overlappingfeatures :SequenceFeature),
+(crm_overlappingfeatures)-[:chromosomeLocation]-(crm_overlappingfeatures_chromosomelocation :Location),
+(crm_overlappingfeatures)-[:chromosome]-(crm_overlappingfeatures_chromosome :Chromosome)
 
 WHERE crm_chromosome.primaryIdentifier = '2R' AND crm_chromosomelocation.start >= 9000000 AND crm_chromosomelocation.end <= 10000000
 RETURN crm.primaryIdentifier,

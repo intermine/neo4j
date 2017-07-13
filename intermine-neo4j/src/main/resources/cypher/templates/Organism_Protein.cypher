@@ -1,5 +1,5 @@
 MATCH (protein :Protein),
-(protein)-[]-(protein_organism :organism)
+(protein)-[:PART_OF]-(protein_organism :Organism)
 
 WHERE protein_organism.name = 'Drosophila melanogaster'
 RETURN protein.primaryIdentifier,

@@ -1,7 +1,7 @@
 MATCH (protein :Protein),
-(protein)-[]-(protein_ecnumbers :ecNumbers),
-(protein)-[]-(protein_genes :genes),
-(protein_genes)-[]-(protein_genes_organism :organism)
+(protein)-[:ecNumbers]-(protein_ecnumbers :ECNumber),
+(protein)-[:genes]-(protein_genes :Gene),
+(protein_genes)-[:PART_OF]-(protein_genes_organism :Organism)
 
 WHERE protein_genes_organism.name = 'Drosophila melanogaster' AND protein_ecnumbers.identifier = '1.2.1.*'
 RETURN protein_ecnumbers.identifier,

@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_proteins :proteins),
-(gene_proteins)-[]-(gene_proteins_proteindomainregions :proteinDomainRegions),
-(gene_proteins_proteindomainregions)-[]-(gene_proteins_proteindomainregions_proteindomain :proteinDomain)
+(gene)-[:proteins]-(gene_proteins :Protein),
+(gene_proteins)-[:proteinDomainRegions]-(gene_proteins_proteindomainregions :ProteinDomainRegion),
+(gene_proteins_proteindomainregions)-[:proteinDomain]-(gene_proteins_proteindomainregions_proteindomain :ProteinDomain)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='notch') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.primaryIdentifier,

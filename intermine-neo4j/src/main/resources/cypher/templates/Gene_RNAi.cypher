@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_rnairesults :rnaiResults),
-(gene_rnairesults)-[]-(gene_rnairesults_rnaiscreen :rnaiScreen),
-(gene_rnairesults_rnaiscreen)-[]-(gene_rnairesults_rnaiscreen_publication :publication)
+(gene)-[:rnaiResults]-(gene_rnairesults :RNAiResult),
+(gene_rnairesults)-[:rnaiScreen]-(gene_rnairesults_rnaiscreen :RNAiScreen),
+(gene_rnairesults_rnaiscreen)-[:publication]-(gene_rnairesults_rnaiscreen_publication :Publication)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='eve') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.primaryIdentifier,

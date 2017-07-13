@@ -1,12 +1,12 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_proteins :proteins),
-(gene)-[]-(gene_interactions :interactions),
-(gene_interactions)-[]-(gene_interactions_participant2 :participant2),
-(gene_interactions)-[]-(gene_interactions_details :details),
-(gene_interactions_details)-[]-(gene_interactions_details_experiment :experiment),
-(gene_interactions_details_experiment)-[]-(gene_interactions_details_experiment_interactiondetectionmethods :interactionDetectionMethods),
-(gene_interactions_details_experiment)-[]-(gene_interactions_details_experiment_publication :publication),
-(gene_interactions_details)-[]-(gene_interactions_details_datasets :dataSets)
+(gene)-[:proteins]-(gene_proteins :Protein),
+(gene)-[:PARTICIPATES_IN]-(gene_interactions :Interaction),
+(gene_interactions)-[:participant2]-(gene_interactions_participant2 :BioEntity),
+(gene_interactions)-[:details]-(gene_interactions_details :InteractionDetail),
+(gene_interactions_details)-[:experiment]-(gene_interactions_details_experiment :InteractionExperiment),
+(gene_interactions_details_experiment)-[:interactionDetectionMethods]-(gene_interactions_details_experiment_interactiondetectionmethods :InteractionTerm),
+(gene_interactions_details_experiment)-[:publication]-(gene_interactions_details_experiment_publication :Publication),
+(gene_interactions_details)-[:dataSets]-(gene_interactions_details_datasets :DataSet)
 
 WHERE gene_interactions_details.type = 'physical' AND gene_interactions_details_experiment_interactiondetectionmethods.name = 'two hybrid' AND gene_proteins.uniprotName = 'zen1_drome'
 RETURN gene_proteins.uniprotAccession,

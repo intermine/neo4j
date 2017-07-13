@@ -1,10 +1,10 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_chromosomelocation :chromosomeLocation),
-(gene)-[]-(gene_chromosome :chromosome),
-(gene)-[]-(gene_overlappingfeatures :overlappingFeatures),
-(gene_overlappingfeatures)-[]-(gene_overlappingfeatures_chromosomelocation :chromosomeLocation),
-(gene_overlappingfeatures)-[]-(gene_overlappingfeatures_datasets :dataSets),
-(gene_overlappingfeatures_datasets)-[]-(gene_overlappingfeatures_datasets_datasource :dataSource)
+(gene)-[:chromosomeLocation]-(gene_chromosomelocation :Location),
+(gene)-[:chromosome]-(gene_chromosome :Chromosome),
+(gene)-[:OVERLAPS]-(gene_overlappingfeatures :SequenceFeature),
+(gene_overlappingfeatures)-[:chromosomeLocation]-(gene_overlappingfeatures_chromosomelocation :Location),
+(gene_overlappingfeatures)-[:dataSets]-(gene_overlappingfeatures_datasets :DataSet),
+(gene_overlappingfeatures_datasets)-[:dataSource]-(gene_overlappingfeatures_datasets_datasource :DataSource)
 
 WHERE gene_chromosome.primaryIdentifier = '2L'
 RETURN gene_chromosome.primaryIdentifier,

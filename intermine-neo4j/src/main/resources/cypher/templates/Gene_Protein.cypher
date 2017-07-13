@@ -1,5 +1,5 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_proteins :proteins)
+(gene)-[:proteins]-(gene_proteins :Protein)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG1046')
 RETURN gene.secondaryIdentifier,

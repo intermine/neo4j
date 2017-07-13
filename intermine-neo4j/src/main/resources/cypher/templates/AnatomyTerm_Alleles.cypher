@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_alleles :alleles),
-(gene_alleles)-[]-(gene_alleles_organism :organism),
-(gene_alleles)-[]-(gene_alleles_phenotypeannotations :phenotypeAnnotations)
+(gene)-[:alleles]-(gene_alleles :Allele),
+(gene_alleles)-[:PART_OF]-(gene_alleles_organism :Organism),
+(gene_alleles)-[:phenotypeAnnotations]-(gene_alleles_phenotypeannotations :PhenotypeAnnotation)
 
 WHERE gene_alleles_organism.name = 'Drosophila melanogaster' AND gene_alleles.alleleClass =~ '*loss of function*' AND gene_alleles_phenotypeannotations.description = '*eye disc*'
 RETURN gene.secondaryIdentifier,

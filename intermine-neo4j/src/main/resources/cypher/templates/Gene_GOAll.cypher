@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_goannotation :goAnnotation),
-(gene_goannotation)-[]-(gene_goannotation_ontologyterm :ontologyTerm),
-(gene_goannotation_ontologyterm)-[]-(gene_goannotation_ontologyterm_parents :parents)
+(gene)-[:ANNOTATED_BY]-(gene_goannotation :GOAnnotation),
+(gene_goannotation)-[:ontologyTerm]-(gene_goannotation_ontologyterm :OntologyTerm),
+(gene_goannotation_ontologyterm)-[:parents]-(gene_goannotation_ontologyterm_parents :OntologyTerm)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='CG11348') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.secondaryIdentifier,
