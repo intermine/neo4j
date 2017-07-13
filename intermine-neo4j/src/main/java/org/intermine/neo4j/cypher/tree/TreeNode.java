@@ -46,6 +46,9 @@ public class TreeNode {
     // Outer Join Status
     private OuterJoinStatus outerJoinStatus;
 
+    // Path which is represented by this TreeNode
+    Path path;
+
     TreeNode(String name,
              Path path,
              TreeNode parent,
@@ -55,6 +58,7 @@ public class TreeNode {
         this.outerJoinStatus = outerJoinStatus;
         this.children = new HashMap<>();
         this.parent = parent;
+        this.path = path;
 
         // Set Graphical Name and TreeNodeType using Neo4jModelParser
         if (path.isRootPath()) {
@@ -66,78 +70,14 @@ public class TreeNode {
             this.treeNodeType = TreeNodeType.PROPERTY;
         }
         else {
-            Neo4jModelParser modelParser = new Neo4jModelParser();
-            modelParser.process(new Neo4jLoaderProperties());
-
-            if (path.endIsCollection()) {
-                ClassDescriptor parentClassDescriptor = path.getPrefix().getEndClassDescriptor();
-                CollectionDescriptor cd = parentClassDescriptor.getCollectionDescriptorByName(path.getLastElement());
-                if (cd == null){
-                    for (ClassDescriptor pCd: parentClassDescriptor.getSuperDescriptors()){
-                        cd = pCd.getCollectionDescriptorByName(path.getLastElement());
-                        if (cd != null) {
-                            break;
-                        }
-                    }
-                }
-                if (modelParser.isIgnored(cd)) {
-                    this.graphicalName = cd.getName();
-                    this.treeNodeType = TreeNodeType.NODE;
-                }
-                else {
-                    this.graphicalName = modelParser.getRelationshipType(parentClassDescriptor.getName(), cd.getName());
-                    this.treeNodeType = TreeNodeType.RELATIONSHIP;
-                }
-            }
-            else if (path.endIsReference()) {
-                ClassDescriptor parentClassDescriptor = path.getPrefix().getEndClassDescriptor();
-                ReferenceDescriptor rd = parentClassDescriptor.getReferenceDescriptorByName(path.getLastElement());
-                if (rd == null){
-                    for (ClassDescriptor pCd: parentClassDescriptor.getSuperDescriptors()){
-                        rd = pCd.getReferenceDescriptorByName(path.getLastElement());
-                        if (rd != null) {
-                            break;
-                        }
-                    }
-                }
-                if (modelParser.isIgnored(rd)) {
-                    this.graphicalName = rd.getName();
-                    this.treeNodeType = TreeNodeType.NODE;
-                }
-                else {
-                    this.graphicalName = modelParser.getRelationshipType(parentClassDescriptor.getName(), rd.getName());
-                    this.treeNodeType = TreeNodeType.RELATIONSHIP;
-                }
-            }
+            // When end of the path is either a Collection or Reference
+            this.graphicalName = path.getEndClassDescriptor().getSimpleName();
+            this.treeNodeType = TreeNodeType.NODE;
         }
     }
 
-    TreeNode(String graphicalName,
-             String variableName,
-             String name,
-             TreeNodeType treeNodeType,
-             TreeNode parent,
-             OuterJoinStatus outerJoinStatus){
-
-        Boolean DEBUG = true;
-
-        this.variableName = variableName;
-        this.name = name;
-        this.treeNodeType = treeNodeType;
-        this.graphicalName = graphicalName;
-        this.parent = parent;
-        this.children = new HashMap<>();
-        this.outerJoinStatus = outerJoinStatus;
-        if(DEBUG){
-            if(parent == null){
-                System.out.println("Create node " + name + " as root");
-            } else {
-                System.out.println("Create node " + variableName +
-                                    ":" + treeNodeType.name() +
-                                    ", graphicalName - " + graphicalName +
-                                    ", parent - " + parent.getVariableName());
-            }
-        }
+    public Path getPath() {
+        return path;
     }
 
     /**

@@ -16,7 +16,7 @@ public class TestQueryGenerator {
 
     public static void main(String args[]) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
 
-        String FILENAME = "outerjoin/2";
+        String FILENAME = "outerjoin/1";
 
         String PATHQUERY_FILENAME = "src/main/resources/pathquery/" + FILENAME + ".xml";
         String pathQuery = Util.readFile(PATHQUERY_FILENAME);

@@ -598,7 +598,7 @@
 	<attribute name="strand" type="java.lang.String"/>
 	<reference name="feature" referenced-type="BioEntity" reverse-reference="locations"/>
 	<reference name="locatedOn" referenced-type="BioEntity" reverse-reference="locatedFeatures"/>
-	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
+	<collection name="dataSets" referenced-type="DataSet" 	neo4j-ignore="true"/>
 </class>
 <class name="CrossReference" is-interface="true">
 	<attribute name="identifier" type="java.lang.String"/>

@@ -1,14 +1,14 @@
 MATCH (protein :Protein),
-(protein)-[]-(protein_genes :genes),
-(protein_genes_chromosome)-[]-(protein_genes_chromosome_organism :organism),
-(protein_genes_chromosome_organism)-[]-(protein_genes_chromosome_organism_commonname :commonName),
-(protein_genes)-[]-(protein_genes_diseases :diseases),
-(protein_genes_diseases)-[]-(protein_genes_diseases_publications :publications),
-(protein_genes_diseases_publications)-[]-(protein_genes_diseases_publications_pubmedid :pubMedId)
-OPTIONAL MATCH (protein_genes)-[]-(protein_genes_chromosome :chromosome)
+(protein)-[:genes]-(protein_genes :Gene),
+(protein_genes_chromosome)-[:PART_OF]-(protein_genes_chromosome_organism :Organism),
+(protein_genes)-[:diseases]-(protein_genes_diseases :Disease),
+(protein_genes_diseases)-[:MENTIONED_IN]-(protein_genes_diseases_publications :Publication)
+OPTIONAL MATCH (protein_genes)-[:chromosome]-(protein_genes_chromosome :Chromosome)
 
 RETURN protein_genes_chromosome.primaryIdentifier,
 protein.primaryIdentifier,
 protein_genes.primaryIdentifier,
-protein_genes_diseases.identifier
+protein_genes_diseases.identifier,
+protein_genes_diseases_publications.pubMedId,
+protein_genes_chromosome_organism.commonName
 ORDER BY protein.primaryIdentifier ASC

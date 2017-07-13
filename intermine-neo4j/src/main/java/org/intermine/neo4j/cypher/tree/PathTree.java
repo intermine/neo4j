@@ -36,11 +36,14 @@ public class PathTree {
 
             for (Path traversedPath : path.decomposePath()){
 
+                String nodeName;
+
                 if (traversedPath.isRootPath()) {
                     if (this.root == null) {
-                        // Create the root TreeNode. It is always represents a Graph Node.
-                        // Parent is null for root.
-                        this.root = new TreeNode(rootPath.toString(),
+                        nodeName = rootPath.toString();
+                        // Create the root TreeNode. It always represents a Graph Node.
+                        // Parent is null for the root.
+                        this.root = new TreeNode(nodeName,
                                                 traversedPath,
                                                 null,
                                                 OuterJoinStatus.INNER);
@@ -50,7 +53,7 @@ public class PathTree {
                     // First reach the Parent TreeNode for the current TreeNode
                     TreeNode parentNode = getTreeNode(traversedPath.getPrefix().toString());
 
-                    String nodeName = traversedPath.getLastElement();
+                    nodeName = traversedPath.getLastElement();
 
                     // If child TreeNode does not exist, create a new one.
                     // If it exists already, then this TreeNode has already been created for
@@ -113,14 +116,14 @@ public class PathTree {
     /**
      * Traverses the PathTree as per the given path and returns the TreeNode found
      *
-     * @param pathString the given path
+     * @param path the given path
      * @return the TreeNode object if it is found, null otherwise
      */
-    public TreeNode getTreeNode(String pathString){
+    public TreeNode getTreeNode(String path){
         if(root == null){
             return null;
         }
-        List<String> nodes = Helper.getTokensFromPathString(pathString);
+        List<String> nodes = Helper.getTokensFromPathString(path);
         TreeNode treeNode = root;
         for (String node: nodes){
             if (nodes.indexOf(node) == 0){
@@ -132,6 +135,10 @@ public class PathTree {
             }
         }
         return treeNode;
+    }
+
+    public TreeNode getTreeNode(Path path){
+        return getTreeNode(path.toString());
     }
 
     /**
