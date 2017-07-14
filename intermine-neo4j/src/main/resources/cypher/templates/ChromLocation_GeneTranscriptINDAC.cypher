@@ -9,6 +9,7 @@ WHERE gene_chromosome.primaryIdentifier = '2R' AND gene_chromosomelocation.end <
 RETURN gene_chromosome.primaryIdentifier,
 gene_chromosomelocation.start,
 gene_chromosomelocation.end,
+gene.primaryIdentifier,
 gene.secondaryIdentifier,
 gene.symbol,
 gene_transcripts.primaryIdentifier,

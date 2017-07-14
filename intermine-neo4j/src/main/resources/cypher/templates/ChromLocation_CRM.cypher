@@ -9,5 +9,6 @@ crm_chromosomelocation.start,
 crm_chromosomelocation.end,
 crm.primaryIdentifier,
 crm.length,
+crm.evidenceMethod,
 crm_publications.pubMedId
 ORDER BY crm_chromosome.primaryIdentifier ASC

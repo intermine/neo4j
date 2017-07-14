@@ -4,7 +4,7 @@ MATCH (intergenicregion :IntergenicRegion),
 (intergenicregion_overlappingfeatures)-[:chromosomeLocation]-(intergenicregion_overlappingfeatures_chromosomelocation :Location),
 (intergenicregion_overlappingfeatures)-[:dataSets]-(intergenicregion_overlappingfeatures_datasets :DataSet)
 
-WHERE intergenicregion_organism.name = 'Drosophila melanogaster' AND intergenicregion.primaryIdentifier = 'intergenic_region_chr2L_10295386..10295858'
+WHERE intergenicregion.primaryIdentifier = 'intergenic_region_chr2L_2462687..2489753' AND intergenicregion_organism.name = 'Drosophila melanogaster'
 RETURN intergenicregion.primaryIdentifier,
 intergenicregion_overlappingfeatures.primaryIdentifier,
 intergenicregion_overlappingfeatures_chromosomelocation.start,

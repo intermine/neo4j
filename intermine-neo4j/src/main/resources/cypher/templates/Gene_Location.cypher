@@ -5,11 +5,12 @@ MATCH (gene :Gene),
 (gene_locations)-[:locatedOn]-(gene_locations_locatedon :BioEntity)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG1046') AND gene_organism.name = 'Drosophila melanogaster'
-RETURN gene.secondaryIdentifier,
+RETURN gene.primaryIdentifier,
+gene.secondaryIdentifier,
 gene.symbol,
 gene.name,
 gene_chromosome.primaryIdentifier,
 gene_locations.start,
 gene_locations.end,
 gene_locations.strand
-ORDER BY gene.secondaryIdentifier ASC
+ORDER BY gene.primaryIdentifier ASC

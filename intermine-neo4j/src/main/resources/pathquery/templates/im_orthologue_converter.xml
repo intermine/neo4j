@@ -1,0 +1,1 @@
+<query name="im_orthologue_converter" model="genomic" view="Gene.homologues.homologue.primaryIdentifier" longDescription="used for mapping to other intermines" sortOrder="Gene.homologues.homologue.primaryIdentifier asc"><constraint path="Gene.organism.shortName" editable="true" op="=" value="D. melanogaster" /></query>

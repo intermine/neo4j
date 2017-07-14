@@ -8,7 +8,7 @@ MATCH (gene :Gene),
 WHERE gene_alleles_mutagens.description = 'P-element activity' AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene_alleles.primaryIdentifier,
 gene_alleles.secondaryIdentifier,
-gene.secondaryIdentifier,
+gene.primaryIdentifier,
 gene.symbol,
 gene_alleles_mutagens.description,
 gene_alleles_datasets_datasource.name

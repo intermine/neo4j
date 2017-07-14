@@ -9,6 +9,6 @@ gene_chromosomelocation.strand,
 gene_chromosomelocation.start,
 gene_chromosomelocation.end,
 gene.length,
-gene.symbol,
-gene.secondaryIdentifier
+gene.primaryIdentifier,
+gene.symbol
 ORDER BY gene_chromosome.primaryIdentifier ASC

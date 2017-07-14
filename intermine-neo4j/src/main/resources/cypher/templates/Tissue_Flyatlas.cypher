@@ -10,7 +10,7 @@ flyatlasresult.mRNASignalSEM,
 flyatlasresult.presentCall,
 flyatlasresult.enrichment,
 flyatlasresult.affyCall,
-flyatlasresult_genes.secondaryIdentifier,
+flyatlasresult_genes.primaryIdentifier,
 flyatlasresult_genes.symbol,
 flyatlasresult_material.primaryIdentifier,
 flyatlasresult_datasets.name

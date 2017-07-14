@@ -6,5 +6,6 @@ WHERE gene_alleles_organism.name = 'Drosophila melanogaster' AND gene_alleles.al
 RETURN gene_alleles.primaryIdentifier,
 gene_alleles.secondaryIdentifier,
 gene_alleles.alleleClass,
+gene.primaryIdentifier,
 gene.symbol
 ORDER BY gene_alleles.secondaryIdentifier DESC

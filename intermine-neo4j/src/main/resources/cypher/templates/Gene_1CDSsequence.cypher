@@ -4,8 +4,9 @@ MATCH (gene :Gene),
 (gene_cdss)-[:sequence]-(gene_cdss_sequence :Sequence)
 
 WHERE gene_organism.name = 'Drosophila melanogaster' AND gene_cdss.primaryIdentifier = '*PA*'
-RETURN gene.secondaryIdentifier,
+RETURN gene.primaryIdentifier,
+gene.secondaryIdentifier,
 gene.symbol,
 gene_cdss.primaryIdentifier,
 gene_cdss_sequence.residues
-ORDER BY gene.secondaryIdentifier ASC
+ORDER BY gene.primaryIdentifier ASC

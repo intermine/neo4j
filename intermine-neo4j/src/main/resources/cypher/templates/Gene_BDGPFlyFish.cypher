@@ -6,9 +6,9 @@ MATCH (gene :Gene),
 (gene)-[:PART_OF]-(gene_organism :Organism)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='hunchback') AND gene_organism.name = 'Drosophila melanogaster'
-RETURN gene.secondaryIdentifier,
+RETURN gene.primaryIdentifier,
 gene.symbol,
 gene_mrnaexpressionresults.stageRange,
 gene_mrnaexpressionresults_mrnaexpressionterms.name,
 gene_mrnaexpressionresults_dataset_datasource.name
-ORDER BY gene.secondaryIdentifier ASC
+ORDER BY gene.primaryIdentifier ASC

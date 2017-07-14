@@ -5,8 +5,8 @@ MATCH (gene :Gene),
 (gene_probesets_datasets)-[:dataSource]-(gene_probesets_datasets_datasource :DataSource)
 
 WHERE gene_organism.name = 'Drosophila melanogaster' AND ANY (key in keys(gene) WHERE gene[key]='CG4722') AND gene_probesets_datasets_datasource.name = 'Ensembl'
-RETURN gene.secondaryIdentifier,
+RETURN gene.primaryIdentifier,
 gene.symbol,
 gene_probesets.primaryIdentifier,
 gene_probesets_datasets.name
-ORDER BY gene.secondaryIdentifier ASC
+ORDER BY gene.primaryIdentifier ASC

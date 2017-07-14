@@ -6,7 +6,7 @@ MATCH (pointmutation :PointMutation),
 (pointmutation)-[:OVERLAPS]-(pointmutation_overlappingfeatures :SequenceFeature),
 (pointmutation_overlappingfeatures)-[:chromosomeLocation]-(pointmutation_overlappingfeatures_chromosomelocation :Location)
 
-WHERE pointmutation.primaryIdentifier = 'trp[14]-2'
+WHERE pointmutation.primaryIdentifier = 'Eip93F[1]'
 RETURN pointmutation.primaryIdentifier,
 pointmutation_chromosome.primaryIdentifier,
 pointmutation_chromosomelocation.start,
