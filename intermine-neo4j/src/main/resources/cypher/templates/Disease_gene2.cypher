@@ -1,5 +1,5 @@
 MATCH (disease :Disease),
-(disease)-[]-(disease_genes :genes)
+(disease)-[:genes]-(disease_genes :Gene)
 
 WHERE disease.name CONTAINS 'parkinson'
 RETURN disease.identifier,

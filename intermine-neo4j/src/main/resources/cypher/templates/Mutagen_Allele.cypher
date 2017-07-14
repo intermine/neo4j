@@ -1,9 +1,9 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_alleles :alleles),
-(gene_alleles)-[]-(gene_alleles_datasets :dataSets),
-(gene_alleles_datasets)-[]-(gene_alleles_datasets_datasource :dataSource),
-(gene_alleles)-[]-(gene_alleles_mutagens :mutagens)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:alleles]-(gene_alleles :Allele),
+(gene_alleles)-[:dataSets]-(gene_alleles_datasets :DataSet),
+(gene_alleles_datasets)-[:dataSource]-(gene_alleles_datasets_datasource :DataSource),
+(gene_alleles)-[:mutagens]-(gene_alleles_mutagens :Mutagen)
 
 WHERE gene_alleles_mutagens.description = 'P-element activity' AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene_alleles.primaryIdentifier,

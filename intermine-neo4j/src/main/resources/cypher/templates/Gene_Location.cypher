@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_chromosome :chromosome),
-(gene)-[]-(gene_locations :locations),
-(gene_locations)-[]-(gene_locations_locatedon :locatedOn)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:chromosome]-(gene_chromosome :Chromosome),
+(gene)-[:locations]-(gene_locations :Location),
+(gene_locations)-[:locatedOn]-(gene_locations_locatedon :BioEntity)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG1046') AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.secondaryIdentifier,

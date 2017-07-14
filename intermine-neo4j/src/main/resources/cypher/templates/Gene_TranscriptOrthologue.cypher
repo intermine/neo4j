@@ -1,10 +1,10 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_transcripts :transcripts),
-(gene)-[]-(gene_homologues :homologues),
-(gene_homologues)-[]-(gene_homologues_datasets :dataSets),
-(gene_homologues)-[]-(gene_homologues_homologue :homologue),
-(gene_homologues_homologue)-[]-(gene_homologues_homologue_organism :organism),
-(gene_homologues_homologue)-[]-(gene_homologues_homologue_transcripts :transcripts)
+(gene)-[:transcripts]-(gene_transcripts :Transcript),
+(gene)-[:homologues]-(gene_homologues :Homologue),
+(gene_homologues)-[:dataSets]-(gene_homologues_datasets :DataSet),
+(gene_homologues)-[:PARTNER_OF]-(gene_homologues_homologue :Gene),
+(gene_homologues_homologue)-[:PART_OF]-(gene_homologues_homologue_organism :Organism),
+(gene_homologues_homologue)-[:transcripts]-(gene_homologues_homologue_transcripts :Transcript)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='CG12399') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } ))
 RETURN gene.secondaryIdentifier,

@@ -1,12 +1,12 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_chromosomelocation :chromosomeLocation),
-(gene)-[]-(gene_exons :exons),
-(gene_exons)-[]-(gene_exons_overlappingfeatures :overlappingFeatures),
-(gene_exons_overlappingfeatures)-[]-(gene_exons_overlappingfeatures_chromosomelocation :chromosomeLocation),
-(gene_exons_overlappingfeatures)-[]-(gene_exons_overlappingfeatures_datasets :dataSets),
-(gene_exons_overlappingfeatures_datasets)-[]-(gene_exons_overlappingfeatures_datasets_datasource :dataSource),
-(gene)-[]-(gene_chromosome :chromosome)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:chromosomeLocation]-(gene_chromosomelocation :Location),
+(gene)-[:exons]-(gene_exons :Exon),
+(gene_exons)-[:OVERLAPS]-(gene_exons_overlappingfeatures :SequenceFeature),
+(gene_exons_overlappingfeatures)-[:chromosomeLocation]-(gene_exons_overlappingfeatures_chromosomelocation :Location),
+(gene_exons_overlappingfeatures)-[:dataSets]-(gene_exons_overlappingfeatures_datasets :DataSet),
+(gene_exons_overlappingfeatures_datasets)-[:dataSource]-(gene_exons_overlappingfeatures_datasets_datasource :DataSource),
+(gene)-[:chromosome]-(gene_chromosome :Chromosome)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='CG10011') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } )) AND gene_exons_overlappingfeatures_datasets.name = 'FlyBase data set for Drosophila melanogaster' AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.secondaryIdentifier,

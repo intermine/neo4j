@@ -1,10 +1,10 @@
 MATCH (intergenicregion :IntergenicRegion),
-(intergenicregion)-[]-(intergenicregion_organism :organism),
-(intergenicregion)-[]-(intergenicregion_chromosomelocation :chromosomeLocation),
-(intergenicregion)-[]-(intergenicregion_chromosome :chromosome),
-(intergenicregion)-[]-(intergenicregion_datasets :dataSets),
-(intergenicregion_datasets)-[]-(intergenicregion_datasets_datasource :dataSource),
-(intergenicregion)-[]-(intergenicregion_adjacentgenes :adjacentGenes)
+(intergenicregion)-[:PART_OF]-(intergenicregion_organism :Organism),
+(intergenicregion)-[:chromosomeLocation]-(intergenicregion_chromosomelocation :Location),
+(intergenicregion)-[:chromosome]-(intergenicregion_chromosome :Chromosome),
+(intergenicregion)-[:ADJACENT_TO]-(intergenicregion_adjacentgenes :Gene),
+(intergenicregion)-[:dataSets]-(intergenicregion_datasets :DataSet),
+(intergenicregion_datasets)-[:dataSource]-(intergenicregion_datasets_datasource :DataSource)
 
 WHERE intergenicregion_organism.name = 'Drosophila melanogaster'
 RETURN intergenicregion.primaryIdentifier,

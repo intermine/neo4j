@@ -1,10 +1,10 @@
 MATCH (disease :Disease),
-(disease)-[]-(disease_genes :genes),
-(disease_genes)-[]-(disease_genes_organism :organism),
-(disease_genes)-[]-(disease_genes_homologues :homologues),
-(disease_genes_homologues)-[]-(disease_genes_homologues_datasets :dataSets),
-(disease_genes_homologues)-[]-(disease_genes_homologues_homologue :homologue),
-(disease_genes_homologues_homologue)-[]-(disease_genes_homologues_homologue_organism :organism)
+(disease)-[:genes]-(disease_genes :Gene),
+(disease_genes)-[:PART_OF]-(disease_genes_organism :Organism),
+(disease_genes)-[:homologues]-(disease_genes_homologues :Homologue),
+(disease_genes_homologues)-[:dataSets]-(disease_genes_homologues_datasets :DataSet),
+(disease_genes_homologues)-[:PARTNER_OF]-(disease_genes_homologues_homologue :Gene),
+(disease_genes_homologues_homologue)-[:PART_OF]-(disease_genes_homologues_homologue_organism :Organism)
 
 WHERE disease.name CONTAINS 'parkinson' AND disease_genes_homologues_homologue_organism.name = 'Drosophila melanogaster' AND disease_genes_organism.name = 'Homo sapiens' AND disease_genes_homologues_homologue_organism != disease_genes_organism
 RETURN disease.identifier,

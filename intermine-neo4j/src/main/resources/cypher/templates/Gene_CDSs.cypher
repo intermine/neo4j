@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_cdss :CDSs)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:CDSs]-(gene_cdss :CDS)
 
 WHERE gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.symbol,

@@ -5,7 +5,6 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -23,7 +22,7 @@ public class TemplateParser {
 
         SAXBuilder saxBuilder = new SAXBuilder();
 
-        Document document = null;
+        Document document;
         try {
             document = saxBuilder.build(inputStream);
         } catch (IOException e) {
@@ -34,8 +33,8 @@ public class TemplateParser {
         Element classElement = document.getRootElement();
         List<Element> templates = classElement.getChildren();
 
-        String BASE_DIR_PATHQUERY = "pathquery/templates/";
-        String BASE_DIR_CYPHER = "cypher/templates/";
+        String BASE_DIR_PATHQUERY = "src/main/resources/pathquery/templates/";
+        String BASE_DIR_CYPHER = "src/main/resources/cypher/templates/";
 
         for (int temp = 0; temp < templates.size(); temp++) {
             Element pathQuery = templates.get(temp).getChild("query");
@@ -50,10 +49,12 @@ public class TemplateParser {
             String cypherQueryName = BASE_DIR_CYPHER + pathQueryName + ".cypher";
             try {
                 Util.writeFile(cypherQueryName, QueryGenerator.pathQueryToCypher(pathQueryXml));
-            } catch (IOException e) {
+                System.out.println("Converted template PathQuery: " + pathQueryName);
+            } catch (Exception e) {
                 System.out.println("Could not convert template PathQuery : " + pathQueryName);
+                e.printStackTrace();
             }
         }
-        System.out.println("All templates converted.");
+        System.out.println("Done.");
     }
 }

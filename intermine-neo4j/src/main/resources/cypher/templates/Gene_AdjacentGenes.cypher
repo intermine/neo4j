@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_downstreamintergenicregion :downstreamIntergenicRegion),
-(gene_downstreamintergenicregion)-[]-(gene_downstreamintergenicregion_adjacentgenes :adjacentGenes),
-(gene)-[]-(gene_upstreamintergenicregion :upstreamIntergenicRegion),
-(gene_upstreamintergenicregion)-[]-(gene_upstreamintergenicregion_adjacentgenes :adjacentGenes)
+(gene)-[:downstreamIntergenicRegion]-(gene_downstreamintergenicregion :IntergenicRegion),
+(gene_downstreamintergenicregion)-[:ADJACENT_TO]-(gene_downstreamintergenicregion_adjacentgenes :Gene),
+(gene)-[:upstreamIntergenicRegion]-(gene_upstreamintergenicregion :IntergenicRegion),
+(gene_upstreamintergenicregion)-[:ADJACENT_TO]-(gene_upstreamintergenicregion_adjacentgenes :Gene)
 
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG10021') AND gene_downstreamintergenicregion_adjacentgenes != gene AND gene_upstreamintergenicregion_adjacentgenes != gene
 RETURN gene.secondaryIdentifier,

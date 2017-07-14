@@ -2,7 +2,6 @@ package org.intermine.neo4j.cypher.constraint;
 
 
 import org.intermine.neo4j.cypher.Helper;
-import org.intermine.neo4j.cypher.OntologyConverter;
 import org.intermine.neo4j.cypher.tree.PathTree;
 import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.neo4j.cypher.tree.TreeNodeType;
@@ -222,10 +221,10 @@ public class Constraint {
             return "<Invalid use of ISA constraint>";
         }
         return "ANY(x IN labels(" +
-        treeNode.getVariableName() +
-        ") WHERE x IN " +
-        Helper.quoted(OntologyConverter.convertInterMineToNeo4j(PathConstraint.getValues(pathConstraint))) +
-        ")";
+                treeNode.getVariableName() +
+                ") WHERE x IN " +
+                Helper.quoted(PathConstraint.getValues(pathConstraint)) +
+                ")";
     }
 
     private String getLoopConstraint(TreeNode treeNode, PathConstraint pathConstraint, PathTree pathTree) {

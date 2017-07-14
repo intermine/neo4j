@@ -1,7 +1,7 @@
 MATCH (regulatoryregion :RegulatoryRegion),
-(regulatoryregion)-[]-(regulatoryregion_chromosomelocation :chromosomeLocation),
-(regulatoryregion)-[]-(regulatoryregion_chromosome :chromosome),
-(regulatoryregion)-[]-(regulatoryregion_datasets :dataSets)
+(regulatoryregion)-[:chromosomeLocation]-(regulatoryregion_chromosomelocation :Location),
+(regulatoryregion)-[:chromosome]-(regulatoryregion_chromosome :Chromosome),
+(regulatoryregion)-[:dataSets]-(regulatoryregion_datasets :DataSet)
 
 WHERE regulatoryregion_chromosome.primaryIdentifier = '3R' AND regulatoryregion_chromosomelocation.end <= 29200000 AND regulatoryregion_chromosomelocation.start >= 24900000
 RETURN regulatoryregion_chromosome.primaryIdentifier,

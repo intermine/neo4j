@@ -1,5 +1,9 @@
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.cypher.QueryGenerator;
+import org.intermine.pathquery.PathException;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 
@@ -10,14 +14,14 @@ import java.io.IOException;
  */
 public class TestQueryGenerator {
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
 
-        String FILENAME = "outer/2";
+        String FILENAME = "SortOrder";
 
-        String PATHQUERY_FILENAME = "resources/pathquery/" + FILENAME + ".xml";
+        String PATHQUERY_FILENAME = "src/main/resources/pathquery/" + FILENAME + ".xml";
         String pathQuery = Util.readFile(PATHQUERY_FILENAME);
 
-        String CYPHER_FILENAME = "resources/cypher/" + FILENAME+ ".cypher";
+        String CYPHER_FILENAME = "src/main/resources/cypher/" + FILENAME+ ".cypher";
         String cypher = QueryGenerator.pathQueryToCypher(pathQuery);
 
         Util.writeFile(CYPHER_FILENAME, cypher);

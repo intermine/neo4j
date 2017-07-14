@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_goannotation :goAnnotation),
-(gene_goannotation)-[]-(gene_goannotation_ontologyterm :ontologyTerm),
-(gene)-[]-(gene_organism :organism)
+(gene)-[:ANNOTATED_BY]-(gene_goannotation :GOAnnotation),
+(gene_goannotation)-[:ontologyTerm]-(gene_goannotation_ontologyterm :OntologyTerm),
+(gene)-[:PART_OF]-(gene_organism :Organism)
 
 WHERE gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.secondaryIdentifier,

@@ -1,7 +1,7 @@
 MATCH (pathway :Pathway),
-(pathway)-[]-(pathway_genes :genes),
-(pathway_genes)-[]-(pathway_genes_organism :organism),
-(pathway)-[]-(pathway_datasets :dataSets)
+(pathway)-[:genes]-(pathway_genes :Gene),
+(pathway_genes)-[:PART_OF]-(pathway_genes_organism :Organism),
+(pathway)-[:dataSets]-(pathway_datasets :DataSet)
 
 WHERE pathway_datasets.name = 'KEGG pathways data set' AND pathway_genes_organism.name = 'Drosophila melanogaster' AND pathway.name = 'Pentose phosphate pathway'
 RETURN pathway.identifier,

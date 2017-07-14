@@ -1,12 +1,11 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_transcripts :transcripts),
-(gene_transcripts)-[]-(gene_transcripts_chromosomelocation :chromosomeLocation),
-(gene_transcripts)-[]-(gene_transcripts_exons :exons),
-(gene_transcripts_exons)-[]-(gene_transcripts_exons_chromosomelocation :chromosomeLocation),
-(gene_transcripts)-[]-(gene_transcripts_chromosome :chromosome),
-(gene_transcripts)-[]-(gene_transcripts_introns :introns),
-(gene_transcripts_introns)-[]-(gene_transcripts_introns_chromosomelocation :chromosomeLocation)
-
+(gene)-[:transcripts]-(gene_transcripts :Transcript),
+(gene_transcripts)-[:chromosomeLocation]-(gene_transcripts_chromosomelocation :Location),
+(gene_transcripts_exons)-[:chromosomeLocation]-(gene_transcripts_exons_chromosomelocation :Location),
+(gene_transcripts)-[:chromosome]-(gene_transcripts_chromosome :Chromosome),
+(gene_transcripts_introns)-[:chromosomeLocation]-(gene_transcripts_introns_chromosomelocation :Location)
+OPTIONAL MATCH (gene_transcripts)-[:exons]-(gene_transcripts_exons :Exon),
+(gene_transcripts)-[:introns]-(gene_transcripts_introns :Intron)
 WHERE ANY (key in keys(gene) WHERE gene[key]='CG10016')
 RETURN gene.secondaryIdentifier,
 gene.symbol,

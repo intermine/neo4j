@@ -1,7 +1,7 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_organism :organism),
-(gene)-[]-(gene_utrs :UTRs),
-(gene_utrs)-[]-(gene_utrs_chromosomelocation :chromosomeLocation)
+(gene)-[:PART_OF]-(gene_organism :Organism),
+(gene)-[:UTRs]-(gene_utrs :UTR),
+(gene_utrs)-[:chromosomeLocation]-(gene_utrs_chromosomelocation :Location)
 
 WHERE gene_organism.name = 'Drosophila melanogaster'
 RETURN gene_utrs.primaryIdentifier,
