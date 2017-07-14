@@ -5,7 +5,7 @@ MATCH (crm :CRM),
 (crm_overlappingfeatures)-[:chromosomeLocation]-(crm_overlappingfeatures_chromosomelocation :Location),
 (crm_overlappingfeatures)-[:chromosome]-(crm_overlappingfeatures_chromosome :Chromosome)
 
-WHERE crm_chromosome.primaryIdentifier = '2R' AND crm_chromosomelocation.start >= 9000000 AND crm_chromosomelocation.end <= 10000000
+WHERE crm_chromosome.primaryIdentifier = '2R' AND crm_chromosomelocation.start >= 2000000 AND crm_chromosomelocation.end <= 5000000
 RETURN crm.primaryIdentifier,
 crm.length,
 crm_chromosome.primaryIdentifier,

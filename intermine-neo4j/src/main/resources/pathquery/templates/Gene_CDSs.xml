@@ -1,1 +1,0 @@
-<query name="Gene_CDSs" model="genomic" view="Gene.symbol Gene.primaryIdentifier Gene.CDSs.primaryIdentifier" longDescription="For the selected organism retrieve all genes and their coding sequences, suitable for export as GFF3 or FASTA." sortOrder="Gene.symbol asc"><constraint path="Gene.organism.name" editable="true" op="=" value="Drosophila melanogaster" /></query>

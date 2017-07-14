@@ -9,7 +9,7 @@ MATCH (gene :Gene),
 (gene)-[:chromosome]-(gene_chromosome :Chromosome)
 
 WHERE ( ANY (key in keys(gene) WHERE gene[key]='CG10011') AND (gene)-[]-(Organism { shortName: 'D. melanogaster' } )) AND gene_exons_overlappingfeatures_datasets.name = 'FlyBase data set for Drosophila melanogaster' AND gene_organism.name = 'Drosophila melanogaster'
-RETURN gene.secondaryIdentifier,
+RETURN gene.primaryIdentifier,
 gene.symbol,
 gene_chromosome.primaryIdentifier,
 gene_chromosomelocation.start,
@@ -21,4 +21,4 @@ gene_exons_overlappingfeatures_chromosomelocation.start,
 gene_exons_overlappingfeatures_chromosomelocation.end,
 gene_exons_overlappingfeatures_chromosomelocation.strand,
 gene_exons_overlappingfeatures_datasets_datasource.name
-ORDER BY gene.secondaryIdentifier ASC
+ORDER BY gene.primaryIdentifier ASC

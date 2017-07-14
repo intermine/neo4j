@@ -6,7 +6,6 @@ MATCH (pathway :Pathway),
 WHERE pathway_datasets.name = 'KEGG pathways data set' AND pathway_genes_organism.name = 'Drosophila melanogaster' AND pathway.name = 'Pentose phosphate pathway'
 RETURN pathway.identifier,
 pathway.name,
-pathway_genes.secondaryIdentifier,
-pathway_genes.symbol,
-pathway_datasets.name
+pathway_genes.primaryIdentifier,
+pathway_genes.symbol
 ORDER BY pathway.identifier ASC

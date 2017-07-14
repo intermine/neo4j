@@ -8,7 +8,7 @@ MATCH (gene :Gene),
 
 WHERE gene_chromosome.primaryIdentifier = '2L'
 RETURN gene_chromosome.primaryIdentifier,
-gene.secondaryIdentifier,
+gene.primaryIdentifier,
 gene.symbol,
 gene_chromosomelocation.start,
 gene_chromosomelocation.end,

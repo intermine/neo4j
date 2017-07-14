@@ -1,1 +1,0 @@
-<query name="Disease_gene2" model="genomic" view="Disease.identifier Disease.name Disease.genes.primaryIdentifier Disease.genes.symbol Disease.genes.name" longDescription="Show the human genes associated with a specified disease." sortOrder="Disease.identifier asc"><constraint path="Disease.name" editable="true" op="CONTAINS" value="parkinson" /></query>

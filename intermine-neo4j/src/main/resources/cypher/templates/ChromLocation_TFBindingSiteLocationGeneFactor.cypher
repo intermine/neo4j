@@ -7,7 +7,7 @@ MATCH (tfbindingsite :TFBindingSite),
 (tfbindingsite)-[:chromosome]-(tfbindingsite_chromosome :Chromosome),
 (tfbindingsite)-[:factor]-(tfbindingsite_factor :Gene)
 
-WHERE tfbindingsite_chromosome.primaryIdentifier = '3R' AND tfbindingsite_chromosomelocation.end < 10000000 AND tfbindingsite_chromosomelocation.start > 9000000 AND tfbindingsite_gene_regulatoryregions_datasets.name = 'REDfly Drosophila transcription factor binding sites'
+WHERE tfbindingsite_chromosome.primaryIdentifier = '3R' AND tfbindingsite_chromosomelocation.end < 2581753 AND tfbindingsite_chromosomelocation.start > 2576754 AND tfbindingsite_gene_regulatoryregions_datasets.name = 'REDfly Drosophila transcription factor binding sites'
 RETURN tfbindingsite_chromosome.primaryIdentifier,
 tfbindingsite_chromosomelocation.start,
 tfbindingsite_chromosomelocation.end,

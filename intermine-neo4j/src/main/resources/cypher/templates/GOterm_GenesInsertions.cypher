@@ -7,11 +7,11 @@ MATCH (gene :Gene),
 (gene_overlappingfeatures_datasets)-[:dataSource]-(gene_overlappingfeatures_datasets_datasource :DataSource)
 
 WHERE gene_organism.name = 'Drosophila melanogaster' AND gene_goannotation_ontologyterm.name = 'neuropeptide receptor activity'
-RETURN gene.secondaryIdentifier,
+RETURN gene.primaryIdentifier,
 gene.symbol,
 gene_overlappingfeatures.primaryIdentifier,
 gene_overlappingfeatures.symbol,
 gene_overlappingfeatures_datasets_datasource.name,
 gene_goannotation_ontologyterm.identifier,
 gene_goannotation_ontologyterm.name
-ORDER BY gene.secondaryIdentifier ASC
+ORDER BY gene.primaryIdentifier ASC

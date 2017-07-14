@@ -7,10 +7,10 @@ MATCH (pathway :Pathway),
 (pathway)-[:dataSets]-(pathway_datasets :DataSet)
 
 WHERE pathway.name = 'Pentose phosphate pathway' AND pathway_genes_organism.name = 'Drosophila melanogaster' AND pathway_datasets.name = 'KEGG pathways data set' AND pathway_genes_homologues_homologue_organism.name = 'Anopheles gambiae'
-RETURN pathway_genes.secondaryIdentifier,
+RETURN pathway_genes.primaryIdentifier,
 pathway_genes.symbol,
-pathway_genes_homologues_homologue.secondaryIdentifier,
+pathway_genes_homologues_homologue.primaryIdentifier,
 pathway_genes_homologues_homologue.symbol,
 pathway.identifier,
 pathway.name
-ORDER BY pathway_genes.secondaryIdentifier ASC
+ORDER BY pathway_genes.primaryIdentifier ASC
