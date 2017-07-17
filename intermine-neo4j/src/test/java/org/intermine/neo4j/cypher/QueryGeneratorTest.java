@@ -11,9 +11,11 @@ import org.junit.Test;
 public class QueryGeneratorTest {
     private static final Logger LOG = Logger.getLogger(QueryGeneratorTest.class);
 
-    private String getConstraint(String name) throws IOException {
-        String path = "pathquery/constraints/" + name;
-        System.out.println("path is " + path);
+    // TO DO : Add test for EXISTS and DOES_NOT_EXIST constraints.
+
+    private String getPathQuery(String name) throws IOException {
+        String path = "pathquery/" + name;
+        System.out.println("Path is " + path);
         InputStream is = getClass().getClassLoader().getResourceAsStream(path);
         if (is == null) {
             LOG.error("Could not find the required XML file: " + path);
@@ -21,8 +23,8 @@ public class QueryGeneratorTest {
         return IOUtils.toString(is).replaceAll("\n$", "");
     }
 
-    private String getCypher(String name)  throws IOException {
-        String path = "cypher/constraints/" + name;
+    private String getCypherQuery(String name)  throws IOException {
+        String path = "cypher/" + name;
         InputStream is = getClass().getClassLoader().getResourceAsStream(path);
         if (is == null) {
             LOG.error("Could not find the required Cypher file: " + path);
@@ -32,241 +34,210 @@ public class QueryGeneratorTest {
 
     @Test
     public void verifyContains() throws Exception {   
-        String containsConstraint = getConstraint("CONTAINS.xml");
+        String containsConstraint = getPathQuery("constraints/CONTAINS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("CONTAINS.cypher");
+        String expectedCypher = getCypherQuery("constraints/CONTAINS.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyDoesNotContain() throws Exception {
-        String containsConstraint = getConstraint("DOES_NOT_CONTAIN.xml");
+        String containsConstraint = getPathQuery("constraints/DOES_NOT_CONTAIN.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("DOES_NOT_CONTAIN.cypher");
+        String expectedCypher = getCypherQuery("constraints/DOES_NOT_CONTAIN.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyEquals() throws Exception {
-        String containsConstraint = getConstraint("EQUALS.xml");
+        String containsConstraint = getPathQuery("constraints/EQUALS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("EQUALS.cypher");
+        String expectedCypher = getCypherQuery("constraints/EQUALS.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyNotEquals() throws Exception {
-        String containsConstraint = getConstraint("NOT_EQUALS.xml");
+        String containsConstraint = getPathQuery("constraints/NOT_EQUALS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("NOT_EQUALS.cypher");
+        String expectedCypher = getCypherQuery("constraints/NOT_EQUALS.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyIn() throws Exception {
-        String containsConstraint = getConstraint("IN.xml");
+        String containsConstraint = getPathQuery("constraints/IN.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("IN.cypher");
+        String expectedCypher = getCypherQuery("constraints/IN.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyNotIn() throws Exception {
-        String containsConstraint = getConstraint("NOT_IN.xml");
+        String containsConstraint = getPathQuery("constraints/NOT_IN.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("NOT_IN.cypher");
+        String expectedCypher = getCypherQuery("constraints/NOT_IN.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyIsA() throws Exception {
-        String containsConstraint = getConstraint("ISA.xml");
+        String containsConstraint = getPathQuery("constraints/ISA.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("ISA.cypher");
+        String expectedCypher = getCypherQuery("constraints/ISA.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyIsnt() throws Exception {
-        String containsConstraint = getConstraint("ISNT.xml");
+        String containsConstraint = getPathQuery("constraints/ISNT.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("ISNT.cypher");
+        String expectedCypher = getCypherQuery("constraints/ISNT.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyLookUp() throws Exception {
-        String containsConstraint = getConstraint("LOOKUP.xml");
+        String containsConstraint = getPathQuery("constraints/LOOKUP.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("LOOKUP.cypher");
+        String expectedCypher = getCypherQuery("constraints/LOOKUP.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyLoop() throws Exception {
-        String containsConstraint = getConstraint("LOOP.xml");
+        String containsConstraint = getPathQuery("constraints/LOOP.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("LOOP.cypher");
+        String expectedCypher = getCypherQuery("constraints/LOOP.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyMatches() throws Exception {
-        String containsConstraint = getConstraint("MATCHES.xml");
+        String containsConstraint = getPathQuery("constraints/MATCHES.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("MATCHES.cypher");
+        String expectedCypher = getCypherQuery("constraints/MATCHES.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyDoesNotMatch() throws Exception {
-        String containsConstraint = getConstraint("DOES_NOT_MATCH.xml");
+        String containsConstraint = getPathQuery("constraints/DOES_NOT_MATCH.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("DOES_NOT_MATCH.cypher");
+        String expectedCypher = getCypherQuery("constraints/DOES_NOT_MATCH.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyNoneOf() throws Exception {
-        String containsConstraint = getConstraint("NONE_OF.xml");
+        String containsConstraint = getPathQuery("constraints/NONE_OF.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("NONE_OF.cypher");
+        String expectedCypher = getCypherQuery("constraints/NONE_OF.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyOneOf() throws Exception {
-        String containsConstraint = getConstraint("ONE_OF.xml");
+        String containsConstraint = getPathQuery("constraints/ONE_OF.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("ONE_OF.cypher");
+        String expectedCypher = getCypherQuery("constraints/ONE_OF.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyOverlaps() throws Exception {
-        String containsConstraint = getConstraint("OVERLAPS.xml");
+        String containsConstraint = getPathQuery("constraints/OVERLAPS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("OVERLAPS.cypher");
+        String expectedCypher = getCypherQuery("constraints/OVERLAPS.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyDoesNotOverlap() throws Exception {
-        String containsConstraint = getConstraint("DOES_NOT_OVERLAP.xml");
+        String containsConstraint = getPathQuery("constraints/DOES_NOT_OVERLAP.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("DOES_NOT_OVERLAP.cypher");
+        String expectedCypher = getCypherQuery("constraints/DOES_NOT_OVERLAP.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyWithin() throws Exception {
-        String containsConstraint = getConstraint("WITHIN.xml");
+        String containsConstraint = getPathQuery("constraints/WITHIN.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("WITHIN.cypher");
+        String expectedCypher = getCypherQuery("constraints/WITHIN.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyOutside() throws Exception {
-        String containsConstraint = getConstraint("OUTSIDE.xml");
+        String containsConstraint = getPathQuery("constraints/OUTSIDE.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("OUTSIDE.cypher");
+        String expectedCypher = getCypherQuery("constraints/OUTSIDE.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyLessThanEquals() throws Exception {
-        String containsConstraint = getConstraint("LESS_THAN_EQUALS.xml");
+        String containsConstraint = getPathQuery("constraints/LESS_THAN_EQUALS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("LESS_THAN_EQUALS.cypher");
+        String expectedCypher = getCypherQuery("constraints/LESS_THAN_EQUALS.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyLessThan() throws Exception {
-        String containsConstraint = getConstraint("LESS_THAN.xml");
+        String containsConstraint = getPathQuery("constraints/LESS_THAN.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("LESS_THAN.cypher");
+        String expectedCypher = getCypherQuery("constraints/LESS_THAN.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyGreaterThanEquals() throws Exception {
-        String containsConstraint = getConstraint("GREATER_THAN_EQUALS.xml");
+        String containsConstraint = getPathQuery("constraints/GREATER_THAN_EQUALS.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("GREATER_THAN_EQUALS.cypher");
+        String expectedCypher = getCypherQuery("constraints/GREATER_THAN_EQUALS.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyGreaterThan() throws Exception {
-        String containsConstraint = getConstraint("GREATER_THAN.xml");
+        String containsConstraint = getPathQuery("constraints/GREATER_THAN.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("GREATER_THAN.cypher");
+        String expectedCypher = getCypherQuery("constraints/GREATER_THAN.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyIsNull() throws Exception {
-        String containsConstraint = getConstraint("IS_NULL.xml");
+        String containsConstraint = getPathQuery("constraints/IS_NULL.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("IS_NULL.cypher");
+        String expectedCypher = getCypherQuery("constraints/IS_NULL.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
     public void verifyIsNotNull() throws Exception {
-        String containsConstraint = getConstraint("IS_NOT_NULL.xml");
+        String containsConstraint = getPathQuery("constraints/IS_NOT_NULL.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("IS_NOT_NULL.cypher");
+        String expectedCypher = getCypherQuery("constraints/IS_NOT_NULL.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
-    public void verifyExists() throws Exception {
-        String containsConstraint = getConstraint("EXISTS.xml");
+    public void verifySortOrder() throws Exception {
+        String containsConstraint = getPathQuery("SortOrder.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("EXISTS.cypher");
+        String expectedCypher = getCypherQuery("SortOrder.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
     @Test
-    public void verifyDoesNotExist() throws Exception {
-        String containsConstraint = getConstraint("DOES_NOT_EXIST.xml");
+    public void verifyOuterJoin() throws Exception {
+        String containsConstraint = getPathQuery("OuterJoin.xml");
         String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("DOES_NOT_EXIST.cypher");
+        String expectedCypher = getCypherQuery("OuterJoin.cypher");
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
-    @Test
-    public void verifyOr() throws Exception {
-        String containsConstraint = getConstraint("OR.xml");
-        String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("OR.cypher");
-        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
-    }
-
-    @Test
-    public void verifyNor() throws Exception {
-        String containsConstraint = getConstraint("NOR.xml");
-        String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("NOR.cypher");
-        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
-    }
-
-    @Test
-    public void verifyAnd() throws Exception {
-        String containsConstraint = getConstraint("AND.xml");
-        String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("AND.cypher");
-        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
-    }
-
-    @Test
-    public void verifyNand() throws Exception {
-        String containsConstraint = getConstraint("NAND.xml");
-        String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint);
-        String expectedCypher = getCypher("NAND.cypher");
-        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
-    }
 }

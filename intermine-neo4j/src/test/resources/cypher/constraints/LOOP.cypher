@@ -1,8 +1,8 @@
 MATCH (gene :Gene),
-(gene)-[]-(gene_homologues :homologues),
-(gene_homologues)-[]-(gene_homologues_homologue :homologue),
-(gene)-[]-(gene_pathways :pathways),
-(gene_pathways)-[]-(gene_pathways_genes :genes)
+(gene)-[:homologues]-(gene_homologues :Homologue),
+(gene_homologues)-[:PARTNER_OF]-(gene_homologues_homologue :Gene),
+(gene)-[:PARTICIPATES_IN]-(gene_pathways :Pathway),
+(gene_pathways)-[:genes]-(gene_pathways_genes :Gene)
 
 WHERE gene_homologues_homologue = gene_pathways_genes
 RETURN gene.symbol,

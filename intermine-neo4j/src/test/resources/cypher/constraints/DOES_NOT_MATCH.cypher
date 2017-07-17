@@ -3,7 +3,7 @@ MATCH (gene :Gene),
 (gene)-[:alleles]-(gene_alleles :Allele),
 (gene_alleles)-[:phenotypeAnnotations]-(gene_alleles_phenotypeannotations :PhenotypeAnnotation)
 
-WHERE gene.symbol =~ 'ad*'
+WHERE NOT gene.symbol =~ 'ad*'
 RETURN gene.symbol,
 gene_organism.name,
 gene_alleles.symbol,

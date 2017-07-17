@@ -1,1 +1,0 @@
-<query name="" model="genomic" view="Gene.id Gene.primaryIdentifier Gene.goAnnotation.ontologyTerm.identifier Gene.goAnnotation.ontologyTerm.name" longDescription="" sortOrder="Gene.id asc"><constraint path="Gene.goAnnotation.ontologyTerm.identifier" op="=" value="GO:0008270"/></query>

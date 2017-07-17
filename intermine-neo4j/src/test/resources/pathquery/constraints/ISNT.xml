@@ -1,0 +1,5 @@
+<query name="query" model="genomic" view="SequenceFeature.primaryIdentifier SequenceFeature.chromosomeLocation.locatedOn.primaryIdentifier SequenceFeature.chromosomeLocation.start SequenceFeature.chromosomeLocation.end" longDescription="">
+    <constraint path="SequenceFeature" op="ISNT">
+        <value>Gene</value>
+    </constraint>
+</query>
