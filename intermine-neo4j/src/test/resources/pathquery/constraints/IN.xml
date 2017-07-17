@@ -1,3 +1,3 @@
-<query name="" model="genomic" view="Gene.secondaryIdentifier Gene.symbol Gene.primaryIdentifier Gene.organism.name" longDescription="" sortOrder="Gene.secondaryIdentifier asc">
-    <constraint path="Gene" op="IN" value="yash1"/>
+<query name="" model="genomic" view="Gene.primaryIdentifier" longDescription="" sortOrder="Gene.primaryIdentifier asc">
+    <constraint path="Gene" op="IN" value="H. sapiens orthologues of FlyTF_site_specific_1"/>
 </query>

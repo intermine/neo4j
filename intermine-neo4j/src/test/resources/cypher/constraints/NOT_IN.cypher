@@ -1,5 +1,5 @@
 MATCH (gene :Gene)
 
-WHERE Gene.primaryIdentifier IN []
+WHERE NOT Gene.primaryIdentifier IN []
 RETURN gene.primaryIdentifier
 ORDER BY gene.primaryIdentifier ASC

@@ -1,0 +1,6 @@
+<query name="" model="genomic" view="Gene.primaryIdentifier" longDescription="" sortOrder="Gene.primaryIdentifier asc">
+    <constraint path="Gene.chromosomeLocation" op="DOES NOT OVERLAP">
+        <value>2L:14615435..14619002
+        </value>
+    </constraint>
+</query>
