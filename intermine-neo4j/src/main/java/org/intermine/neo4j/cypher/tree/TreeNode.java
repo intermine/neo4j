@@ -1,11 +1,6 @@
 package org.intermine.neo4j.cypher.tree;
 
-import org.intermine.metadata.ClassDescriptor;
-import org.intermine.metadata.CollectionDescriptor;
 import org.intermine.metadata.ModelParserException;
-import org.intermine.metadata.ReferenceDescriptor;
-import org.intermine.neo4j.Neo4jLoaderProperties;
-import org.intermine.neo4j.Neo4jModelParser;
 import org.intermine.neo4j.cypher.Helper;
 import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.Path;

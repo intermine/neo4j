@@ -12,7 +12,7 @@ public class InterMineModelXMLDumper {
 
     /**
      * @param args command line arguments
-     * @throws IOException
+     *
      */
     public static void main(String[] args) {
 

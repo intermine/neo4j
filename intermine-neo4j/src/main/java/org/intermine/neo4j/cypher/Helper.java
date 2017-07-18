@@ -1,17 +1,9 @@
 package org.intermine.neo4j.cypher;
 
-import apoc.coll.Coll;
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.pathquery.*;
-import org.intermine.webservice.client.core.ContentType;
-import org.intermine.webservice.client.core.Request;
-import org.intermine.webservice.client.lists.ItemList;
-import org.intermine.webservice.client.results.Item;
-import org.intermine.webservice.client.services.ListService;
-import org.intermine.webservice.client.services.QueryService;
-import org.intermine.webservice.client.util.HttpConnection;
 
 import java.io.IOException;
 import java.util.*;
