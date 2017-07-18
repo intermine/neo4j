@@ -1,45 +1,27 @@
 package org.intermine.neo4j;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.LinkedList;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.TreeSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import org.intermine.metadata.AttributeDescriptor;
-import org.intermine.metadata.ClassDescriptor;
-import org.intermine.metadata.CollectionDescriptor;
 import org.intermine.metadata.ConstraintOp;
-import org.intermine.metadata.ReferenceDescriptor;
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
-import org.intermine.pathquery.Constraints;
-import org.intermine.pathquery.OrderDirection;
 import org.intermine.pathquery.PathConstraintAttribute;
 import org.intermine.pathquery.PathQuery;
-import org.intermine.webservice.client.core.ServiceFactory;
 import org.intermine.webservice.client.services.QueryService;
 
-import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
-import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.util.Pair;
 
 /**
  * Load Sequence residues if they are shorter than the specified maximum length.

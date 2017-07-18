@@ -316,7 +316,6 @@ public class Model {
      * @return true if they are neighbours, false otherwise
      */
     public boolean labelHasNeighbour(String nodeLabel, String neighbourLabel){
-        System.out.println(nodeLabel + " " + neighbourLabel);
         for (RelTypeDescriptor relType : relationships ){
             String key = relType.getType();
             if ( (hasIncomingNodeRelationship(nodeLabel, key))&&(hasOutgoingNodeRelationship(neighbourLabel, key))

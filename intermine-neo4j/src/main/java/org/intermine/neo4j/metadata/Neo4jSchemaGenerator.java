@@ -5,6 +5,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 
 import java.util.*;
 
+
 /**
  * A Java class which can be used to perform various operations on the schema/metagraph
  * of the given Neo4j graph database.

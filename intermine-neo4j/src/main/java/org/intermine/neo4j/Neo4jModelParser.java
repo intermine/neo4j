@@ -1,6 +1,5 @@
 package org.intermine.neo4j;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
