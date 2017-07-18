@@ -2,6 +2,7 @@ package org.intermine.neo4j.metadata;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.driver.v1.*;
 
@@ -19,13 +20,11 @@ import java.util.Set;
 public class ModelTest {
     public static final String TEST_PROPERTIES_FILE = "neo4jtest.properties";
 
-    public static boolean databasePreparedForTesting = false;
-
     public static Model model;
 
-    private Driver getNeo4jTestDriver() throws IOException {
+    public static Driver getNeo4jTestDriver() throws IOException {
         Properties props = new Properties();
-        props.load(getClass().getClassLoader().getResourceAsStream(TEST_PROPERTIES_FILE));
+        props.load(ModelTest.class.getClassLoader().getResourceAsStream(TEST_PROPERTIES_FILE));
 
         String neo4jTestUrl = props.getProperty("neo4j.test.url");
         String neo4jTestUser = props.getProperty("neo4j.test.user");
@@ -34,7 +33,8 @@ public class ModelTest {
         return GraphDatabase.driver(neo4jTestUrl, AuthTokens.basic(neo4jTestUser, neo4jTestPassword));
     }
 
-    private void prepareDatabaseForTesting() throws IOException {
+    @BeforeClass
+    public static void prepareDatabaseForTesting() throws IOException {
         Driver driver = getNeo4jTestDriver();
 
         // Delete all existing data from the database
@@ -46,7 +46,7 @@ public class ModelTest {
             }
         }
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream("loadDummyData.cypher");
+        InputStream is = ModelTest.class.getClassLoader().getResourceAsStream("loadDummyData.cypher");
         String loadDummyDataCypher = IOUtils.toString(is);
 
         // Load dummy data for testing
@@ -59,14 +59,10 @@ public class ModelTest {
         }
 
         model = Neo4jSchemaGenerator.getModel(driver);
-        databasePreparedForTesting = true;
     }
 
     @Test
     public void verifyHasNodeLabel() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.hasNodeLabel("SequenceFeature");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
@@ -74,9 +70,6 @@ public class ModelTest {
 
     @Test
     public void verifyHasRelationshipType() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.hasRelationshipType("MENTIONED_IN");
         Boolean expected = false;
         Assert.assertEquals(expected, actual);
@@ -84,9 +77,6 @@ public class ModelTest {
 
     @Test
     public void verifyLabelHasProperty() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.labelHasProperty("GOEvidence", "code");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
@@ -94,9 +84,6 @@ public class ModelTest {
 
     @Test
     public void verifyRelationshipHasProperty() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.relationshipHasProperty("EVIDENCED_BY", "dataset");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
@@ -104,9 +91,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetRelationships() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<String> actual = model.getRelationships("Gene");
         Set<String> expected = new HashSet<>();
         expected.add("ANNOTATED_BY");
@@ -116,9 +100,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetIncomingRelationships() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<String> actual = model.getIncomingRelationships("GOAnnotation");
         Set<String> expected = new HashSet<>();
         expected.add("ANNOTATED_BY");
@@ -127,9 +108,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetOutgoingRelationships() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<String> actual = model.getOutgoingRelationships("GOAnnotation");
         Set<String> expected = new HashSet<>();
         expected.add("EVIDENCED_BY");
@@ -138,9 +116,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetLabelProperties() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<String> actual = model.getLabelProperties("Gene");
         Set<String> expected = new HashSet<>();
         expected.add("primaryIdentifier");
@@ -149,9 +124,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetRelationshipProperties() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<String> actual = model.getRelationshipProperties("EVIDENCED_BY");
         Set<String> expected = new HashSet<>();
         expected.add("dataset");
@@ -160,9 +132,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetStartLabelsOfRelationship() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<Set<String>> actual = model.getStartLabelsOfRelationship("EVIDENCED_BY");
         Set<Set<String>> expected = new HashSet<>();
         Set<String> set = new HashSet<>();
@@ -173,9 +142,6 @@ public class ModelTest {
 
     @Test
     public void verifyGetEndLabelsOfRelationship() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Set<Set<String>> actual = model.getEndLabelsOfRelationship("EVIDENCED_BY");
         Set<Set<String>> expected = new HashSet<>();
         Set<String> set = new HashSet<>();
@@ -186,9 +152,6 @@ public class ModelTest {
 
     @Test
     public void verifyHasNodeRelationship() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.hasNodeRelationship("Gene", "ANNOTATED_BY");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
@@ -196,9 +159,6 @@ public class ModelTest {
 
     @Test
     public void verifyHasIncomingNodeRelationship() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.hasIncomingNodeRelationship("GOEvidence", "EVIDENCED_BY");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
@@ -206,9 +166,6 @@ public class ModelTest {
 
     @Test
     public void verifyHasOutgoingNodeRelationship() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.hasOutgoingNodeRelationship("GOAnnotation", "EVIDENCED_BY");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
@@ -216,9 +173,6 @@ public class ModelTest {
 
     @Test
     public void verifyLabelHasNeighbour() throws Exception {
-        if (!databasePreparedForTesting) {
-            prepareDatabaseForTesting();
-        }
         Boolean actual = model.labelHasNeighbour("Gene", "Pathway");
         Boolean expected = true;
         Assert.assertEquals(expected, actual);
