@@ -316,10 +316,12 @@ public class Model {
      * @return true if they are neighbours, false otherwise
      */
     public boolean labelHasNeighbour(String nodeLabel, String neighbourLabel){
+        System.out.println(nodeLabel + " " + neighbourLabel);
         for (RelTypeDescriptor relType : relationships ){
             String key = relType.getType();
-            if( (endNodes.get(key).contains(nodeLabel) && startNodes.get(key).contains(neighbourLabel)) ||
-            (endNodes.get(key).contains(neighbourLabel) && startNodes.get(key).contains(nodeLabel)) ){
+            if ( (hasIncomingNodeRelationship(nodeLabel, key))&&(hasOutgoingNodeRelationship(neighbourLabel, key))
+                    ||
+                    (hasIncomingNodeRelationship(neighbourLabel, key)&&(hasOutgoingNodeRelationship(nodeLabel, key))) ){
                 return true;
             }
         }

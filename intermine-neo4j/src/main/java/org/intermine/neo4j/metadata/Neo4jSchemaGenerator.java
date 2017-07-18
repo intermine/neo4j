@@ -53,9 +53,6 @@ public class Neo4jSchemaGenerator {
                 tx.run(query);
                 tx.success();
                 tx.close();
-
-                // Log the progress
-                System.out.println("Schema Progress : All nodes mapped.");
             }
             catch (ClientException e){
                 System.out.println("Schema Generator requires APOC 3.1+ to run properly. Please add the apoc jar to neo4jhome/plugins directory and restart the Neo4j database instance.\n");
@@ -94,9 +91,6 @@ public class Neo4jSchemaGenerator {
                 tx.run(query);
                 tx.success();
                 tx.close();
-
-                // Log the progress
-                System.out.println("Schema Progress : All relationships mapped.");
             }
             catch (ClientException e){
                 System.out.println("Schema Generator requires APOC 3.1+ to run properly. Please add the apoc jar to neo4jhome/plugins directory and restart the Neo4j database instance.\n");
@@ -119,9 +113,6 @@ public class Neo4jSchemaGenerator {
                 tx.run(query);
                 tx.success();
                 tx.close();
-
-                // Log the progress
-                System.out.println("Schema Progress : Constraints added for NodeType nodes.");
             }
         }
     }
@@ -140,9 +131,6 @@ public class Neo4jSchemaGenerator {
                 tx.run(query);
                 tx.success();
                 tx.close();
-
-                // Log the progress
-                System.out.println("Schema Progress : Constraints added for RelType nodes.");
             }
         }
     }
@@ -160,7 +148,6 @@ public class Neo4jSchemaGenerator {
                 StatementResult result = tx.run(query);
                 Record record = result.next();
                 int count = record.get("count").asInt();
-                System.out.println("There are " + count + " nodes in the Metagraph.");
                 tx.success();
                 tx.close();
                 if(count > 0){
@@ -314,9 +301,6 @@ public class Neo4jSchemaGenerator {
 
                 tx.success();
                 tx.close();
-
-                // Log the progress
-                System.out.println("Model successfully extracted from the database.");
             }
         }
         return new Model(nodes, relationships, startNodes, endNodes);

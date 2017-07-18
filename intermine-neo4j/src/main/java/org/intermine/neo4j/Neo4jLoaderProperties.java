@@ -100,8 +100,7 @@ public class Neo4jLoaderProperties {
     public QueryService getQueryService() {
         return new ServiceFactory(intermineServiceUrl).getQueryService();
     }
-
-
+    
     /**
      * Return an InterMine ListService
      */
