@@ -71,7 +71,10 @@ task nodeLoader(type: JavaExec) {
 }
 
 task completer(type: JavaExec) {
-  description = "Neo4j Completer: completes the references and collections. Usage: ./gradlew completer"
+  if(project.hasProperty('Args')){
+	args(Args.split(','))
+  }
+  description = "Neo4j Completer: completes the references and collections. Usage: ./gradlew completer -PArgs=Gene"
   classpath sourceSets.main.runtimeClasspath
   main = "org.intermine.neo4j.Neo4jCompleter"
 }
