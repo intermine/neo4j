@@ -1,0 +1,19 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'jetty'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.14'
+}
+
+httpPort = 8080
+stopPort = 9451
+stopKey = 'foo'

@@ -1,1 +1,0 @@
-<query name="" model="genomic" view="Gene.primaryIdentifier Gene.geneFamily.primaryIdentifier Gene.geneFamily.genes.primaryIdentifier" longDescription="" sortOrder="Gene.primaryIdentifier asc"><constraint path="Gene.primaryIdentifier" op="=" value="Phvul.008G137900"/></query>
