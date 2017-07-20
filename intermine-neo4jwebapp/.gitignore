@@ -1,11 +1,12 @@
+/.gradle/
+/build/
+/bin/
+
 # class files and dirs
 classes/
 class/
 *.class 
 out/
-
-# Emacs
-*~
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -19,9 +20,7 @@ hs_err_pid*
 /.classpath
 /.project
 .settings/
-webapps/ROOT/META-INF/
 
 # Intellij IDEA
 .idea/
 *.iml
-/build/
