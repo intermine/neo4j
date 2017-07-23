@@ -5,7 +5,7 @@ package org.intermine.neo4j.cypher;
  *
  * @author Yash Sharma
  */
-public class Query {
+public class CypherQuery {
 
     private String matchClause = "";
 

@@ -1,4 +1,7 @@
+import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.neo4j.cypher.QueryGenerator;
+import org.intermine.pathquery.PathQuery;
+import org.intermine.webservice.client.services.QueryService;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -17,7 +20,7 @@ import java.util.List;
  * @author Yash Sharma
  */
 public class TemplateParser {
-    public static void main(String args[]) throws JDOMException {
+    public static void main(String args[]) throws JDOMException, IOException {
     	InputStream inputStream = TemplateParser.class.getResourceAsStream("templates.xml");
 
         SAXBuilder saxBuilder = new SAXBuilder();
@@ -37,18 +40,23 @@ public class TemplateParser {
         String BASE_DIR_CYPHER = "src/main/resources/cypher/templates/";
 
         for (int temp = 0; temp < templates.size(); temp++) {
-            Element pathQuery = templates.get(temp).getChild("query");
-            String pathQueryName = pathQuery.getAttributeValue("name");
+            Element pathQueryElement = templates.get(temp).getChild("query");
+            String pathQueryName = pathQueryElement.getAttributeValue("name");
 
             XMLOutputter outp = new XMLOutputter();
-            String pathQueryXml = outp.outputString(pathQuery);
+            String pathQueryXml = outp.outputString(pathQueryElement);
 
             String pathQueryPathName = BASE_DIR_PATHQUERY + pathQueryName + ".xml";
             Util.writeFile(pathQueryPathName, pathQueryXml);
 
+            Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
+            QueryService service = properties.getQueryService();
+            PathQuery pathQuery = service.createPathQuery(pathQueryXml);
+
             String cypherQueryName = BASE_DIR_CYPHER + pathQueryName + ".cypher";
             try {
-                Util.writeFile(cypherQueryName, QueryGenerator.pathQueryToCypher(pathQueryXml));
+                String cypherQuery = QueryGenerator.pathQueryToCypher(pathQuery).toString();
+                Util.writeFile(cypherQueryName, cypherQuery);
                 System.out.println("Converted template PathQuery: " + pathQueryName);
             } catch (Exception e) {
                 System.out.println("Could not convert template PathQuery : " + pathQueryName);

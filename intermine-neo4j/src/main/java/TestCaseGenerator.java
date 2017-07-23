@@ -1,7 +1,11 @@
 import org.intermine.metadata.ModelParserException;
 
+import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.cypher.CypherQuery;
 import org.intermine.neo4j.cypher.QueryGenerator;
 import org.intermine.pathquery.PathException;
+import org.intermine.pathquery.PathQuery;
+import org.intermine.webservice.client.services.QueryService;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,17 +30,21 @@ public class TestCaseGenerator {
         for (final File fileEntry : fromfolder.listFiles()) {
             if (!fileEntry.isDirectory()) {
                 Scanner sc = new Scanner(fileEntry);
-                String pathquery = "";
+                String pathQueryString = "";
                 while(sc.hasNextLine()){
                     String str = sc.nextLine();
-                    pathquery += str;
+                    pathQueryString += str;
                 }
                 System.out.println("Converting " + fileEntry.getName());
 
-                String cypher = QueryGenerator.pathQueryToCypher(pathquery);
+                Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
+                QueryService queryService = properties.getQueryService();
+                PathQuery pathQuery = queryService.createPathQuery(pathQueryString);
+
+                CypherQuery cypherQuery = QueryGenerator.pathQueryToCypher(pathQuery);
                 String cypherName = toFolder.getPath() + "/" +
                         fileEntry.getName().replaceAll("\\.xml", ".cypher");
-                Util.writeFile(cypherName, cypher);
+                Util.writeFile(cypherName, cypherQuery.toString());
             }
         }
     }
