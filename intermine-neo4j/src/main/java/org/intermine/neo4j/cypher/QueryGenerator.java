@@ -30,14 +30,7 @@ public class QueryGenerator {
      * @return the cypher query
      * @throws IOException
      */
-    public static String pathQueryToCypher(String input) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
-
-        // Get the properties from the default file
-        Neo4jLoaderProperties props = new Neo4jLoaderProperties();
-
-        // Create a Path Query object using IM Service and the input string
-        QueryService service = props.getQueryService();
-        PathQuery pathQuery = service.createPathQuery(input);
+    public static CypherQuery pathQueryToCypher(PathQuery pathQuery) throws IOException, PathException, ModelParserException, SAXException, ParserConfigurationException {
 
         // We need to call getQueryToExecute() first. For template queries this gets a query that
         // excludes any optional constraints that have been switched off.  A normal PathQuery is
@@ -50,30 +43,30 @@ public class QueryGenerator {
         }
 
         PathTree pathTree = new PathTree(pathQuery);
-        Query query = new Query();
+        CypherQuery cypherQuery = new CypherQuery();
 
         // This creates the Match clause and also the Optional Match (if required)
-        createMatchClause(query, pathTree.getRoot());
+        createMatchClause(cypherQuery, pathTree.getRoot());
 
-        createWhereClause(query, pathTree, pathQuery);
-        createReturnClause(query, pathTree, pathQuery);
-        createOrderByClause(query, pathTree, pathQuery);
+        createWhereClause(cypherQuery, pathTree, pathQuery);
+        createReturnClause(cypherQuery, pathTree, pathQuery);
+        createOrderByClause(cypherQuery, pathTree, pathQuery);
 
-        return query.toString();
+        return cypherQuery;
     }
 
     /**
      * Creates Order By clause using a PathQuery and its PathTree representation
      *
-     * @param query     the Cypher Query object
+     * @param cypherQuery     the Cypher Query object
      * @param pathTree  the given PathTree
      * @param pathQuery the given PathQuery
      */
-    private static void createOrderByClause(Query query, PathTree pathTree, PathQuery pathQuery) {
+    private static void createOrderByClause(CypherQuery cypherQuery, PathTree pathTree, PathQuery pathQuery) {
         List<OrderElement> orderElements = pathQuery.getOrderBy();
         for (OrderElement orderElement : orderElements) {
             Order order = new Order(orderElement, pathTree);
-            query.addToOrderBy(order.toString());
+            cypherQuery.addToOrderBy(order.toString());
         }
     }
 
@@ -100,11 +93,11 @@ public class QueryGenerator {
     /**
      * Creates WHERE clause using a PathQuery and its PathTree representation
      *
-     * @param query     the Cypher Query object
+     * @param cypherQuery     the Cypher Query object
      * @param pathTree  the given PathTree
      * @param pathQuery the given PathQuery
      */
-    private static void createWhereClause(Query query, PathTree pathTree, PathQuery pathQuery) {
+    private static void createWhereClause(CypherQuery cypherQuery, PathTree pathTree, PathQuery pathQuery) {
         if (pathQuery.getConstraintCodes().isEmpty()) {
             return;
         }
@@ -116,16 +109,16 @@ public class QueryGenerator {
             whereClause = whereClause.replaceAll(modifiedConstraintCode(constraintCode),
             constraint.toString());
         }
-        query.setWhereClause(whereClause);
+        cypherQuery.setWhereClause(whereClause);
     }
 
     /**
      * Creates MATCH clause using a PathTree
      *
-     * @param query    the Cypher Query object
+     * @param cypherQuery    the Cypher Query object
      * @param treeNode the root node of the PathTree
      */
-    private static void createMatchClause(Query query, TreeNode treeNode) throws IOException, ModelParserException, SAXException, ParserConfigurationException {
+    private static void createMatchClause(CypherQuery cypherQuery, TreeNode treeNode) throws IOException, ModelParserException, SAXException, ParserConfigurationException {
         if (treeNode == null) {
             throw new IllegalArgumentException("Root node of PathTree cannot be null.");
         }
@@ -135,7 +128,7 @@ public class QueryGenerator {
         }
         else if (treeNode.getParent() == null) {
             // Root TreeNode is always a Graph Node
-            query.addToMatch("(" + treeNode.getVariableName() +
+            cypherQuery.addToMatch("(" + treeNode.getVariableName() +
                              " :" + treeNode.getGraphicalName() + ")");
         }
         else if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
@@ -160,10 +153,10 @@ public class QueryGenerator {
                             ")";
 
             if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
-                query.addToMatch(match);
+                cypherQuery.addToMatch(match);
             }
             else {
-                query.addToOptionalMatch(match);
+                cypherQuery.addToOptionalMatch(match);
             }
 
         }
@@ -172,24 +165,24 @@ public class QueryGenerator {
 
         // Add all children to Match clause
         for (String key : treeNode.getChildrenKeys()) {
-            createMatchClause(query, treeNode.getChild(key));
+            createMatchClause(cypherQuery, treeNode.getChild(key));
         }
     }
 
     /**
      * Creates RETURN clause using a PathTree
      *
-     * @param query     the Cypher Query object
+     * @param cypherQuery     the Cypher Query object
      * @param pathTree  the given PathTree
      * @param pathQuery the given PathQuery
      */
-    private static void createReturnClause(Query query, PathTree pathTree, PathQuery pathQuery) {
+    private static void createReturnClause(CypherQuery cypherQuery, PathTree pathTree, PathQuery pathQuery) {
         for (String path : pathQuery.getView()) {
             TreeNode treeNode = pathTree.getTreeNode(path);
             if (treeNode != null && treeNode.getTreeNodeType() == TreeNodeType.PROPERTY) {
                 // Return ONLY IF a property is queried !!
                 // Nodes & Relationships cannot be returned.
-                query.addToReturn(treeNode.getParent().getVariableName() + "." +
+                cypherQuery.addToReturn(treeNode.getParent().getVariableName() + "." +
                 treeNode.getGraphicalName());
             }
         }
