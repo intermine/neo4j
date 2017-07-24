@@ -34,12 +34,19 @@ public class Neo4jLoaderProperties {
     String extraValueLabel;
     String extraValuePropertyName;
     String intermineApiToken;
-
+    String sequencePgHost;
+    String sequencePgDatabase;
+    String sequencePgUser;
+    String sequencePgPassword;
+    String sequencePgTable;
+    
     int maxRows;
     int maxSequenceLength;
+    int sequencePgPort;
+
     boolean verbose;
     boolean debug;
-    
+
     /**
      * Default constructor, loads properties from DEFAULT_PROPERTIES_FILE
      */
@@ -71,18 +78,21 @@ public class Neo4jLoaderProperties {
         extraValueLabel = props.getProperty("extraValueLabel");
         extraValuePropertyName = props.getProperty("extraValuePropertyName");
         intermineApiToken = props.getProperty("intermine.api.token");
+        sequencePgHost = props.getProperty("sequence.pg.host");
+        sequencePgDatabase = props.getProperty("sequence.pg.database");
+        sequencePgUser = props.getProperty("sequence.pg.user");
+        sequencePgPassword = props.getProperty("sequence.pg.password");
+        sequencePgTable = props.getProperty("sequence.pg.table");
 
         // ints
-        String maxRowsString = props.getProperty("max.rows");
-        if (maxRowsString!=null) maxRows = Integer.parseInt(maxRowsString);
-        String maxSequenceLengthString = props.getProperty("max.sequence.length");
-        if (maxSequenceLengthString!=null) maxSequenceLength = Integer.parseInt(maxSequenceLengthString);
+        maxRows = getIntProperty(props, "max.rows");
+        maxSequenceLength = getIntProperty(props, "max.sequence.length");
+        sequencePgPort = getIntProperty(props, "sequence.pg.port");
+        if (sequencePgPort==0) sequencePgPort = 5432; // DEFAULT
 
         // booleans
-        String verboseString = props.getProperty("verbose");
-        if (verboseString!=null) verbose = Boolean.parseBoolean(verboseString);
-        String debugString = props.getProperty("debug");
-        if (debugString!=null) debug = Boolean.parseBoolean(debugString);
+        verbose = getBooleanProperty(props, "verbose");
+        debug = getBooleanProperty(props, "debug");
     }
 
     /**
@@ -148,4 +158,50 @@ public class Neo4jLoaderProperties {
     public String getIntermineServiceUrl() {
         return intermineServiceUrl;
     }
+
+    public String getSequencePgHost() {
+        return sequencePgHost;
+    }
+    public int getSequencePgPort() {
+        return sequencePgPort;
+    }
+    public String getSequencePgDatabase() {
+        return sequencePgDatabase;
+    }
+    public String getSequencePgUser() {
+        return sequencePgUser;
+    }
+    public String getSequencePgPassword() {
+        return sequencePgPassword;
+    }
+    public String getSequencePgTable() {
+        return sequencePgTable;
+    }
+
+    /**
+     * Extract an int property from the properties file; 0 if property not present.
+     */
+    int getIntProperty(Properties props, String propName) throws NumberFormatException {
+        String propString = props.getProperty(propName);
+        if (propString!=null) {
+            return Integer.parseInt(propString);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Extract a boolean property from the properties file; false if property not present.
+     */
+    boolean getBooleanProperty(Properties props, String propName) {
+        String propString = props.getProperty(propName);
+        if (propString!=null) {
+            return Boolean.parseBoolean(propString);
+        } else {
+            return false;
+        }
+    }
+
+
+    
 }
