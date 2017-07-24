@@ -10,7 +10,7 @@
 
 	  <context-param>
 	    <param-name>intermine.root.url</param-name>
-	    <param-value>https://mines.legumeinfo.org/beanmine</param-value>
+	    <param-value>http://intermine.modencode.org/preview</param-value>
 	    <description>the root URL for the mine of interest, e.g. https://mines.legumeinfo.org/beanmine</description>
 	  </context-param>
 
@@ -51,7 +51,7 @@
 	  </servlet>
 	  <servlet-mapping>
 	    <servlet-name>PathQueryTestServlet</servlet-name>
-	    <url-pattern>/service/query/test</url-pattern>
+	    <url-pattern>/query/test</url-pattern>
 	  </servlet-mapping>
 
   <servlet>
@@ -64,7 +64,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>PathQueryServlet</servlet-name>
-    <url-pattern>/service/query/results</url-pattern>
+    <url-pattern>/query/results</url-pattern>
   </servlet-mapping>
 
     <servlet>
