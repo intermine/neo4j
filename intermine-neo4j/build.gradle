@@ -109,3 +109,12 @@ task imModelXMLDumper(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = "org.intermine.neo4j.InterMineModelXMLDumper"
 }
+
+task modelParser(type: JavaExec) {
+    if(project.hasProperty('Args')){
+        args(Args.split(','))
+    }
+    description = "Neo4jModelParser: dumps out the model as converted for Neo4j use from a Neo4j-modified genetic model XML file or, optionally, the Neo4j relationship type for a given class.field. Usage: ./gradlew modelParser -PArgs=neo4j-genomic_model.xml[,Gene.homologue]"
+    classpath sourceSets.main.runtimeClasspath
+    main = "org.intermine.neo4j.Neo4jModelParser"
+}
