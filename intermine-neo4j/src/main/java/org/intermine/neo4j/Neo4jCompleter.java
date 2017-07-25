@@ -126,6 +126,8 @@ public class Neo4jCompleter {
                 if (nodeDescriptors.containsKey(nodeClass)) {
                     ClassDescriptor nodeDescriptor = nodeDescriptors.get(nodeClass);
 
+                    long nodeStart = System.currentTimeMillis();
+
                     // query this node (to be sure it exists) and continue
                     nodeQuery.clearView();
                     nodeQuery.clearConstraints();
@@ -170,33 +172,29 @@ public class Neo4jCompleter {
                             refQuery.addConstraint(new PathConstraintAttribute(nodeClass+".id", ConstraintOp.EQUALS, String.valueOf(id)));
                             Iterator<List<Object>> rs = service.getRowListIterator(refQuery);
                             while (rs.hasNext()) {
-                                try {
-                                    Object[] r = rs.next().toArray();
-                                    int idn = Integer.parseInt(r[0].toString());      // node id
-                                    if (r[1]!=null) {                                 // refs can be null!
-                                        int idr = Integer.parseInt(r[1].toString());  // ref id
-                                        // MERGE this reference node
-                                        try (Session session = driver.session()) {
-                                            String merge = "MERGE (n:"+refLabel+" {id:"+idr+"})";
-                                            try (Transaction tx = session.beginTransaction()) {
-                                                tx.run(merge);
-                                                tx.success();
-                                                tx.close();
-                                            }
+                                Object[] r = rs.next().toArray();
+                                int idn = Integer.parseInt(r[0].toString());      // node id
+                                if (r[1]!=null) {                                 // refs can be null!
+                                    int idr = Integer.parseInt(r[1].toString());  // ref id
+                                    // MERGE this reference node
+                                    try (Session session = driver.session()) {
+                                        String merge = "MERGE (n:"+refLabel+" {id:"+idr+"})";
+                                        try (Transaction tx = session.beginTransaction()) {
+                                            tx.run(merge);
+                                            tx.success();
+                                            tx.close();
                                         }
-                                        // MERGE this node-->reference relationship
-                                        try (Session session = driver.session()) {
-                                            String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+relType+"]->(r)";
-                                            try (Transaction tx = session.beginTransaction()) {
-                                                tx.run(match);
-                                                tx.success();
-                                                tx.close();
-                                            }
-                                        }
-                                        System.out.print("r");
                                     }
-                                } catch (Exception e) {
-                                    System.err.println(e);
+                                    // MERGE this node-->reference relationship
+                                    try (Session session = driver.session()) {
+                                        String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(r:"+refLabel+" {id:"+idr+"}) MERGE (n)-[:"+relType+"]->(r)";
+                                        try (Transaction tx = session.beginTransaction()) {
+                                            tx.run(match);
+                                            tx.success();
+                                            tx.close();
+                                        }
+                                    }
+                                    System.out.print("r");
                                 }
                             }
                         }
@@ -215,33 +213,29 @@ public class Neo4jCompleter {
                             Iterator<List<Object>> rs = service.getRowListIterator(collQuery);
                             int collCount = 0;
                             while (rs.hasNext()) {
-                                try {
-                                    collCount++;
-                                    Object[] r = rs.next().toArray();
-                                    int idn = Integer.parseInt(r[0].toString());      // node id
-                                    int idc = Integer.parseInt(r[1].toString());      // collection id
-                                    // MERGE this collections node
-                                    try (Session session = driver.session()) {
-                                        String merge = "MERGE (n:"+collLabel+" {id:"+idc+"})";
-                                        try (Transaction tx = session.beginTransaction()) {
-                                            tx.run(merge);
-                                            tx.success();
-                                            tx.close();
-                                        }
+                                collCount++;
+                                Object[] r = rs.next().toArray();
+                                int idn = Integer.parseInt(r[0].toString());      // node id
+                                int idc = Integer.parseInt(r[1].toString());      // collection id
+                                // MERGE this collections node
+                                try (Session session = driver.session()) {
+                                    String merge = "MERGE (n:"+collLabel+" {id:"+idc+"})";
+                                    try (Transaction tx = session.beginTransaction()) {
+                                        tx.run(merge);
+                                        tx.success();
+                                        tx.close();
                                     }
-                                    // MERGE this node-->collection relationship
-                                    try (Session session = driver.session()) {
-                                        String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collType+"]->(c)";
-                                        try (Transaction tx = session.beginTransaction()) {
-                                            tx.run(match);
-                                            tx.success();
-                                            tx.close();
-                                        }
-                                    }
-                                    System.out.print("c");
-                                } catch (Exception e) {
-                                    System.err.println(e);
                                 }
+                                // MERGE this node-->collection relationship
+                                try (Session session = driver.session()) {
+                                    String match = "MATCH (n:"+nodeLabel+" {id:"+idn+"}),(c:"+collLabel+" {id:"+idc+"}) MERGE (n)-[:"+collType+"]->(c)";
+                                    try (Transaction tx = session.beginTransaction()) {
+                                        tx.run(match);
+                                        tx.success();
+                                        tx.close();
+                                    }
+                                }
+                                System.out.print("c");
                             }
                         }
 
@@ -254,6 +248,10 @@ public class Neo4jCompleter {
                             }
                         }
 
+                        if (props.timing) {
+                            long nodeEnd = System.currentTimeMillis();
+                            System.out.print(":"+((nodeEnd-nodeStart)/1000.0)+" sec");
+                        }
                         System.out.println("");
 
                     }

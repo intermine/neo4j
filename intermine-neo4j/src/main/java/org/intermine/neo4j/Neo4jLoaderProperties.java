@@ -46,6 +46,7 @@ public class Neo4jLoaderProperties {
 
     boolean verbose;
     boolean debug;
+    boolean timing;
 
     /**
      * Default constructor, loads properties from DEFAULT_PROPERTIES_FILE
@@ -93,6 +94,7 @@ public class Neo4jLoaderProperties {
         // booleans
         verbose = getBooleanProperty(props, "verbose");
         debug = getBooleanProperty(props, "debug");
+        timing = getBooleanProperty(props, "timing");
     }
 
     /**
