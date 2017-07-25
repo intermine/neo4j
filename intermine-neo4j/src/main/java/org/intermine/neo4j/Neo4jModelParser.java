@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.TreeSet;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -77,60 +78,80 @@ public class Neo4jModelParser {
     public static void main(String[] args) throws FileNotFoundException, IOException, SAXException, ParserConfigurationException, ModelParserException {
 
         // validation
-        if (args.length!=1) {
-            System.out.println("Usage: Neo4jModelParser <XML file>");
+        if (args.length<1 || args.length>2) {
+            System.out.println("Usage: Neo4jModelParser <XML file> [Class.field]");
             System.exit(0);
         }
+        
         String dataModelFilename = args[0];
+        String classDotField = null;
+        if (args.length==2) classDotField = args[1];
 
         // process the XML file for Neo4j instructions
         Neo4jModelParser nmp = new Neo4jModelParser();
         nmp.process(new FileReader(dataModelFilename));
 
-        // output the model with Neo4j notations
-        for (ClassDescriptor classDescriptor : nmp.getModel().getClassDescriptors()) {
-            boolean isIgnored = nmp.isIgnored(classDescriptor);
-            boolean isRelationship = nmp.isRelationship(classDescriptor);
-            if (isRelationship) {
-                System.out.print("R ");
-            } else if (isIgnored) {
-                System.out.print("X ");
-            } else {
-                System.out.print("+ ");
-            }
-            System.out.print(classDescriptor.getSimpleName());
-            if (isRelationship) {
-                System.out.print(" --> "+nmp.getRelationshipType(classDescriptor));
-            }
-            System.out.println("");
-            // show attributes
-            Set<AttributeDescriptor> attrDescriptors = classDescriptor.getAttributeDescriptors();
-            for (AttributeDescriptor ad : attrDescriptors) {
-                if (nmp.isIgnored(ad)) System.out.print("X");
-                System.out.println("\ta "+ad.getName());
-            }
-            // show references
-            Set<ReferenceDescriptor> refDescriptors = classDescriptor.getReferenceDescriptors();
-            for (ReferenceDescriptor rd : refDescriptors) {
-                if (nmp.isIgnored(rd)) System.out.print("X");
-                System.out.print("\tr "+rd.getName());
-                if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()).equals(rd.getName())) {
-                    System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),rd.getName()));
+        if (classDotField==null) {
+            
+            // default: output the model with Neo4j notations; use TreeSet to sort by class name.
+            TreeSet<ClassDescriptor> cdSet = new TreeSet<ClassDescriptor>(nmp.getModel().getClassDescriptors());
+            for (ClassDescriptor classDescriptor : cdSet) {
+                boolean isIgnored = nmp.isIgnored(classDescriptor);
+                boolean isRelationship = nmp.isRelationship(classDescriptor);
+                if (isRelationship) {
+                    System.out.print("R ");
+                } else if (isIgnored) {
+                    System.out.print("X ");
                 } else {
-                    System.out.println("");
+                    System.out.print("+ ");
+                }
+                System.out.print(classDescriptor.getSimpleName());
+                if (isRelationship) {
+                    System.out.print(" --> "+nmp.getRelationshipType(classDescriptor));
+                }
+                System.out.println("");
+                // show attributes
+                Set<AttributeDescriptor> attrDescriptors = classDescriptor.getAttributeDescriptors();
+                for (AttributeDescriptor ad : attrDescriptors) {
+                    if (nmp.isIgnored(ad)) System.out.print("X");
+                    System.out.println("\ta "+ad.getName());
+                }
+                // show references
+                Set<ReferenceDescriptor> refDescriptors = classDescriptor.getReferenceDescriptors();
+                for (ReferenceDescriptor rd : refDescriptors) {
+                    if (nmp.isIgnored(rd)) System.out.print("X");
+                    System.out.print("\tr "+rd.getName());
+                    String relType = nmp.getRelationshipType(rd);
+                    if (relType.equals(rd.getName())) {
+                        System.out.print(" === ");
+                    } else {
+                        System.out.print(" --> ");
+                    }
+                    System.out.println(relType);
+                }
+                // show collections
+                Set<CollectionDescriptor> collDescriptors = classDescriptor.getCollectionDescriptors();
+                for (CollectionDescriptor cd : collDescriptors) {
+                    if (nmp.isIgnored(cd)) System.out.print("X");
+                    System.out.print("\tc "+cd.getName());
+                    String relType = nmp.getRelationshipType(cd);
+                    if (relType.equals(cd.getName())) {
+                        System.out.print(" === ");
+                    } else {
+                        System.out.print(" --> ");
+                    }
+                    System.out.println(relType);
                 }
             }
-            // show collections
-            Set<CollectionDescriptor> collDescriptors = classDescriptor.getCollectionDescriptors();
-            for (CollectionDescriptor cd : collDescriptors) {
-                if (nmp.isIgnored(cd)) System.out.print("X");
-                System.out.print("\tc "+cd.getName());
-                if (!nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()).equals(cd.getName())) {
-                    System.out.println(" --> "+nmp.getRelationshipType(classDescriptor.getSimpleName(),cd.getName()));
-                } else {
-                    System.out.println("");
-                }
-            }
+
+        } else {
+
+            // show the Neo4j relationship type for the given class.field
+            String[] parts = classDotField.split("\\.");
+            String className = parts[0];
+            String fieldName = parts[1];
+            System.out.println(classDotField+" --> "+nmp.getRelationshipType(className, fieldName));
+
         }
 
     }
@@ -156,28 +177,96 @@ public class Neo4jModelParser {
     }
 
     /**
-     * Return the relationship type for the given class, if it is to be a Neo4j relationship; null otherwise.
+     * Return the relationship type for the given class, if it is to be represented in Neo4j as a relationship; null otherwise.
+     *
      * @param cd the ClassDescriptor
-     * @return the relationship type, or null if the given class is not meant to be a Neo4j relationship
+     * @return the relationship type, or null if the given reference is not meant to be a Neo4j relationship
      */
     public String getRelationshipType(ClassDescriptor cd) {
-        if (relationshipTypes.containsKey(cd.getSimpleName())) return(relationshipTypes.get(cd.getSimpleName()));
-        // default
-        return null;
+        if (relationshipTypes.containsKey(cd.getSimpleName())) {
+            return(relationshipTypes.get(cd.getSimpleName()));
+        } else {
+            return null;
+        }
     }
 
     /**
-     * Return the relationship type for the given reference or collection, if it is to be renamed in the Neo4j graph; refName otherwise.
-     * @param className the name of the class
-     * @param refName the name of the reference or collection
-     * @return the relationship type, either the renamed value or refName if it is not designated to be renamed in Neo4j
+     * Return the relationship type for the given reference, if it is to be renamed in the Neo4j graph; the ref name otherwise.
+     *
+     * @param rd the ReferenceDescriptor
+     * @return the relationship type, or null if the given reference is not meant to be a Neo4j relationship
      */
-    public String getRelationshipType(String className, String refName) {
-        String key = className+"."+refName;
-        // found for this class
-        if (relationshipTypes.containsKey(key)) return(relationshipTypes.get(key));
-        // default
-        return refName;
+    public String getRelationshipType(ReferenceDescriptor rd) {
+        String key = rd.getClassDescriptor().getSimpleName()+"."+rd.getName();
+        if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+        // reverse reference renamed?
+        ReferenceDescriptor reverseDescriptor = rd.getReverseReferenceDescriptor();
+        if (reverseDescriptor!=null) {
+            // see if reverse reference has been renamed
+            key = reverseDescriptor.getClassDescriptor().getSimpleName()+"."+reverseDescriptor.getName();
+            if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+            // if ignored and reverse reference isn't ignored, then use reverse reference's field name
+            if (isIgnored(rd) && !isIgnored(reverseDescriptor)) return reverseDescriptor.getName();
+        }
+        // default, use this field name
+        return rd.getName();
+    }
+
+    /**
+     * Return the relationship type for the given collection, if it is to be renamed in the Neo4j graph; the coll name otherwise.
+     *
+     * @param rd the CollectionDescriptor
+     * @return the relationship type, or null if the given collection is not meant to be a Neo4j relationship
+     */
+    public String getRelationshipType(CollectionDescriptor cd) {
+        String key = cd.getClassDescriptor().getSimpleName()+"."+cd.getName();
+        if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+        // reverse reference renamed?
+        ReferenceDescriptor reverseDescriptor = cd.getReverseReferenceDescriptor();
+        if (reverseDescriptor!=null) {
+            key = reverseDescriptor.getClassDescriptor().getSimpleName()+"."+reverseDescriptor.getName();
+            if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+            // if ignored and reverse reference isn't ignored, then use reverse reference's field name
+            if (isIgnored(cd) && !isIgnored(reverseDescriptor)) return reverseDescriptor.getName();
+        }
+        // default, return this field name
+        return cd.getName();
+    }
+
+    /**
+     * Return the relationship type for the given class and reference or collection field names
+     *
+     * @param className the name of the class
+     * @param fieldName the name of the reference or collection field
+     */
+    public String getRelationshipType(String className, String fieldName) {
+        String key = className+"."+fieldName;
+        if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+        ClassDescriptor classDescriptor = model.getClassDescriptorByName(className);
+        // reverse reference to a reference renamed?
+        ReferenceDescriptor rd = classDescriptor.getReferenceDescriptorByName(fieldName);
+        if (rd!=null) {
+            ReferenceDescriptor reverseDescriptor = rd.getReverseReferenceDescriptor();
+            if (reverseDescriptor!=null) {
+                key = reverseDescriptor.getClassDescriptor().getSimpleName()+"."+reverseDescriptor.getName();
+                if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+                // if ignored and reverse reference isn't ignored, then use reverse reference's field name
+                if (isIgnored(rd) && !isIgnored(reverseDescriptor)) return reverseDescriptor.getName();
+            }
+        }
+        // reverse reference to a collection renamed?
+        CollectionDescriptor cd = classDescriptor.getCollectionDescriptorByName(fieldName);
+        if (cd!=null) {
+            ReferenceDescriptor reverseDescriptor = cd.getReverseReferenceDescriptor();
+            if (reverseDescriptor!=null) {
+                key = reverseDescriptor.getClassDescriptor().getSimpleName()+"."+reverseDescriptor.getName();
+                if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
+                // if ignored and reverse reference isn't ignored, then use reverse reference's field name
+                if (isIgnored(cd) && !isIgnored(reverseDescriptor)) return reverseDescriptor.getName();
+            }
+        }
+        // default, return this field name
+        return fieldName;
     }
 
     /**
