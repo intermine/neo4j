@@ -33,7 +33,6 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 
-import org.postgresql.jdbc.PgConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
 
@@ -78,7 +77,8 @@ public class Neo4jSequenceLoader {
         Connection conn = DriverManager.getConnection(dbUrl, props.getSequencePgUser(), props.getSequencePgPassword());
         Statement stmt = conn.createStatement();
         
-        LargeObjectManager lom = ((PgConnection) conn).getLargeObjectAPI();
+        conn.setAutoCommit(false);
+        LargeObjectManager lom = conn.unwrap(org.postgresql.jdbc.PgConnection.class).getLargeObjectAPI();
         
         System.out.println("Connected to "+dbUrl);
         System.out.println("Storing sequences in table "+props.getSequencePgTable());
@@ -162,24 +162,34 @@ public class Neo4jSequenceLoader {
                 Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
                 if (rows.hasNext()) {
                     Object[] row = rows.next().toArray();
-                    int pgid = Integer.parseInt(row[0].toString());
+                    int sid = Integer.parseInt(row[0].toString());
                     int length = Integer.parseInt(row[1].toString());
                     String md5checksum = row[2].toString();
                     String residues = row[3].toString();
-                    System.out.println(id+"\t"+length+"\t"+md5checksum+"\t"+residues.substring(0,5)+"...");
+                    System.out.print(id);
+                    System.out.print("\t"+length);
+                    System.out.print("\t"+md5checksum);
+                    if (residues.length()>5) System.out.print("\t"+residues.substring(0,5)+"...");
+                    System.out.println("");
 
-                    conn.setAutoCommit(false);
-                    long loid = lom.createLO();
-                    System.out.println("loid="+loid);
-                    LargeObject lo = lom.open(loid);
-                    System.out.println("lo.loid="+lo.getLongOID());
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(lo.getOutputStream()));
-                    writer.write(residues);
+                    // insert the large object
+                    long loid = lom.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
+                    LargeObject lo = lom.open(loid, LargeObjectManager.WRITE);
+                    lo.write(residues.getBytes());
                     lo.close();
-                    conn.commit();
-                    conn.setAutoCommit(true);
+                    
+                    // insert the row into the sequences table
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO "+props.getSequencePgTable()+" VALUES (?, ?, ?, ?)");
+                    ps.setInt(1, sid);
+                    ps.setInt(2, length);
+                    ps.setString(3, md5checksum);
+                    ps.setLong(4, loid);
+                    ps.executeUpdate();
+                    ps.close();
 
-                    System.exit(0);
+                    // commit the transaction since autocommit is off
+                    conn.commit();
+
                     
                     // String cypher = "MATCH (n:Sequence {id:"+id+"}) SET n.length="+length;
                     // if (!row[2].toString().equals("null")) {
@@ -200,14 +210,14 @@ public class Neo4jSequenceLoader {
                     // }
 
 
-                    // // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
-                    // try (Session session = driver.session()) {
-                    //     try (Transaction tx = session.beginTransaction()) {
-                    //         tx.run("MERGE (:InterMineID {id:"+id+"})");
-                    //         tx.success();
-                    //         tx.close();
-                    //     }
-                    // }
+                    // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
+                    try (Session session = driver.session()) {
+                        try (Transaction tx = session.beginTransaction()) {
+                            tx.run("MERGE (:InterMineID {id:"+id+"})");
+                            tx.success();
+                            tx.close();
+                        }
+                    }
                 }
 
             }
