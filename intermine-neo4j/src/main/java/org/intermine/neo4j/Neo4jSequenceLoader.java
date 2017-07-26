@@ -182,11 +182,15 @@ public class Neo4jSequenceLoader {
                     PreparedStatement ps = conn.prepareStatement("INSERT INTO "+props.getSequencePgTable()+" VALUES (?, ?, ?, ?)");
                     ps.setInt(1, sid);
                     ps.setInt(2, length);
-                    ps.setString(3, md5checksum);
+                    if (md5checksum.equals("null")) {
+                        ps.setNull(3, java.sql.Types.VARCHAR);
+                    } else {
+                        ps.setString(3, md5checksum);
+                    }
                     ps.setLong(4, loid);
                     ps.executeUpdate();
                     ps.close();
-
+                    
                     // commit the transaction since autocommit is off
                     conn.commit();
 
