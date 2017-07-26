@@ -21,8 +21,8 @@ import java.util.Scanner;
  */
 public class TestCaseGenerator {
     public static void main(String[] args) throws IOException, PathException, ModelParserException, ParserConfigurationException, SAXException {
-        final File fromFolder = new File("src/test/resources/pathquery");
-        final File toFolder = new File("src/test/resources/cypher");
+        final File fromFolder = new File("src/test/resources/pathquery/constraints");
+        final File toFolder = new File("src/test/resources/cypher/constraints");
         generateCypherForAllFiles(fromFolder, toFolder);
     }
 

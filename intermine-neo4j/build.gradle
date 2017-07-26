@@ -118,3 +118,12 @@ task modelParser(type: JavaExec) {
     classpath sourceSets.main.runtimeClasspath
     main = "org.intermine.neo4j.Neo4jModelParser"
 }
+
+task sequenceViewer(type: JavaExec) {
+    if(project.hasProperty('Args')){
+        args(Args.split(','))
+    }
+    description = "Neo4j Sequence Viewer: displays a sequence given an intermine ID. Usage: ./gradlew sequenceViewer -PArgs=12345678[,start,length]"
+    classpath sourceSets.main.runtimeClasspath
+    main = "org.intermine.neo4j.Neo4jSequence"
+}

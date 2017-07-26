@@ -60,7 +60,7 @@ import org.postgresql.largeobject.LargeObjectManager;
 public class Neo4jSequenceLoader {
 
     // force use of standard driver, be sure to execute with JAR file in classpath
-    static String sequencePgDriver = "org.postgresql.Driver";
+    final static String PG_DRIVER = "org.postgresql.Driver";
 
     /**
      * @param args command line arguments
@@ -73,7 +73,7 @@ public class Neo4jSequenceLoader {
 
         // PostgreSQL setup
         String dbUrl = "jdbc:postgresql://"+props.getSequencePgHost()+":"+props.getSequencePgPort()+"/"+props.getSequencePgDatabase();
-        Class.forName(sequencePgDriver);
+        Class.forName(PG_DRIVER);
         Connection conn = DriverManager.getConnection(dbUrl, props.getSequencePgUser(), props.getSequencePgPassword());
         Statement stmt = conn.createStatement();
         
@@ -85,10 +85,6 @@ public class Neo4jSequenceLoader {
 
         // Neo4j setup
         Driver driver = props.getGraphDatabaseDriver();
-
-        // load the class, attribute, reference and collection instructions for Neo4j
-        Neo4jModelParser nmp = new Neo4jModelParser();
-        nmp.process(props);
 
         // InterMine setup
         QueryService service = props.getQueryService();
@@ -136,22 +132,6 @@ public class Neo4jSequenceLoader {
         for (int id : sequenceNodes) {
             if (!nodesAlreadyStored.contains(id)) {
 
-                // // query this node to check its length
-                // nodeQuery.clearView();
-                // nodeQuery.clearConstraints();
-                // nodeQuery.addView("Sequence.id");
-                // nodeQuery.addView("Sequence.length");
-                // nodeQuery.addConstraint(new PathConstraintAttribute("Sequence.id", ConstraintOp.EQUALS, String.valueOf(id)));
-                // Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
-                // boolean loadResidues = false;
-                // if (rows.hasNext()) {
-                //     Object[] row = rows.next().toArray();
-                //     if (row[1].toString()!=null) {
-                //         int length = Integer.parseInt(row[1].toString());
-                //         loadResidues = (length<props.getMaxSequenceLength());
-                //     }
-                // }
-                
                 nodeQuery.clearView();
                 nodeQuery.clearConstraints();
                 nodeQuery.addView("Sequence.id");
@@ -193,26 +173,6 @@ public class Neo4jSequenceLoader {
                     
                     // commit the transaction since autocommit is off
                     conn.commit();
-
-                    
-                    // String cypher = "MATCH (n:Sequence {id:"+id+"}) SET n.length="+length;
-                    // if (!row[2].toString().equals("null")) {
-                    //     int md5checksum = Integer.parseInt(row[2].toString());
-                    //     cypher += ",n.md5checksum="+md5checksum;
-                    // }
-                    // if (loadResidues && !row[3].toString().equals("null")) {
-                    //     String residues = row[3].toString();
-                    //     cypher += ",n.residues='"+residues+"'";
-                    // }
-                    // try (Session session = driver.session()) {
-                    //     try (Transaction tx = session.beginTransaction()) {
-                    //         tx.run(cypher);
-                    //         tx.success();
-                    //         tx.close();
-                    //         System.out.println("Sequence:"+id+" length="+length);
-                    //     }
-                    // }
-
 
                     // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
                     try (Session session = driver.session()) {
