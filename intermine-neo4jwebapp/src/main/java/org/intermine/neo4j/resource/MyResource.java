@@ -12,7 +12,7 @@ import javax.ws.rs.core.MediaType;
  */
 @Path("myresource")
 @Produces(MediaType.TEXT_PLAIN)
-@Api( value = "/myresource", description = "My resource" )
+@Api( value = "/myresource", description = "A Test Resource" )
 public class MyResource {
 
     /**
