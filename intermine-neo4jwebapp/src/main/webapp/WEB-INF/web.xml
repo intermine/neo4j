@@ -2,82 +2,100 @@
 <!-- This web.xml file is not required when using Servlet 3.0 container,
      see implementation details http://jersey.java.net/nonav/documentation/latest/jax-rs.html -->
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
-    
-      <display-name>InterMine-Neo4j PathQuery Endpoint Development</display-name>
-	  <description>
-	    This is a middleware app to query Neo4j and/or InterMine from a posted PathQuery.
-	  </description>
 
-	  <context-param>
-	    <param-name>intermine.root.url</param-name>
-	    <param-value>http://intermine.modencode.org/preview</param-value>
-	    <description>the root URL for the mine of interest, e.g. https://mines.legumeinfo.org/beanmine</description>
-	  </context-param>
-
-	  <context-param>
-	    <param-name>neo4j.bolt.url</param-name>
-	    <param-value>bolt://intermine.ncgr.org:7687</param-value>
-	    <description>the Neo4j Bolt URL, e.g. bolt://localhost:7687</description>
-	  </context-param>
-	  <context-param>
-	    <param-name>neo4j.bolt.user</param-name>
-	    <param-value>neo4juser</param-value>
-	    <description>the Neo4j username</description>
-	  </context-param>
-	  <context-param>
-	    <param-name>neo4j.bolt.password</param-name>
-	    <param-value>readonly</param-value>
-	    <description>the Neo4j password</description>
-	  </context-param>
-
-	  <context-param>
-	    <param-name>intermine.edge.classes</param-name>
-	    <param-value>Homologue,LinkageGroupPosition,LinkageGroupRange,Location,OntologyAnnotation,GOAnnotation</param-value>
-	    <description>comma-separated list of IM classes that are edges (relationships) in the Neo4j database</description>
-	  </context-param>
-	  <context-param>
-	    <param-name>neo4j.edge.types</param-name>
-	    <param-value>homologue,linkageGroupPosition,linkageGroupRange,location,annotation,annotation</param-value>
-	    <description>the corresponding list of Neo4j relationship types IN THE SAME ORDER</description>
-	  </context-param>
-		
-	  <servlet>
-	    <servlet-name>PathQueryTestServlet</servlet-name>
-	    <description>
-	      This servlet tests HTTP, PathQuery and Neo4j responses to a PathQuery request.
-	    </description>
-	    <servlet-class>org.intermine.neo4j.servlet.PathQueryTestServlet</servlet-class>
-	    <load-on-startup>5</load-on-startup>
-	  </servlet>
-	  <servlet-mapping>
-	    <servlet-name>PathQueryTestServlet</servlet-name>
-	    <url-pattern>/query/test</url-pattern>
-	  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>PathQueryServlet</servlet-name>
+    <display-name>InterMine-Neo4j PathQuery Endpoint Development</display-name>
     <description>
-      This servlet returns a Neo4j response to a PathQuery request.
+        This is a middleware app to query Neo4j and/or InterMine from a posted PathQuery.
     </description>
-    <servlet-class>org.intermine.neo4j.servlet.PathQueryServlet</servlet-class>
-    <load-on-startup>5</load-on-startup>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>PathQueryServlet</servlet-name>
-    <url-pattern>/query/results</url-pattern>
-  </servlet-mapping>
+
+    <context-param>
+        <param-name>intermine.root.url</param-name>
+        <param-value>http://intermine.modencode.org/preview</param-value>
+        <description>the root URL for the mine of interest, e.g. https://mines.legumeinfo.org/beanmine</description>
+    </context-param>
+
+    <context-param>
+        <param-name>neo4j.bolt.url</param-name>
+        <param-value>bolt://intermine.ncgr.org:7687</param-value>
+        <description>the Neo4j Bolt URL, e.g. bolt://localhost:7687</description>
+    </context-param>
+    <context-param>
+        <param-name>neo4j.bolt.user</param-name>
+        <param-value>neo4juser</param-value>
+        <description>the Neo4j username</description>
+    </context-param>
+    <context-param>
+        <param-name>neo4j.bolt.password</param-name>
+        <param-value>readonly</param-value>
+        <description>the Neo4j password</description>
+    </context-param>
+
+    <context-param>
+        <param-name>intermine.edge.classes</param-name>
+        <param-value>Homologue,LinkageGroupPosition,LinkageGroupRange,Location,OntologyAnnotation,GOAnnotation</param-value>
+        <description>comma-separated list of IM classes that are edges (relationships) in the Neo4j database</description>
+    </context-param>
+    <context-param>
+        <param-name>neo4j.edge.types</param-name>
+        <param-value>homologue,linkageGroupPosition,linkageGroupRange,location,annotation,annotation</param-value>
+        <description>the corresponding list of Neo4j relationship types IN THE SAME ORDER</description>
+    </context-param>
+
+    <servlet>
+        <servlet-name>PathQueryTestServlet</servlet-name>
+        <description>
+            This servlet tests HTTP, PathQuery and Neo4j responses to a PathQuery request.
+        </description>
+        <servlet-class>org.intermine.neo4j.servlet.PathQueryTestServlet</servlet-class>
+        <load-on-startup>5</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PathQueryTestServlet</servlet-name>
+        <url-pattern>/servlet/query/test</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>PathQueryServlet</servlet-name>
+        <description>
+            This servlet returns a Neo4j response to a PathQuery request.
+        </description>
+        <servlet-class>org.intermine.neo4j.servlet.PathQueryServlet</servlet-class>
+        <load-on-startup>5</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PathQueryServlet</servlet-name>
+        <url-pattern>/servlet/query/results</url-pattern>
+    </servlet-mapping>
+
 
     <servlet>
         <servlet-name>Jersey Web Application</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>api</param-value>
+            <param-value>
+                io.swagger.jaxrs.listing,
+                org.intermine.neo4j
+            </param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>Jersey Web Application</servlet-name>
-        <url-pattern>/webapi/*</url-pattern>
+        <url-pattern>/service/*</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Jersey2Config</servlet-name>
+        <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
+        <init-param>
+            <param-name>api.version</param-name>
+            <param-value>1.0.0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>swagger.api.basepath</param-name>
+            <param-value>http://localhost:8080/intermine-neo4jwebapp/service</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
 </web-app>
