@@ -1,5 +1,5 @@
 MATCH (gene :Gene),
-(gene)-[:homologues]-(gene_homologues :Homologue),
+(gene)-[:PARTNER_OF]-(gene_homologues :Homologue),
 (gene_homologues)-[:PARTNER_OF]-(gene_homologues_homologue :Gene),
 (gene_homologues_homologue)-[:PART_OF]-(gene_homologues_homologue_organism :Organism),
 (gene)-[:PARTICIPATES_IN]-(gene_pathways :Pathway)
