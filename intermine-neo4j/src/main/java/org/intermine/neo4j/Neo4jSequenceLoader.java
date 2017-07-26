@@ -1,6 +1,8 @@
 package org.intermine.neo4j;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +32,9 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
+
+import org.postgresql.largeobject.LargeObject;
+import org.postgresql.largeobject.LargeObjectManager;
 
 /**
  * Load Sequence residues as large objects in the PostgreSQL data store specified in neo4jloader.properties:
@@ -71,6 +76,12 @@ public class Neo4jSequenceLoader {
         Class.forName(sequencePgDriver);
         Connection conn = DriverManager.getConnection(dbUrl, props.getSequencePgUser(), props.getSequencePgPassword());
         Statement stmt = conn.createStatement();
+        
+        conn.setAutoCommit(false);
+        LargeObjectManager lom = conn.unwrap(org.postgresql.jdbc.PgConnection.class).getLargeObjectAPI();
+        
+        System.out.println("Connected to "+dbUrl);
+        System.out.println("Storing sequences in table "+props.getSequencePgTable());
 
         // Neo4j setup
         Driver driver = props.getGraphDatabaseDriver();
@@ -124,6 +135,7 @@ public class Neo4jSequenceLoader {
         System.out.println("id\t\tlength\tmd5checksum");
         for (int id : sequenceNodes) {
             if (!nodesAlreadyStored.contains(id)) {
+
                 // // query this node to check its length
                 // nodeQuery.clearView();
                 // nodeQuery.clearConstraints();
@@ -139,6 +151,7 @@ public class Neo4jSequenceLoader {
                 //         loadResidues = (length<props.getMaxSequenceLength());
                 //     }
                 // }
+                
                 nodeQuery.clearView();
                 nodeQuery.clearConstraints();
                 nodeQuery.addView("Sequence.id");
@@ -149,11 +162,38 @@ public class Neo4jSequenceLoader {
                 Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
                 if (rows.hasNext()) {
                     Object[] row = rows.next().toArray();
-                    int pgid = Integer.parseInt(row[0].toString());
+                    int sid = Integer.parseInt(row[0].toString());
                     int length = Integer.parseInt(row[1].toString());
                     String md5checksum = row[2].toString();
                     String residues = row[3].toString();
-                    System.out.println(id+"\t"+length+"\t"+md5checksum+"\t"+residues.substring(0,5)+"...");
+                    System.out.print(id);
+                    System.out.print("\t"+length);
+                    System.out.print("\t"+md5checksum);
+                    if (residues.length()>5) System.out.print("\t"+residues.substring(0,5)+"...");
+                    System.out.println("");
+
+                    // insert the large object
+                    long loid = lom.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
+                    LargeObject lo = lom.open(loid, LargeObjectManager.WRITE);
+                    lo.write(residues.getBytes());
+                    lo.close();
+                    
+                    // insert the row into the sequences table
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO "+props.getSequencePgTable()+" VALUES (?, ?, ?, ?)");
+                    ps.setInt(1, sid);
+                    ps.setInt(2, length);
+                    if (md5checksum.equals("null")) {
+                        ps.setNull(3, java.sql.Types.VARCHAR);
+                    } else {
+                        ps.setString(3, md5checksum);
+                    }
+                    ps.setLong(4, loid);
+                    ps.executeUpdate();
+                    ps.close();
+                    
+                    // commit the transaction since autocommit is off
+                    conn.commit();
+
                     
                     // String cypher = "MATCH (n:Sequence {id:"+id+"}) SET n.length="+length;
                     // if (!row[2].toString().equals("null")) {
@@ -172,14 +212,16 @@ public class Neo4jSequenceLoader {
                     //         System.out.println("Sequence:"+id+" length="+length);
                     //     }
                     // }
-                    // // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
-                    // try (Session session = driver.session()) {
-                    //     try (Transaction tx = session.beginTransaction()) {
-                    //         tx.run("MERGE (:InterMineID {id:"+id+"})");
-                    //         tx.success();
-                    //         tx.close();
-                    //     }
-                    // }
+
+
+                    // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
+                    try (Session session = driver.session()) {
+                        try (Transaction tx = session.beginTransaction()) {
+                            tx.run("MERGE (:InterMineID {id:"+id+"})");
+                            tx.success();
+                            tx.close();
+                        }
+                    }
                 }
 
             }
