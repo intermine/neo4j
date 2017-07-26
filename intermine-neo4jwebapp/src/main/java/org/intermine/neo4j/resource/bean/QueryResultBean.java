@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiParam;
 import org.intermine.neo4j.model.ColumnHeadersType;
 import org.intermine.neo4j.model.FormatType;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 /**
@@ -14,17 +13,17 @@ import javax.ws.rs.QueryParam;
  */
 public class QueryResultBean {
 
-    private @ApiParam(value = "A definition of the query to execute in Path-Query XML format", required = true)
+    private @ApiParam(value = "A definition of the query to execute in Path-Query XML format", required = false)
         @QueryParam("query") String pathQuery;
 
     private @ApiParam(value = "The version of the XML format used", required = false)
-        @DefaultValue("-1") @QueryParam("version") int version;
+        @QueryParam("version") int version;
 
     private @ApiParam(value = "The index of the first result to return.", required = false)
-        @DefaultValue("-1") @QueryParam("start") int start;
+        @QueryParam("start") int start;
 
     private @ApiParam(value = "The maximum size of the result set.", required = false)
-        @DefaultValue("-1") @QueryParam("size") int size;
+        @QueryParam("size") int size;
 
     private @ApiParam(value = "Include column headers. Use friendly for human readable paths. (Only for flat-file formats)", required = false)
         @QueryParam("columnheaders") ColumnHeadersType columnHeadersType;

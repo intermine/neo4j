@@ -2,20 +2,18 @@ package org.intermine.neo4j.resource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.Authorization;
-import org.intermine.neo4j.model.ColumnHeadersType;
-import org.intermine.neo4j.model.FormatType;
+import org.intermine.metadata.ModelParserException;
+import org.intermine.neo4j.model.QueryResult;
 import org.intermine.neo4j.resource.bean.QueryResultBean;
-
-import java.net.URI;
-import java.util.List;
+import org.intermine.neo4j.service.Neo4jQueryService;
+import org.intermine.pathquery.PathException;
+import org.xml.sax.SAXException;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 
 /**
  * @author Yash Sharma
@@ -25,38 +23,39 @@ import javax.ws.rs.core.UriInfo;
 @Api(value = "Query")
 public class QueryResource {
 
+    Neo4jQueryService neo4jQueryService = new Neo4jQueryService();
+
     @GET
     @Path("results")
     @ApiOperation(value = "Returns results of a Path Query")
-    public String getResults(@BeanParam QueryResultBean queryResultBean) {
-        String response = "";
-        String pathQuery = queryResultBean.getPathQuery();
-        int version = queryResultBean.getVersion();
-        int start = queryResultBean.getStart();
-        int size = queryResultBean.getSize();
-        ColumnHeadersType columnHeadersType = queryResultBean.getColumnHeadersType();
-        FormatType formatType = queryResultBean.getFormatType();
-
+    public Response getResults(@BeanParam QueryResultBean bean) throws IOException, PathException, ModelParserException, ParserConfigurationException, SAXException {
+        String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
-            response = "Please enter a valid path query";
-            return response;
+            return Response.status(Response.Status.NO_CONTENT)
+                    .entity("Invalid PathQuery")
+                    .build();
         }
-        response += pathQuery + "\n";
-        if (version != -1) {
-            response += String.valueOf(version) + "\n";
+        QueryResult queryResult;
+        try {
+            queryResult = neo4jQueryService.getQueryResult(bean);
         }
-        if (start != -1) {
-            response += String.valueOf(start) + "\n";
+        catch (IOException e) {
+            queryResult = new QueryResult("IOException");
         }
-        if (size != -1) {
-            response += String.valueOf(size) + "\n";
+        catch (PathException e) {
+            queryResult = new QueryResult("PathException");
         }
-        if (columnHeadersType != null) {
-            response += columnHeadersType.name() + "\n";
+        catch (ModelParserException e) {
+            queryResult = new QueryResult("ModelParserException");
         }
-        if (formatType != null) {
-            response += formatType.name() + "\n";
+        catch (ParserConfigurationException e) {
+            queryResult = new QueryResult("ParserConfigurationException");
         }
-        return response;
+        catch (SAXException e) {
+            queryResult = new QueryResult("SAXException");
+        }
+        return Response.status(Response.Status.ACCEPTED)
+                .entity(queryResult)
+                .build();
     }
 }

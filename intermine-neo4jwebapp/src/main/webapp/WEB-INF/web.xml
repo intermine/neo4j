@@ -67,7 +67,6 @@
         <url-pattern>/servlet/query/results</url-pattern>
     </servlet-mapping>
 
-
     <servlet>
         <servlet-name>Jersey Web Application</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
@@ -90,7 +89,7 @@
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
         <init-param>
             <param-name>api.version</param-name>
-            <param-value>1.0.0</param-value>
+            <param-value>0.0.1</param-value>
         </init-param>
         <init-param>
             <param-name>swagger.api.basepath</param-name>
@@ -98,4 +97,5 @@
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
+
 </web-app>

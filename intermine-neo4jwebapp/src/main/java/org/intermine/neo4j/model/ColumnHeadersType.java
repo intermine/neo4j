@@ -5,6 +5,7 @@ package org.intermine.neo4j.model;
  */
 public enum ColumnHeadersType {
     NONE, PATH, FRIENDLY;
+
     public ColumnHeadersType fromString(String param) {
         String toUpper = param.toUpperCase();
         try {
