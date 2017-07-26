@@ -1,6 +1,8 @@
 package org.intermine.neo4j;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,6 +33,9 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 
+import org.postgresql.largeobject.LargeObject;
+import org.postgresql.largeobject.LargeObjectManager;
+
 /**
  * Load Sequence residues as large objects in the PostgreSQL data store specified in neo4jloader.properties:
  *
@@ -55,7 +60,7 @@ import org.neo4j.driver.v1.Transaction;
 public class Neo4jSequenceLoader {
 
     // force use of standard driver, be sure to execute with JAR file in classpath
-    static String sequencePgDriver = "org.postgresql.Driver";
+    final static String PG_DRIVER = "org.postgresql.Driver";
 
     /**
      * @param args command line arguments
@@ -68,16 +73,18 @@ public class Neo4jSequenceLoader {
 
         // PostgreSQL setup
         String dbUrl = "jdbc:postgresql://"+props.getSequencePgHost()+":"+props.getSequencePgPort()+"/"+props.getSequencePgDatabase();
-        Class.forName(sequencePgDriver);
+        Class.forName(PG_DRIVER);
         Connection conn = DriverManager.getConnection(dbUrl, props.getSequencePgUser(), props.getSequencePgPassword());
         Statement stmt = conn.createStatement();
+        
+        conn.setAutoCommit(false);
+        LargeObjectManager lom = conn.unwrap(org.postgresql.jdbc.PgConnection.class).getLargeObjectAPI();
+        
+        System.out.println("Connected to "+dbUrl);
+        System.out.println("Storing sequences in table "+props.getSequencePgTable());
 
         // Neo4j setup
         Driver driver = props.getGraphDatabaseDriver();
-
-        // load the class, attribute, reference and collection instructions for Neo4j
-        Neo4jModelParser nmp = new Neo4jModelParser();
-        nmp.process(props);
 
         // InterMine setup
         QueryService service = props.getQueryService();
@@ -124,21 +131,7 @@ public class Neo4jSequenceLoader {
         System.out.println("id\t\tlength\tmd5checksum");
         for (int id : sequenceNodes) {
             if (!nodesAlreadyStored.contains(id)) {
-                // // query this node to check its length
-                // nodeQuery.clearView();
-                // nodeQuery.clearConstraints();
-                // nodeQuery.addView("Sequence.id");
-                // nodeQuery.addView("Sequence.length");
-                // nodeQuery.addConstraint(new PathConstraintAttribute("Sequence.id", ConstraintOp.EQUALS, String.valueOf(id)));
-                // Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
-                // boolean loadResidues = false;
-                // if (rows.hasNext()) {
-                //     Object[] row = rows.next().toArray();
-                //     if (row[1].toString()!=null) {
-                //         int length = Integer.parseInt(row[1].toString());
-                //         loadResidues = (length<props.getMaxSequenceLength());
-                //     }
-                // }
+
                 nodeQuery.clearView();
                 nodeQuery.clearConstraints();
                 nodeQuery.addView("Sequence.id");
@@ -149,37 +142,46 @@ public class Neo4jSequenceLoader {
                 Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
                 if (rows.hasNext()) {
                     Object[] row = rows.next().toArray();
-                    int pgid = Integer.parseInt(row[0].toString());
+                    int sid = Integer.parseInt(row[0].toString());
                     int length = Integer.parseInt(row[1].toString());
                     String md5checksum = row[2].toString();
                     String residues = row[3].toString();
-                    System.out.println(id+"\t"+length+"\t"+md5checksum+"\t"+residues.substring(0,5)+"...");
+                    System.out.print(id);
+                    System.out.print("\t"+length);
+                    System.out.print("\t"+md5checksum);
+                    if (residues.length()>5) System.out.print("\t"+residues.substring(0,5)+"...");
+                    System.out.println("");
+
+                    // insert the large object
+                    long loid = lom.createLO(LargeObjectManager.READ | LargeObjectManager.WRITE);
+                    LargeObject lo = lom.open(loid, LargeObjectManager.WRITE);
+                    lo.write(residues.getBytes());
+                    lo.close();
                     
-                    // String cypher = "MATCH (n:Sequence {id:"+id+"}) SET n.length="+length;
-                    // if (!row[2].toString().equals("null")) {
-                    //     int md5checksum = Integer.parseInt(row[2].toString());
-                    //     cypher += ",n.md5checksum="+md5checksum;
-                    // }
-                    // if (loadResidues && !row[3].toString().equals("null")) {
-                    //     String residues = row[3].toString();
-                    //     cypher += ",n.residues='"+residues+"'";
-                    // }
-                    // try (Session session = driver.session()) {
-                    //     try (Transaction tx = session.beginTransaction()) {
-                    //         tx.run(cypher);
-                    //         tx.success();
-                    //         tx.close();
-                    //         System.out.println("Sequence:"+id+" length="+length);
-                    //     }
-                    // }
-                    // // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
-                    // try (Session session = driver.session()) {
-                    //     try (Transaction tx = session.beginTransaction()) {
-                    //         tx.run("MERGE (:InterMineID {id:"+id+"})");
-                    //         tx.success();
-                    //         tx.close();
-                    //     }
-                    // }
+                    // insert the row into the sequences table
+                    PreparedStatement ps = conn.prepareStatement("INSERT INTO "+props.getSequencePgTable()+" VALUES (?, ?, ?, ?)");
+                    ps.setInt(1, sid);
+                    ps.setInt(2, length);
+                    if (md5checksum.equals("null")) {
+                        ps.setNull(3, java.sql.Types.VARCHAR);
+                    } else {
+                        ps.setString(3, md5checksum);
+                    }
+                    ps.setLong(4, loid);
+                    ps.executeUpdate();
+                    ps.close();
+                    
+                    // commit the transaction since autocommit is off
+                    conn.commit();
+
+                    // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
+                    try (Session session = driver.session()) {
+                        try (Transaction tx = session.beginTransaction()) {
+                            tx.run("MERGE (:InterMineID {id:"+id+"})");
+                            tx.success();
+                            tx.close();
+                        }
+                    }
                 }
 
             }
