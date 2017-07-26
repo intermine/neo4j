@@ -24,7 +24,7 @@
 	            For your convenience, here's a place where you can paste PathQuery XML and test this out, or submit one of the sample queries provided below.
 	        </p>
 
-	        <form class="form-inline" action="service/query/test" method="POST">
+	        <form class="form-inline" action="servlet/query/test" method="POST">
 	            <input type="hidden" name="format" value="tab"/>
 				<div class="form-group">
 					<textarea id="target" name="query"></textarea>

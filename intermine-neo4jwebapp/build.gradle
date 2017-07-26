@@ -17,6 +17,9 @@ dependencies {
     compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0'
     compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.14'
 
+    // Swagger
+    compile group: 'io.swagger', name: 'swagger-jersey2-jaxrs', version:'1.5.0'
+
     // Not found at Maven
     compile files('lib/intermine-api.jar')
     compile files('lib/intermine-model.jar')
