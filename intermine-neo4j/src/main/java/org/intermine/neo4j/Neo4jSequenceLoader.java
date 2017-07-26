@@ -1,6 +1,8 @@
 package org.intermine.neo4j;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +32,10 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
+
+import org.postgresql.jdbc.PgConnection;
+import org.postgresql.largeobject.LargeObject;
+import org.postgresql.largeobject.LargeObjectManager;
 
 /**
  * Load Sequence residues as large objects in the PostgreSQL data store specified in neo4jloader.properties:
@@ -71,6 +77,11 @@ public class Neo4jSequenceLoader {
         Class.forName(sequencePgDriver);
         Connection conn = DriverManager.getConnection(dbUrl, props.getSequencePgUser(), props.getSequencePgPassword());
         Statement stmt = conn.createStatement();
+        
+        LargeObjectManager lom = ((PgConnection) conn).getLargeObjectAPI();
+        
+        System.out.println("Connected to "+dbUrl);
+        System.out.println("Storing sequences in table "+props.getSequencePgTable());
 
         // Neo4j setup
         Driver driver = props.getGraphDatabaseDriver();
@@ -124,6 +135,7 @@ public class Neo4jSequenceLoader {
         System.out.println("id\t\tlength\tmd5checksum");
         for (int id : sequenceNodes) {
             if (!nodesAlreadyStored.contains(id)) {
+
                 // // query this node to check its length
                 // nodeQuery.clearView();
                 // nodeQuery.clearConstraints();
@@ -139,6 +151,7 @@ public class Neo4jSequenceLoader {
                 //         loadResidues = (length<props.getMaxSequenceLength());
                 //     }
                 // }
+                
                 nodeQuery.clearView();
                 nodeQuery.clearConstraints();
                 nodeQuery.addView("Sequence.id");
@@ -154,6 +167,19 @@ public class Neo4jSequenceLoader {
                     String md5checksum = row[2].toString();
                     String residues = row[3].toString();
                     System.out.println(id+"\t"+length+"\t"+md5checksum+"\t"+residues.substring(0,5)+"...");
+
+                    conn.setAutoCommit(false);
+                    long loid = lom.createLO();
+                    System.out.println("loid="+loid);
+                    LargeObject lo = lom.open(loid);
+                    System.out.println("lo.loid="+lo.getLongOID());
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(lo.getOutputStream()));
+                    writer.write(residues);
+                    lo.close();
+                    conn.commit();
+                    conn.setAutoCommit(true);
+
+                    System.exit(0);
                     
                     // String cypher = "MATCH (n:Sequence {id:"+id+"}) SET n.length="+length;
                     // if (!row[2].toString().equals("null")) {
@@ -172,6 +198,8 @@ public class Neo4jSequenceLoader {
                     //         System.out.println("Sequence:"+id+" length="+length);
                     //     }
                     // }
+
+
                     // // MERGE this node's InterMine ID into the InterMine ID nodes for record-keeping that it's stored
                     // try (Session session = driver.session()) {
                     //     try (Transaction tx = session.beginTransaction()) {

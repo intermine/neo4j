@@ -153,9 +153,10 @@ public class Neo4jLoader {
                 nodeCount++;
                 if (props.debug) {
                     System.out.println(nodeClass+":"+id);
-                } else if (props.verbose) {
+                } else if (props.verbose || props.timing) {
                     System.out.print(nodeClass+":"+id+":");
                 }
+                long nodeStart = System.currentTimeMillis();
 
                 // MERGE this node by its id
                 String nodeLabel = getFullNodeLabel(nodeDescriptor);
@@ -294,6 +295,10 @@ public class Neo4jLoader {
                     }
                 }
 
+                if (props.timing) {
+                    long nodeEnd = System.currentTimeMillis();
+                    System.out.print(":"+((nodeEnd-nodeStart)/1000.0)+" sec");
+                }
                 if (props.verbose) System.out.println("");
 
             }
