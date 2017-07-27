@@ -4,10 +4,12 @@ import org.intermine.neo4j.model.ErrorMessage;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
 /**
  * @author Yash Sharma
  */
+@Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
