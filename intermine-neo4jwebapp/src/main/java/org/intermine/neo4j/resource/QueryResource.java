@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author Yash Sharma
  */
 @Path("query")
-@Produces(MediaType.TEXT_PLAIN)
+@Produces(MediaType.APPLICATION_JSON)
 @Api(value = "Query")
 public class QueryResource {
 
@@ -27,35 +27,13 @@ public class QueryResource {
 
     @GET
     @Path("results")
-    @ApiOperation(value = "Returns results of a Path Query")
-    public Response getResults(@BeanParam QueryResultBean bean) throws IOException, PathException, ModelParserException, ParserConfigurationException, SAXException {
+    @ApiOperation(value = "Get results of a Path Query",
+                notes = "API is currently in development. So, only the converted cypher query is returned.")
+    public QueryResult getResults(@BeanParam QueryResultBean bean) {
         String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
-            return Response.status(Response.Status.NO_CONTENT)
-                    .entity("Invalid PathQuery")
-                    .build();
+            return new QueryResult("Invalid Path Query");
         }
-        QueryResult queryResult;
-        try {
-            queryResult = neo4jQueryService.getQueryResult(bean);
-        }
-        catch (IOException e) {
-            queryResult = new QueryResult("IOException");
-        }
-        catch (PathException e) {
-            queryResult = new QueryResult("PathException");
-        }
-        catch (ModelParserException e) {
-            queryResult = new QueryResult("ModelParserException");
-        }
-        catch (ParserConfigurationException e) {
-            queryResult = new QueryResult("ParserConfigurationException");
-        }
-        catch (SAXException e) {
-            queryResult = new QueryResult("SAXException");
-        }
-        return Response.status(Response.Status.ACCEPTED)
-                .entity(queryResult)
-                .build();
+        return neo4jQueryService.getQueryResult(bean);
     }
 }

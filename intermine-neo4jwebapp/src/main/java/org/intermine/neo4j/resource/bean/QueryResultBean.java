@@ -13,23 +13,29 @@ import javax.ws.rs.QueryParam;
  */
 public class QueryResultBean {
 
-    private @ApiParam(value = "A definition of the query to execute in Path-Query XML format", required = false)
-        @QueryParam("query") String pathQuery;
+    @ApiParam(value = "A definition of the query to execute in Path-Query XML format", required = false)
+    @QueryParam("query")
+    private String pathQuery;
 
-    private @ApiParam(value = "The version of the XML format used", required = false)
-        @QueryParam("version") int version;
+    @ApiParam(value = "The version of the XML format used", required = false)
+    @QueryParam("version")
+    private int version;
 
-    private @ApiParam(value = "The index of the first result to return.", required = false)
-        @QueryParam("start") int start;
+    @ApiParam(value = "The index of the first result to return.", required = false)
+    @QueryParam("start")
+    private int start;
 
-    private @ApiParam(value = "The maximum size of the result set.", required = false)
-        @QueryParam("size") int size;
+    @ApiParam(value = "The maximum size of the result set.", required = false)
+    @QueryParam("size")
+    private int size;
 
-    private @ApiParam(value = "Include column headers. Use friendly for human readable paths. (Only for flat-file formats)", required = false)
-        @QueryParam("columnheaders") ColumnHeadersType columnHeadersType;
+    @ApiParam(value = "Include column headers. Use friendly for human readable paths. (Only for flat-file formats)", required = false)
+    @QueryParam("columnheaders")
+    private ColumnHeadersType columnHeadersType;
 
-    private @ApiParam(value = "Output format", required = false)
-        @QueryParam("format") FormatType formatType;
+    @ApiParam(value = "Output format", required = false)
+    @QueryParam("format")
+    private FormatType formatType;
 
     public String getPathQuery() {
         return pathQuery;
