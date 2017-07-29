@@ -53,9 +53,9 @@ To run the project you need to get the following prerequisites.
 - To run a local instance of the server, run
 `./gradlew jettyRun`
 
-- Visit http://localhost:8080/intermine-neo4jwebapp/ for Swagger documentation of the API.
+- For Swagger documentation of the API, visit http://localhost:8080/intermine-neo4jwebapp/.
 
-- Visit http://localhost:8080/intermine-neo4jwebapp/old/ for testing PathQueryServlets.
+- For testing PathQueryServlets, visit http://localhost:8080/intermine-neo4jwebapp/old/.
 
 ## Documentation
 
