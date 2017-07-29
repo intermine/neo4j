@@ -12,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- To run the project you need to get the following prerequisites.
+To run the project you need to get the following prerequisites.
 * JDK 8
 * Neo4j Graph Database 3.2
 * Neo4j APOC 3+
@@ -59,4 +59,4 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Documentation
 
-The [project wiki](/wiki/) contains detailed documentation of the code and the available gradle tasks.
+The [project wiki](https://github.com/intermine/neo4j/wiki) contains detailed documentation of the code and the available gradle tasks.
