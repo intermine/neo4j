@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 @Path("query")
 @Produces(MediaType.APPLICATION_JSON)
-@Api(value = "Query")
+@Api(value = "Query Results")
 public class QueryResource {
 
     Neo4jQueryService neo4jQueryService = new Neo4jQueryService();
@@ -28,11 +28,11 @@ public class QueryResource {
     @GET
     @Path("results")
     @ApiOperation(value = "Get results of a Path Query",
-                notes = "API is currently in development. So, only the converted cypher query is returned.")
-    public QueryResult getResults(@BeanParam QueryResultBean bean) {
+                notes = "API is currently in development. So, response might be unexpected.")
+    public QueryResult getResults(@BeanParam QueryResultBean bean) throws Exception {
         String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
-            return new QueryResult("Invalid Path Query");
+            throw new Exception("Invalid Path Query");
         }
         return neo4jQueryService.getQueryResult(bean);
     }

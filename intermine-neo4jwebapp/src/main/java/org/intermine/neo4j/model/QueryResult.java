@@ -2,31 +2,42 @@ package org.intermine.neo4j.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yash Sharma
  */
 @XmlRootElement
 public class QueryResult {
-    private String result;
+
+    private List<String> columnHeaders;
+
+    private List<List<String>> results;
 
     // Empty constructor. Its absence causes Internal Server Error.
     public QueryResult() {
 
     }
 
-    public QueryResult(String result) {
-        this.result = result;
+    public QueryResult(List<String> columnHeaders, List<List<String>> results) {
+        this.columnHeaders = columnHeaders;
+        this.results = results;
     }
 
-    // Only the fields having public getters & setters are serialized.
-
-    public String getResult() {
-        return result;
+    public List<String> getColumnHeaders() {
+        return columnHeaders;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public void setColumnHeaders(List<String> columnHeaders) {
+        this.columnHeaders = columnHeaders;
     }
 
+    public List<List<String>> getResults() {
+        return results;
+    }
+
+    public void setResults(List<List<String>> results) {
+        this.results = results;
+    }
 }
