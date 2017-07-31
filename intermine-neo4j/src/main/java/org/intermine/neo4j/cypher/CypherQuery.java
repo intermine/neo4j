@@ -1,5 +1,8 @@
 package org.intermine.neo4j.cypher;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a Cypher Query.
  *
@@ -16,6 +19,8 @@ public class CypherQuery {
     private String returnClause = "";
 
     private String orderByClause = "";
+
+    private Map<String, String> variables = new HashMap<>();
 
     /**
      * Add a match to the MATCH clause of the Cypher query
@@ -139,6 +144,14 @@ public class CypherQuery {
                 whereClause + "\n" +
                 returnClause + "\n" +
                 orderByClause;
+    }
+
+    public void addVariable(String view, String variableName) {
+        variables.put(view, variableName);
+    }
+
+    public String getVariable(String view) {
+        return variables.get(view);
     }
 
 }
