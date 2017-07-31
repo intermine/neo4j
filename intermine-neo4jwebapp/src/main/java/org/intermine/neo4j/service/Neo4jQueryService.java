@@ -10,6 +10,7 @@ import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 import org.neo4j.driver.v1.*;
+import org.neo4j.driver.v1.exceptions.value.Uncoercible;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,8 +33,34 @@ public class Neo4jQueryService {
         CypherQuery cypherQuery;
         cypherQuery = QueryGenerator.pathQueryToCypher(pathQuery);
         return getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
-                                            cypherQuery,
-                                            pathQuery);
+                                    cypherQuery,
+                                    pathQuery);
+    }
+
+    private static String getValueFromRecord(Record record, String key) {
+        Value value = record.get(key);
+        if (value.isNull()) {
+            return null;
+        }
+        String val = null;
+        try {
+            val = value.asString();
+        } catch (Uncoercible uncoercible) {
+
+        }
+        try {
+            val = String.valueOf(value.asInt());
+        } catch (Uncoercible uncoercible) {
+
+        }
+        try {
+            val = String.valueOf(value.asDouble());
+        }
+        catch (Uncoercible uncoercible) {
+
+        }
+
+        return val;
     }
 
     private static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
@@ -47,8 +74,10 @@ public class Neo4jQueryService {
                     List<String> resultList = new ArrayList<>();
                     for (String view : pathQuery.getView()) {
                         String variableName = cypherQuery.getVariable(view);
+                        String value;
                         try {
-                            resultList.add(String.valueOf(record.get(variableName)));
+                            value = getValueFromRecord(record, variableName);
+                            resultList.add(value);
                         } catch (Exception e) {
                             resultList.add(e.toString());
                         }
