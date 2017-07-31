@@ -55,7 +55,7 @@ To run the project you need to get the following prerequisites.
 
 - For Swagger documentation of the API, visit http://localhost:8080/intermine-neo4jwebapp/.
 
-- For testing PathQueryServlets, visit http://localhost:8080/intermine-neo4jwebapp/old/.
+- For testing PathQueryServlets, visit http://localhost:8080/intermine-neo4jwebapp/servlet/.
 
 ## Documentation
 
