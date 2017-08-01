@@ -23,15 +23,20 @@ import java.util.List;
  */
 public class Neo4jQueryService {
 
-    public QueryResult getQueryResult(QueryResultBean bean) throws PathException, ModelParserException, ParserConfigurationException, SAXException, IOException {
-        // Currently returns only the converted cypher query.
-
-        Neo4jLoaderProperties properties;
-        properties = new Neo4jLoaderProperties();
+    public CypherQuery getCypherQuery(String pathQueryString) throws IOException, PathException, ModelParserException, ParserConfigurationException, SAXException {
+        Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
         QueryService service = properties.getQueryService();
-        PathQuery pathQuery = service.createPathQuery(bean.getPathQuery());
-        CypherQuery cypherQuery;
-        cypherQuery = QueryGenerator.pathQueryToCypher(pathQuery);
+        PathQuery pathQuery = service.createPathQuery(pathQueryString);
+
+        return QueryGenerator.pathQueryToCypher(pathQuery);
+    }
+
+    public QueryResult getQueryResult(QueryResultBean bean) throws PathException, ModelParserException, ParserConfigurationException, SAXException, IOException {
+        Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
+        PathQuery pathQuery = properties.getQueryService()
+                                        .createPathQuery(bean.getPathQuery());
+        CypherQuery cypherQuery = getCypherQuery(bean.getPathQuery());
+
         return getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
                                     cypherQuery,
                                     pathQuery);
