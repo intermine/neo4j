@@ -1,8 +1,11 @@
 package org.intermine.neo4j.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * @author Yash Sharma
  */
+@XmlRootElement
 public class ErrorMessage {
     private String errorMessage;
     private int errorCode;
