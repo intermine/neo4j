@@ -88,6 +88,10 @@
         <servlet-name>Jersey2Config</servlet-name>
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
         <init-param>
+            <param-name>swagger.api.title</param-name>
+            <param-value>InterMine-Neo4j API Service</param-value>
+        </init-param>
+        <init-param>
             <param-name>api.version</param-name>
             <param-value>0.0.1</param-value>
         </init-param>
