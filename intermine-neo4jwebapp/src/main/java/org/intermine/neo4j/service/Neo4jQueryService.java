@@ -15,6 +15,7 @@ import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.value.Uncoercible;
 import org.xml.sax.SAXException;
 
+import javax.activation.UnsupportedDataTypeException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,11 +57,15 @@ public class Neo4jQueryService {
                 return String.valueOf(value.asInt());
             case "java.lang.Double":
                 return String.valueOf(value.asDouble());
+            case "java.lang.Boolean":
+                return String.valueOf(value.asBoolean());
+            case "java.lang.Float":
+                return String.valueOf(value.asFloat());
             case "java.lang.String":
-            default:
                 return value.asString();
+            default:
+                throw new UnsupportedDataTypeException("Data Type not supported in Neo4jQueryService.getValueFromRecord().");
         }
-
     }
 
     private static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
