@@ -1,11 +1,13 @@
 package org.intermine.neo4j.service;
 
+import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.neo4j.cypher.CypherQuery;
 import org.intermine.neo4j.cypher.QueryGenerator;
 import org.intermine.neo4j.model.QueryResult;
 import org.intermine.neo4j.resource.bean.QueryResultBean;
+import org.intermine.pathquery.Path;
 import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
@@ -42,30 +44,23 @@ public class Neo4jQueryService {
                                     pathQuery);
     }
 
-    private static String getValueFromRecord(Record record, String key) {
+    private static String getValueFromRecord(Record record, String key, String view) throws IOException, ModelParserException, PathException {
         Value value = record.get(key);
         if (value.isNull()) {
             return null;
         }
-        String val = null;
-        try {
-            val = value.asString();
-        } catch (Uncoercible uncoercible) {
-
-        }
-        try {
-            val = String.valueOf(value.asInt());
-        } catch (Uncoercible uncoercible) {
-
-        }
-        try {
-            val = String.valueOf(value.asDouble());
-        }
-        catch (Uncoercible uncoercible) {
-
+        Model model = new Neo4jLoaderProperties().getModel();
+        Path path = new Path(model, view);
+        switch (path.getEndType().getName()) {
+            case "java.lang.Integer":
+                return String.valueOf(value.asInt());
+            case "java.lang.Double":
+                return String.valueOf(value.asDouble());
+            case "java.lang.String":
+            default:
+                return value.asString();
         }
 
-        return val;
     }
 
     private static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
@@ -81,7 +76,7 @@ public class Neo4jQueryService {
                         String variableName = cypherQuery.getVariable(view);
                         String value;
                         try {
-                            value = getValueFromRecord(record, variableName);
+                            value = getValueFromRecord(record, variableName, view);
                             resultList.add(value);
                         } catch (Exception e) {
                             resultList.add(e.toString());
