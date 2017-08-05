@@ -68,7 +68,7 @@ public class Neo4jQueryService {
         }
     }
 
-    private static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
+    public static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
         // execute the Cypher query and load results into a list of tab-delimited strings
         List<List<String>> resultsList = new ArrayList<>();
         try (Session session = driver.session()) {
