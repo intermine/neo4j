@@ -22,6 +22,19 @@ public class CypherQuery {
 
     private Map<String, String> variables = new HashMap<>();
 
+    private int resultRowsLimit = -1;
+
+    public void setResultLimit(int resultRowsLimit) {
+        if (resultRowsLimit <= 0) {
+            throw new IllegalArgumentException("CypherQuery : LIMIT can only be a positive integer.");
+        }
+        this.resultRowsLimit = resultRowsLimit;
+    }
+
+    public void removeResultLimit() {
+        resultRowsLimit = -1;
+    }
+
     /**
      * Add a match to the MATCH clause of the Cypher query
      *
@@ -139,11 +152,15 @@ public class CypherQuery {
      */
     @Override
     public String toString() {
-        return matchClause + "\n" +
+        String query = matchClause + "\n" +
                 optionalMatchClause + "\n" +
                 whereClause + "\n" +
                 returnClause + "\n" +
                 orderByClause;
+        if (resultRowsLimit != -1) {
+            query += "\nLIMIT " + String.valueOf(resultRowsLimit);
+        }
+        return query;
     }
 
     public void addVariable(String view, String variableName) {
