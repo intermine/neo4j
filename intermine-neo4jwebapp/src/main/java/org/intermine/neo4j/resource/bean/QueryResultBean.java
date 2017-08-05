@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiParam;
 import org.intermine.neo4j.model.ColumnHeadersType;
 import org.intermine.neo4j.model.FormatType;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 /**
@@ -27,6 +28,7 @@ public class QueryResultBean {
 
     @ApiParam(value = "The maximum size of the result set.", required = false)
     @QueryParam("size")
+    @DefaultValue("10")
     private int size;
 
     @ApiParam(value = "Include column headers. Use friendly for human readable paths. (Only for flat-file formats)", required = false)

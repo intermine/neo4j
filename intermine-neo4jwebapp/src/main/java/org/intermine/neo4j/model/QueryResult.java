@@ -40,4 +40,12 @@ public class QueryResult {
     public void setResults(List<List<String>> results) {
         this.results = results;
     }
+
+    @Override
+    public String toString() {
+        return "QueryResult{" +
+                "columnHeaders=" + columnHeaders +
+                ", results=" + results +
+                '}';
+    }
 }

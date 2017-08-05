@@ -22,6 +22,10 @@ public class CypherQuery {
 
     private Map<String, String> variables = new HashMap<>();
 
+    private int resultRowsLimit = -1;
+
+    private int resultRowsSkip = -1;
+
     /**
      * Add a match to the MATCH clause of the Cypher query
      *
@@ -139,11 +143,48 @@ public class CypherQuery {
      */
     @Override
     public String toString() {
-        return matchClause + "\n" +
+        String query = matchClause + "\n" +
                 optionalMatchClause + "\n" +
                 whereClause + "\n" +
                 returnClause + "\n" +
                 orderByClause;
+        if (resultRowsSkip != -1) {
+            query += "\nSKIP " + String.valueOf(resultRowsSkip);
+        }
+        if (resultRowsLimit != -1) {
+            query += "\nLIMIT " + String.valueOf(resultRowsLimit);
+        }
+        return query;
+    }
+
+    public void setResultRowsLimit(int resultRowsLimit) {
+        if (resultRowsLimit <= 0) {
+            throw new IllegalArgumentException("CypherQuery : LIMIT can only be a positive integer.");
+        }
+        this.resultRowsLimit = resultRowsLimit;
+    }
+
+    public void removeResultRowsLimit() {
+        this.resultRowsLimit = -1;
+    }
+
+    public void setResultRowsSkip(int resultRowsSkip) {
+        if (resultRowsSkip <= 0) {
+            throw new IllegalArgumentException("CypherQuery : SKIP can only be a positive integer.");
+        }
+        this.resultRowsSkip = resultRowsSkip;
+    }
+
+    public void removeResultRowsSkip() {
+        this.resultRowsSkip = -1;
+    }
+
+    public int getResultRowsLimit() {
+        return resultRowsLimit;
+    }
+
+    public int getResultRowsSkip() {
+        return resultRowsSkip;
     }
 
     public void addVariable(String view, String variableName) {

@@ -1,11 +1,13 @@
 package org.intermine.neo4j.service;
 
+import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
 import org.intermine.neo4j.cypher.CypherQuery;
 import org.intermine.neo4j.cypher.QueryGenerator;
 import org.intermine.neo4j.model.QueryResult;
 import org.intermine.neo4j.resource.bean.QueryResultBean;
+import org.intermine.pathquery.Path;
 import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
@@ -13,6 +15,7 @@ import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.exceptions.value.Uncoercible;
 import org.xml.sax.SAXException;
 
+import javax.activation.UnsupportedDataTypeException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,38 +40,45 @@ public class Neo4jQueryService {
                                         .createPathQuery(bean.getPathQuery());
         CypherQuery cypherQuery = getCypherQuery(bean.getPathQuery());
 
+        int size = bean.getSize();
+        if (size > 0) {
+            cypherQuery.setResultRowsLimit(size);
+        }
+
+        int start = bean.getStart();
+        if (start > 0) {
+            cypherQuery.setResultRowsSkip(start);
+        }
+
         return getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
                                     cypherQuery,
                                     pathQuery);
     }
 
-    private static String getValueFromRecord(Record record, String key) {
+    private static String getValueFromRecord(Record record, String key, String view) throws IOException, ModelParserException, PathException {
         Value value = record.get(key);
         if (value.isNull()) {
             return null;
         }
-        String val = null;
-        try {
-            val = value.asString();
-        } catch (Uncoercible uncoercible) {
-
+        Model model = new Neo4jLoaderProperties().getModel();
+        Path path = new Path(model, view);
+        switch (path.getEndType().getName()) {
+            case "java.lang.Integer":
+                return String.valueOf(value.asInt());
+            case "java.lang.Double":
+                return String.valueOf(value.asDouble());
+            case "java.lang.Boolean":
+                return String.valueOf(value.asBoolean());
+            case "java.lang.Float":
+                return String.valueOf(value.asFloat());
+            case "java.lang.String":
+                return value.asString();
+            default:
+                throw new UnsupportedDataTypeException("Data Type not supported in Neo4jQueryService.getValueFromRecord().");
         }
-        try {
-            val = String.valueOf(value.asInt());
-        } catch (Uncoercible uncoercible) {
-
-        }
-        try {
-            val = String.valueOf(value.asDouble());
-        }
-        catch (Uncoercible uncoercible) {
-
-        }
-
-        return val;
     }
 
-    private static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
+    public static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
         // execute the Cypher query and load results into a list of tab-delimited strings
         List<List<String>> resultsList = new ArrayList<>();
         try (Session session = driver.session()) {
@@ -81,7 +91,7 @@ public class Neo4jQueryService {
                         String variableName = cypherQuery.getVariable(view);
                         String value;
                         try {
-                            value = getValueFromRecord(record, variableName);
+                            value = getValueFromRecord(record, variableName, view);
                             resultList.add(value);
                         } catch (Exception e) {
                             resultList.add(e.toString());
