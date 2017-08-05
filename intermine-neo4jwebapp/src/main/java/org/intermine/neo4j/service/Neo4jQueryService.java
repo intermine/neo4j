@@ -39,7 +39,9 @@ public class Neo4jQueryService {
         PathQuery pathQuery = properties.getQueryService()
                                         .createPathQuery(bean.getPathQuery());
         CypherQuery cypherQuery = getCypherQuery(bean.getPathQuery());
-
+        if (bean.getSize() > 0) {
+            cypherQuery.setResultLimit(bean.getSize());
+        }
         return getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
                                     cypherQuery,
                                     pathQuery);

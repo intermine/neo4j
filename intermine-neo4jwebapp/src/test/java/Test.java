@@ -26,6 +26,9 @@ public class Test {
         QueryService queryService = props.getQueryService();
         PathQuery pathQuery = getPathQuery(queryService, "PathQuery.xml");
         CypherQuery cypherQuery = QueryGenerator.pathQueryToCypher(pathQuery);
+
+        cypherQuery.setResultLimit(10);
+        System.out.println("result limit set");
         QueryResult queryResult = new Neo4jQueryService().getResultsFromNeo4j(props.getGraphDatabaseDriver(),
                 cypherQuery, pathQuery);
         System.out.println(queryResult);

@@ -29,6 +29,9 @@ public class QueryResource {
         if (pathQuery == null) {
             throw new Exception("Invalid Path Query");
         }
+        if (bean.getSize() < 0) {
+            throw new Exception("Invalid size parameter: " + String.valueOf(bean.getSize()));
+        }
         return neo4jQueryService.getQueryResult(bean);
     }
 
