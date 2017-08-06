@@ -1,0 +1,1 @@
+<query model="genomic" view="Gene.primaryIdentifier Gene.length Gene.secondaryIdentifier Gene.symbol"> </query>

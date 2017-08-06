@@ -24,7 +24,7 @@ public class QueryResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Query InterMine Neo4j Graph with a Path Query.",
                 notes = "API is currently in development. So the response might be unexpected.")
-    public QueryResult getResults(@BeanParam QueryResultBean bean) throws Exception {
+    public String getResults(@BeanParam QueryResultBean bean) throws Exception {
         String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
             throw new Exception("Invalid Path Query");
@@ -35,7 +35,7 @@ public class QueryResource {
         if (bean.getStart() < 0) {
             throw new Exception("Invalid start parameter: " + String.valueOf(bean.getStart()));
         }
-        return neo4jQueryService.getQueryResult(bean);
+        return neo4jQueryService.getQueryResult(bean).toJSON().toString();
     }
 
     @GET
