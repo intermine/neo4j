@@ -55,7 +55,7 @@ public class Neo4jQueryService {
                                     pathQuery);
     }
 
-    private static String getValueFromRecord(Record record, String key, String view) throws IOException, ModelParserException, PathException {
+    private static Object getValueFromRecord(Record record, String key, String view) throws IOException, ModelParserException, PathException {
         Value value = record.get(key);
         if (value.isNull()) {
             return null;
@@ -64,42 +64,42 @@ public class Neo4jQueryService {
         Path path = new Path(model, view);
         switch (path.getEndType().getName()) {
             case "java.lang.Integer":
-                return String.valueOf(value.asInt());
+                return new Integer(value.asInt());
             case "java.lang.Double":
-                return String.valueOf(value.asDouble());
+                return new Double(value.asDouble());
             case "java.lang.Boolean":
-                return String.valueOf(value.asBoolean());
+                return new Boolean(value.asBoolean());
             case "java.lang.Float":
-                return String.valueOf(value.asFloat());
+                return new Float(value.asFloat());
             case "java.lang.String":
-                return value.asString();
+                return new String(value.asString());
             default:
-                throw new UnsupportedDataTypeException("Data Type not supported in Neo4jQueryService.getValueFromRecord().");
+                throw new UnsupportedDataTypeException("Data Type " +
+                        value.getClass().getName() +
+                        " Neo4jQueryService.getValueFromRecord()");
         }
     }
 
     public static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
         // execute the Cypher query and load results into a list of tab-delimited strings
-        List<List<String>> resultsList = new ArrayList<>();
-        try (Session session = driver.session()) {
-            try (Transaction tx = session.beginTransaction()) {
-                StatementResult result = tx.run(cypherQuery.toString());
-                while (result.hasNext()) {
-                    Record record = result.next();
-                    List<String> resultList = new ArrayList<>();
-                    for (String view : pathQuery.getView()) {
-                        String variableName = cypherQuery.getVariable(view);
-                        String value;
-                        try {
-                            value = getValueFromRecord(record, variableName, view);
-                            resultList.add(value);
-                        } catch (Exception e) {
-                            resultList.add(e.toString());
-                        }
-                    }
-                    resultsList.add(resultList);
+        List<List<Object>> resultsList = new ArrayList<>();
+        Session session = driver.session();
+        Transaction tx = session.beginTransaction();
+        StatementResult result = tx.run(cypherQuery.toString());
+        while (result.hasNext()) {
+            Record record = result.next();
+            List<Object> resultList = new ArrayList<>();
+            for (String view : pathQuery.getView()) {
+                String variableName = cypherQuery.getVariable(view);
+                Object value;
+                try {
+                    value = getValueFromRecord(record, variableName, view);
+                    resultList.add(value);
+                } catch (Exception e) {
+                    resultList.add(e.toString());
                 }
             }
+            resultsList.add(resultList);
         }
         List<String> headerList = new ArrayList<>();
         for (String view : pathQuery.getView()) {
