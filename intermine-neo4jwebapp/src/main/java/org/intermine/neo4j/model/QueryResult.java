@@ -2,9 +2,7 @@ package org.intermine.neo4j.model;
 
 import javax.activation.UnsupportedDataTypeException;
 import javax.json.*;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,18 +11,91 @@ import java.util.List;
 @XmlRootElement
 public class QueryResult {
 
+    private String rootClass;
+
+    private String modelName;
+
+    private int start;
+
+    private List<String> views;
+
     private List<String> columnHeaders;
 
     private List<List<Object>> results;
 
+    private String executionTime;
+
+    private boolean successful;
+
+    private String error;
+
+    private int statusCode;
+
     public QueryResult() {
-        columnHeaders = new ArrayList<>();
-        results = new ArrayList<>();
     }
 
-    public QueryResult(List<String> columnHeaders, List<List<Object>> results) {
+    public QueryResult(String rootClass, String modelName, int start,
+                       List<String> views, List<String> columnHeaders,
+                       List<List<Object>> results, String executionTime,
+                       boolean successful, String error, int statusCode) {
+        this.rootClass = rootClass;
+        this.modelName = modelName;
+        this.start = start;
+        this.views = views;
         this.columnHeaders = columnHeaders;
         this.results = results;
+        this.executionTime = executionTime;
+        this.successful = successful;
+        this.error = error;
+        this.statusCode = statusCode;
+    }
+
+    @Override
+    public String toString() {
+        return "QueryResult{" +
+                "rootClass='" + rootClass + '\'' +
+                ",\nmodelName='" + modelName + '\'' +
+                ",\nstart=" + start +
+                ",\nviews=" + views +
+                ",\ncolumnHeaders=" + columnHeaders +
+                ",\nresults=" + results +
+                ",\nexecutionTime='" + executionTime + '\'' +
+                ",\nsuccessful=" + successful +
+                ",\nerror='" + error + '\'' +
+                ",\nstatusCode=" + statusCode +
+                '}';
+    }
+
+    public String getRootClass() {
+        return rootClass;
+    }
+
+    public void setRootClass(String rootClass) {
+        this.rootClass = rootClass;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public List<String> getViews() {
+        return views;
+    }
+
+    public void setViews(List<String> views) {
+        this.views = views;
     }
 
     public List<String> getColumnHeaders() {
@@ -43,13 +114,38 @@ public class QueryResult {
         this.results = results;
     }
 
-    @Override
-    public String toString() {
-        return "QueryResult{" +
-                "columnHeaders=" + columnHeaders +
-                ", results=" + results +
-                '}';
+    public String getExecutionTime() {
+        return executionTime;
     }
+
+    public void setExecutionTime(String executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public boolean isSuccessful() {
+        return successful;
+    }
+
+    public void setSuccessful(boolean successful) {
+        this.successful = successful;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
 
     public void addHeader(String header) {
         this.columnHeaders.add(header);
@@ -59,7 +155,7 @@ public class QueryResult {
         this.results.add(row);
     }
 
-    public JsonArray getResultsAsJsonArray() throws UnsupportedDataTypeException {
+    public JsonArrayBuilder getResultsAsJsonArray() throws UnsupportedDataTypeException {
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
         for (List<Object> row : results) {
@@ -99,24 +195,41 @@ public class QueryResult {
             }
             jsonArrayBuilder.add(rowJsonArrayBuilder.build());
         }
-        return jsonArrayBuilder.build();
+        return jsonArrayBuilder;
     }
 
-    public JsonArray getHeadersAsJsonArray() {
+    public JsonArrayBuilder getListAsJsonArray(List<String> list) {
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
-        for (String header : columnHeaders) {
-            jsonArrayBuilder.add(header);
+        for (String string : list) {
+            jsonArrayBuilder.add(string);
         }
-        return jsonArrayBuilder.build();
+        return jsonArrayBuilder;
     }
 
-    public JsonArray toJSON() throws UnsupportedDataTypeException {
-        JsonArray value = Json.createArrayBuilder()
-                                        .add(Json.createObjectBuilder()
-                                                .add("results", getResultsAsJsonArray()))
-                                        .add(Json.createObjectBuilder()
-                                                .add("columnHeaders", getHeadersAsJsonArray()))
-                                        .build();
-        return value;
+    private JsonObjectBuilder addStringToJsonObjectBuilder(JsonObjectBuilder jsonObjectBuilder, String key, String value) {
+        if (value != null) {
+            return jsonObjectBuilder.add(key, value);
+        }
+        return jsonObjectBuilder.add(key, JsonValue.NULL);
+    }
+
+    public JsonObject toJSON() throws UnsupportedDataTypeException {
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "rootClass", getRootClass());
+        jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "modelName", getModelName());
+
+        jsonObjectBuilder = jsonObjectBuilder.add("start", getStart())
+                                            .add("views", getListAsJsonArray(getViews()))
+                                            .add("columnHeaders", getListAsJsonArray(getColumnHeaders()))
+                                            .add("results", getResultsAsJsonArray());
+        jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "executionTime", getExecutionTime());
+
+        jsonObjectBuilder = jsonObjectBuilder.add("wasSuccessful", isSuccessful());
+
+        jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "error", getError());
+
+        jsonObjectBuilder = jsonObjectBuilder.add("statusCode", getStatusCode());
+
+        return jsonObjectBuilder.build();
     }
 }

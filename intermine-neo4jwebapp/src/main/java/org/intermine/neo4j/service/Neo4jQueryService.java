@@ -1,5 +1,6 @@
 package org.intermine.neo4j.service;
 
+import org.intermine.metadata.ClassDescriptor;
 import org.intermine.metadata.Model;
 import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
@@ -12,14 +13,17 @@ import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 import org.neo4j.driver.v1.*;
-import org.neo4j.driver.v1.exceptions.value.Uncoercible;
 import org.xml.sax.SAXException;
 
 import javax.activation.UnsupportedDataTypeException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.util.Date;
 
 /**
  * @author Yash Sharma
@@ -50,9 +54,33 @@ public class Neo4jQueryService {
             cypherQuery.setResultRowsSkip(start);
         }
 
-        return getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
-                                    cypherQuery,
-                                    pathQuery);
+        QueryResult queryResult = new QueryResult();
+
+        queryResult.setRootClass(pathQuery.getRootClass());
+        queryResult.setModelName(pathQuery.getModel().getName());
+        queryResult.setStart(bean.getStart());
+        queryResult.setViews(pathQuery.getView());
+
+        List<String> headersList = new ArrayList<>();
+        Model model = new Neo4jLoaderProperties().getModel();
+        for (String view : pathQuery.getView()) {
+            Path path = new Path(model, view);
+            headersList.add(getColumnHeader(path));
+        }
+        queryResult.setColumnHeaders(headersList);
+
+        queryResult.setResults(getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
+                                                    cypherQuery,
+                                                    pathQuery));
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+        queryResult.setExecutionTime(dateFormat.format(new Date()));
+
+        queryResult.setSuccessful(true);
+        queryResult.setError(null);
+        queryResult.setStatusCode(200);
+
+        return queryResult;
     }
 
     private static Object getValueFromRecord(Record record, String key, String view) throws IOException, ModelParserException, PathException {
@@ -80,7 +108,7 @@ public class Neo4jQueryService {
         }
     }
 
-    public static QueryResult getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) {
+    public static List<List<Object>> getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) throws IOException, ModelParserException, PathException {
         // execute the Cypher query and load results into a list of tab-delimited strings
         List<List<Object>> resultsList = new ArrayList<>();
         Session session = driver.session();
@@ -101,11 +129,15 @@ public class Neo4jQueryService {
             }
             resultsList.add(resultList);
         }
-        List<String> headerList = new ArrayList<>();
-        for (String view : pathQuery.getView()) {
-            headerList.add(view);
-        }
-        return new QueryResult(headerList, resultsList);
+        return resultsList;
     }
 
+    private static String getColumnHeader(Path path) {
+        String header = "";
+        for (ClassDescriptor classDescriptor : path.getElementClassDescriptors()) {
+            header += classDescriptor.getSimpleName() + " > ";
+        }
+        header += path.getLastElement();
+        return header;
+    }
 }
