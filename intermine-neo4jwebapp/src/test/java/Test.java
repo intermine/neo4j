@@ -29,8 +29,9 @@ public class Test {
 
         cypherQuery.setResultRowsLimit(10);
         System.out.println("result limit set");
-        QueryResult queryResult = new Neo4jQueryService().getResultsFromNeo4j(props.getGraphDatabaseDriver(),
-                cypherQuery, pathQuery);
+        QueryResult queryResult = new QueryResult();
+        queryResult.setResults(new Neo4jQueryService().getResultsFromNeo4j(props.getGraphDatabaseDriver(),
+                                                                        cypherQuery, pathQuery));
         System.out.println(queryResult.toJSON());
     }
 
