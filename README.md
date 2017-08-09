@@ -1,6 +1,6 @@
 # Neo4j
 
-Project to develop Neo4j as the backing store for InterMine. Hosted on Heroku at http://intermine-neo4jwebapp.herokuapp.com/.
+Project to develop Neo4j as the backing store for InterMine. Hosted at http://intermine-neo4jwebapp.herokuapp.com/.
 
 This repository contains following two sub-projects.
 
