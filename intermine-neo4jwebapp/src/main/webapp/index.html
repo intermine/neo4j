@@ -74,7 +74,7 @@ window.onload = function() {
   
   // Build a system
   const ui = SwaggerUIBundle({
-    url: "http://localhost:8080/intermine-neo4jwebapp/service/swagger.json",
+    url: window.location.href + "service/swagger.json",
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [

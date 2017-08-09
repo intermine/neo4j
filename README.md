@@ -1,6 +1,8 @@
 # Neo4j
 
-Project to develop Neo4j as the backing store for InterMine. This repository contains following two sub-projects.
+Project to develop Neo4j as the backing store for InterMine. Hosted on Heroku at http://intermine-neo4jwebapp.herokuapp.com/.
+
+This repository contains following two sub-projects.
 
 - **intermine-neo4j** contains the packages for Neo4j metadata management, PathQuery to Cypher conversion and data loaders for InterMine Neo4j database.
 
@@ -53,9 +55,9 @@ To run the project you need to get the following prerequisites.
 - To run a local instance of the server, run
 `./gradlew jettyRun`
 
-- For Swagger documentation of the API, visit http://localhost:8080/intermine-neo4jwebapp/.
+- For Swagger documentation of the API, visit http://localhost:8080/.
 
-- For testing PathQueryServlets, visit http://localhost:8080/intermine-neo4jwebapp/servlet/.
+- For testing PathQueryServlets, visit http://localhost:8080/servlet/.
 
 ## Documentation
 
