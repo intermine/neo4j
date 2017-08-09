@@ -23,7 +23,7 @@ public class QueryResource {
     @Path("results")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Query InterMine Neo4j Graph with a Path Query.",
-                notes = "API is currently in development. So the response might be unexpected.")
+                notes = "API is currently in development. Report any issues at https://github.com/intermine/neo4j/issues.")
     public String getResults(@BeanParam QueryResultBean bean) throws Exception {
         String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
@@ -42,7 +42,7 @@ public class QueryResource {
     @Path("cypher")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Convert a PathQuery to Cypher.",
-            notes = "API is currently in development. So the response might be unexpected.")
+            notes = "API is currently in development. Report any issues at https://github.com/intermine/neo4j/issues.")
     public String getCypher(@QueryParam("query") String pathQuery) throws Exception {
         if (pathQuery == null) {
             throw new Exception("Invalid Path Query");
