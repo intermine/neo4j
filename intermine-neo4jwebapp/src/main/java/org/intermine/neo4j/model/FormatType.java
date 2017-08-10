@@ -4,7 +4,7 @@ package org.intermine.neo4j.model;
  * @author Yash Sharma
  */
 public enum FormatType {
-    TAB, CSV, COUNT, JSON, JSONOBJECTS, JSONCOUNT, XML, HTML;
+    TAB, JSON;
 
     public FormatType fromString(String param) {
         String toUpper = param.toUpperCase();

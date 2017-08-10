@@ -38,7 +38,7 @@ public class Neo4jQueryService {
         return QueryGenerator.pathQueryToCypher(pathQuery);
     }
 
-    public QueryResult getQueryResult(QueryResultBean bean) throws PathException, ModelParserException, ParserConfigurationException, SAXException, IOException {
+    public QueryResult getQueryResult(QueryResultBean bean) throws PathException, IOException, ModelParserException, ParserConfigurationException, SAXException {
         Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
         PathQuery pathQuery = properties.getQueryService()
                                         .createPathQuery(bean.getPathQuery());

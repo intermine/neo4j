@@ -2,7 +2,6 @@ package org.intermine.neo4j.resource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.intermine.neo4j.model.QueryResult;
 import org.intermine.neo4j.resource.bean.QueryResultBean;
 import org.intermine.neo4j.service.Neo4jQueryService;
 
@@ -27,13 +26,13 @@ public class QueryResource {
     public String getResults(@BeanParam QueryResultBean bean) throws Exception {
         String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
-            throw new Exception("Invalid Path Query");
+            throw new BadRequestException("Invalid Path Query.");
         }
         if (bean.getSize() < 0) {
-            throw new Exception("Invalid size parameter: " + String.valueOf(bean.getSize()));
+            throw new BadRequestException("Invalid size parameter: " + String.valueOf(bean.getSize()));
         }
         if (bean.getStart() < 0) {
-            throw new Exception("Invalid start parameter: " + String.valueOf(bean.getStart()));
+            throw new BadRequestException("Invalid start parameter: " + String.valueOf(bean.getStart()));
         }
         return neo4jQueryService.getQueryResult(bean).toJSON().toString();
     }
@@ -45,7 +44,7 @@ public class QueryResource {
             notes = "API is currently in development. Report any issues at https://github.com/intermine/neo4j/issues.")
     public String getCypher(@QueryParam("query") String pathQuery) throws Exception {
         if (pathQuery == null) {
-            throw new Exception("Invalid Path Query");
+            throw new BadRequestException("Invalid Path Query");
         }
         return neo4jQueryService.getCypherQuery(pathQuery).toString();
     }
