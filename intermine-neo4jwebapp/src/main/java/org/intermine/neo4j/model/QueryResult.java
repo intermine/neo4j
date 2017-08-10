@@ -232,4 +232,32 @@ public class QueryResult {
 
         return jsonObjectBuilder.build();
     }
+
+    public String toTSV(ColumnHeadersType columnHeadersType ) {
+        StringBuilder stringBuilder = new StringBuilder();
+        switch (columnHeadersType) {
+            case PATH:
+                for (String header : getViews()) {
+                    stringBuilder.append(header).append("\t");
+                }
+                stringBuilder.append("\n");
+                break;
+            case FRIENDLY:
+                for (String header : getColumnHeaders()) {
+                    stringBuilder.append(header).append("\t");
+                }
+                stringBuilder.append("\n");
+                break;
+            case NONE:
+            default:
+                break;
+        }
+        for (List<Object> row : getResults()) {
+            for (Object obj : row) {
+                stringBuilder.append(obj.toString()).append("\t");
+            }
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
+    }
 }
