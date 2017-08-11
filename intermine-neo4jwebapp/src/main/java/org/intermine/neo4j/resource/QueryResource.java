@@ -2,6 +2,8 @@ package org.intermine.neo4j.resource;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.intermine.neo4j.cypher.CypherQuery;
+import org.intermine.neo4j.resource.bean.QueryCypherBean;
 import org.intermine.neo4j.resource.bean.QueryResultBean;
 import org.intermine.neo4j.service.Neo4jQueryService;
 
@@ -42,10 +44,20 @@ public class QueryResource {
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Convert a PathQuery to Cypher.",
             notes = "API is currently in development. Report any issues at https://github.com/intermine/neo4j/issues.")
-    public String getCypher(@QueryParam("query") String pathQuery) throws Exception {
-        if (pathQuery == null) {
+    public String getCypher(@BeanParam QueryCypherBean bean) throws Exception {
+        if (bean.getPathQuery() == null) {
             throw new BadRequestException("Invalid Path Query");
         }
-        return neo4jQueryService.getCypherQuery(pathQuery).toString();
+        CypherQuery cypherQuery = neo4jQueryService.getCypherQuery(bean.getPathQuery());
+
+        if (bean.getSize() > 0) {
+            cypherQuery.setResultRowsLimit(bean.getSize());
+        }
+
+        if (bean.getStart() > 0) {
+            cypherQuery.setResultRowsSkip(bean.getStart());
+        }
+
+        return cypherQuery.toString();
     }
 }
