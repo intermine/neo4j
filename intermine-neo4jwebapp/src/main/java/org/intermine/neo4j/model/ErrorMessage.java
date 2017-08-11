@@ -1,46 +1,79 @@
 package org.intermine.neo4j.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Yash Sharma
  */
 @XmlRootElement
 public class ErrorMessage {
-    private String errorMessage;
-    private int errorCode;
-    private String documentation;
+    private List<String> results;
+
+    private String executionTime;
+
+    private boolean wasSuccessful;
+
+    private String error;
+
+    private int statusCode;
 
     public ErrorMessage() {
     }
 
-    public ErrorMessage(String errorMessage, int errorCode, String documentation) {
-        this.errorMessage = errorMessage;
-        this.errorCode = errorCode;
-        this.documentation = documentation;
+    public ErrorMessage(String error, int statusCode) {
+        this.error = error;
+        this.statusCode = statusCode;
+
+        results = new ArrayList<>();
+
+        wasSuccessful = false;
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+        executionTime = dateFormat.format(new Date());
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public List<String> getResults() {
+        return results;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public void setResults(List<String> results) {
+        this.results = results;
     }
 
-    public int getErrorCode() {
-        return errorCode;
+    public String getExecutionTime() {
+        return executionTime;
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
+    public void setExecutionTime(String executionTime) {
+        this.executionTime = executionTime;
     }
 
-    public String getDocumentation() {
-        return documentation;
+    public boolean isWasSuccessful() {
+        return wasSuccessful;
     }
 
-    public void setDocumentation(String documentation) {
-        this.documentation = documentation;
+    public void setWasSuccessful(boolean wasSuccessful) {
+        this.wasSuccessful = wasSuccessful;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 }
