@@ -3,6 +3,7 @@ package org.intermine.neo4j.model;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,10 +28,21 @@ public class ErrorMessage {
     public ErrorMessage(String error, int statusCode) {
         this.error = error;
         this.statusCode = statusCode;
+
+        results = new ArrayList<>();
+
         wasSuccessful = false;
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         executionTime = dateFormat.format(new Date());
+    }
+
+    public List<String> getResults() {
+        return results;
+    }
+
+    public void setResults(List<String> results) {
+        this.results = results;
     }
 
     public String getExecutionTime() {
