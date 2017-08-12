@@ -201,7 +201,12 @@ public class QueryResult {
     public JsonArrayBuilder getListAsJsonArray(List<String> list) {
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
         for (String string : list) {
-            jsonArrayBuilder.add(string);
+            if (string == null) {
+                jsonArrayBuilder.addNull();
+            }
+            else {
+                jsonArrayBuilder.add(string);
+            }
         }
         return jsonArrayBuilder;
     }

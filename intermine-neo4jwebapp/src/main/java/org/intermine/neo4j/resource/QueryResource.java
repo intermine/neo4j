@@ -9,6 +9,7 @@ import org.intermine.neo4j.service.Neo4jQueryService;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * @author Yash Sharma
@@ -25,7 +26,7 @@ public class QueryResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Query InterMine Neo4j Graph with a Path Query.",
                 notes = "API is currently in development. Report any issues at https://github.com/intermine/neo4j/issues.")
-    public String getResults(@BeanParam QueryResultBean bean) throws Exception {
+    public Response getResults(@BeanParam QueryResultBean bean) throws Exception {
         String pathQuery = bean.getPathQuery();
         if (pathQuery == null) {
             throw new BadRequestException("Invalid Path Query.");
@@ -36,7 +37,8 @@ public class QueryResource {
         if (bean.getStart() < 0) {
             throw new BadRequestException("Invalid start parameter: " + String.valueOf(bean.getStart()));
         }
-        return neo4jQueryService.getQueryResult(bean).toJSON().toString();
+        return Response.ok(neo4jQueryService.getQueryResult(bean).toJSON().toString())
+                .build();
     }
 
     @GET

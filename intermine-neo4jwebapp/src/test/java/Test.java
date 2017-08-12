@@ -24,7 +24,7 @@ public class Test {
     public static void main(String[] args) throws IOException, ModelParserException, PathException, SAXException, ParserConfigurationException {
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
         QueryService queryService = props.getQueryService();
-        PathQuery pathQuery = getPathQuery(queryService, "pathquery.xml");
+        PathQuery pathQuery = getPathQuery(queryService, "PathQuery.xml");
         CypherQuery cypherQuery = QueryGenerator.pathQueryToCypher(pathQuery);
 
         cypherQuery.setResultRowsLimit(10);
