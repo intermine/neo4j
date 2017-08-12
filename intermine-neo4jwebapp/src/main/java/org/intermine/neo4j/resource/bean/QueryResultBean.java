@@ -15,7 +15,7 @@ import javax.ws.rs.QueryParam;
 public class QueryResultBean {
 
     @ApiParam(value = "A definition of the query to execute in Path-Query XML format", required = false, defaultValue = "<query model=\"genomic\" view=\"Gene.primaryIdentifier Gene.organism.commonName Gene.length Gene.organism.name\" constraintLogic=\"(A)\">\n" +
-            "    <constraint path=\"Gene.primaryIdentifier\" value=\"fb\" op=\"CONTAINS\" code=\"A\"/>\n" +
+            "    <constraint path=\"Gene.primaryIdentifier\" value=\"FB\" op=\"CONTAINS\" code=\"A\"/>\n" +
             "</query>")
     @QueryParam("query")
     private String pathQuery;
