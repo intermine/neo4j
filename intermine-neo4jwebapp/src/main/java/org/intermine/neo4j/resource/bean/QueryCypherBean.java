@@ -1,28 +1,21 @@
 package org.intermine.neo4j.resource.bean;
 
 import io.swagger.annotations.ApiParam;
-import org.intermine.neo4j.model.ColumnHeadersType;
-import org.intermine.neo4j.model.FormatType;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 /**
- * Stores all the parameters passed to query/results endpoint.
+ * Stores all the parameters passed to query/cypher endpoint.
  *
  * @author Yash Sharma
  */
-public class QueryResultBean {
-
+public class QueryCypherBean {
     @ApiParam(value = "A definition of the query to execute in Path-Query XML format", required = false, defaultValue = "<query model=\"genomic\" view=\"Gene.primaryIdentifier Gene.organism.commonName Gene.length Gene.organism.name\" constraintLogic=\"(A)\">\n" +
             "    <constraint path=\"Gene.primaryIdentifier\" value=\"FB\" op=\"CONTAINS\" code=\"A\"/>\n" +
             "</query>")
     @QueryParam("query")
     private String pathQuery;
-
-    @ApiParam(value = "The version of the XML format used", required = false)
-    @QueryParam("version")
-    private int version;
 
     @ApiParam(value = "The index of the first result to return.", required = false)
     @QueryParam("start")
@@ -33,28 +26,12 @@ public class QueryResultBean {
     @DefaultValue("10")
     private int size;
 
-    @ApiParam(value = "Include column headers. Use friendly for human readable paths. (Only for flat-file formats)", required = false)
-    @QueryParam("columnheaders")
-    private ColumnHeadersType columnHeadersType;
-
-    @ApiParam(value = "Output format", required = false)
-    @QueryParam("format")
-    private FormatType formatType;
-
     public String getPathQuery() {
         return pathQuery;
     }
 
     public void setPathQuery(String pathQuery) {
         this.pathQuery = pathQuery;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     public int getStart() {
@@ -71,21 +48,5 @@ public class QueryResultBean {
 
     public void setSize(int size) {
         this.size = size;
-    }
-
-    public ColumnHeadersType getColumnHeadersType() {
-        return columnHeadersType;
-    }
-
-    public void setColumnHeadersType(ColumnHeadersType columnHeadersType) {
-        this.columnHeadersType = columnHeadersType;
-    }
-
-    public FormatType getFormatType() {
-        return formatType;
-    }
-
-    public void setFormatType(FormatType formatType) {
-        this.formatType = formatType;
     }
 }
