@@ -136,6 +136,8 @@ public class Neo4jSequence {
                 this.length = rs.getInt(2);
                 this.md5checksum = rs.getString(3);
                 this.loid = rs.getLong(4);
+            } else {
+                throw new RuntimeException("ERROR: sequence id "+id+" does not exist.");
             }
         } finally {
             if (rs!=null) rs.close();
