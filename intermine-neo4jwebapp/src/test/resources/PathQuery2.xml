@@ -1,0 +1,3 @@
+<query model="genomic" view="Gene.primaryIdentifier Gene.organism.commonName Gene.length Gene.organism.name" constraintLogic="(A)">
+    <constraint path="Gene.primaryIdentifier" value="FB" op="CONTAINS" code="A"/>
+</query>

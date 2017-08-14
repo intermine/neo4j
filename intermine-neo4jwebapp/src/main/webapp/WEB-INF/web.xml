@@ -67,7 +67,6 @@
         <url-pattern>/servlet/query/results</url-pattern>
     </servlet-mapping>
 
-
     <servlet>
         <servlet-name>Jersey Web Application</servlet-name>
         <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
@@ -89,13 +88,18 @@
         <servlet-name>Jersey2Config</servlet-name>
         <servlet-class>io.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
         <init-param>
+            <param-name>swagger.api.title</param-name>
+            <param-value>InterMine-Neo4j API Service</param-value>
+        </init-param>
+        <init-param>
             <param-name>api.version</param-name>
             <param-value>1.0.0</param-value>
         </init-param>
         <init-param>
             <param-name>swagger.api.basepath</param-name>
-            <param-value>http://localhost:8080/intermine-neo4jwebapp/service</param-value>
+            <param-value>/service</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
+
 </web-app>

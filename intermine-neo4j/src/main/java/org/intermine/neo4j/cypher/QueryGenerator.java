@@ -26,7 +26,7 @@ public class QueryGenerator {
      * Converts a given PathQuery in XML into the corresponding cypher query which can
      * be used to query a Neo4j database.
      *
-     * @param input the given Path Query
+     * @param pathQuery the given Path Query
      * @return the cypher query
      * @throws IOException
      */
@@ -51,6 +51,15 @@ public class QueryGenerator {
         createWhereClause(cypherQuery, pathTree, pathQuery);
         createReturnClause(cypherQuery, pathTree, pathQuery);
         createOrderByClause(cypherQuery, pathTree, pathQuery);
+
+        for (String view : pathQuery.getView()) {
+            TreeNode viewNode = pathTree.getTreeNode(view);
+            String parentVariable = viewNode.getParent().getVariableName();
+            String attributeName = viewNode.getGraphicalName();
+            String variableName = parentVariable + "." + attributeName;
+
+            cypherQuery.addVariable(view, variableName);
+        }
 
         return cypherQuery;
     }
