@@ -1,6 +1,8 @@
 package org.intermine.neo4j.cypher;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +20,7 @@ public class CypherQuery {
 
     private String returnClause = "";
 
-    private String orderByClause = "";
+    private List<Order> orders = new ArrayList<>();
 
     private Map<String, String> variables = new HashMap<>();
 
@@ -65,18 +67,7 @@ public class CypherQuery {
         }
     }
 
-    /**
-     * Add an order to the ORDER BY clause of the Cypher query
-     *
-     * @param string the given order
-     */
-    protected void addToOrderBy(String string){
-        if(orderByClause.equals("")){
-            orderByClause += "ORDER BY " + string;
-        } else {
-            orderByClause += ",\n" + string;
-        }
-    }
+
 
     /**
      * Sets the given string as the WHERE clause of the Cypher query
@@ -126,13 +117,16 @@ public class CypherQuery {
         return returnClause;
     }
 
-    /**
-     * Gets the ORDER BY clause of the Cypher query
-     *
-     * @return the ORDER BY clause
-     */
-    public String getOrderByClause() {
-        return orderByClause;
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public void addOrder(Order order) {
+        orders.add(order);
     }
 
     /**
@@ -146,8 +140,24 @@ public class CypherQuery {
         String query = matchClause + "\n" +
                 optionalMatchClause + "\n" +
                 whereClause + "\n" +
-                returnClause + "\n" +
-                orderByClause;
+                returnClause + "\n";
+
+        // Generate Order By Clause
+        if (!orders.isEmpty()) {
+            query += "ORDER BY ";
+            boolean first = true;
+            for (Order order : orders) {
+                if (first) {
+                    first = false;
+                } else {
+                    query += ",\n";
+                }
+                query += order.getVariableName() + "." +
+                        order.getPropertyKey() + " " +
+                        order.getDirection();
+            }
+        }
+
         if (resultRowsSkip != -1) {
             query += "\nSKIP " + String.valueOf(resultRowsSkip);
         }
