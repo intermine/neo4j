@@ -40,7 +40,9 @@ public class Neo4jModelParser {
 
     static final String NEO4J_IGNORE_ATTRIBUTE = "neo4j-ignore";
     static final String NEO4J_RELATIONSHIP_ATTRIBUTE = "neo4j-relationship";
-
+    static final String NEO4J_AS_RELATIONSHIP_ATTRIBUTE = "neo4j-as-relationship";
+    static final String NEO4J_RELATIONSHIP_TARGET_ATTRIBUTE = "neo4j-relationship-target";
+    
     // the InterMineModel represented by this XML file
     Model model;
 
@@ -50,9 +52,14 @@ public class Neo4jModelParser {
     Set<String> ignoredReferences;        // e.g. "SequenceFeature.chromosomeLocation"
     Set<String> ignoredCollections;       // e.g. "GOAnnotation.transcripts"
 
-    // the Neo4j relationship types corresponding to classes that become relationships
-    // as well as references and collections that should be renamed in the graph
-    Map<String,String> relationshipTypes; // e.g. "Location" -> "LOCATED_ON" or "homologue" -> "HOMOLOGUE_OF"
+    // the IM classes that are stored as Neo4j relationsips, not nodes
+    Set<String> relationships;            // e.g. "Location"
+
+    // the Neo4j relationship types relating IM class nodes to reference and collection nodes (rather than using the IM field name)
+    Map<String,String> relationshipTypes; // e.g. "SequenceFeature.childFeatures","PARENT_OF"
+
+    // the class and field identifiying the target node for Neo4j relationship classes stored in relationships
+    Map<String,String> relationshipTargets; // e.g. "Location","locatedOn"
 
     /**
      * Constructor
@@ -63,6 +70,10 @@ public class Neo4jModelParser {
         ignoredAttributes = new LinkedHashSet<String>();
         ignoredReferences = new LinkedHashSet<String>();
         ignoredCollections = new LinkedHashSet<String>();
+
+        // relationships, classes that are stored as relationships rather than nodes
+        relationships = new LinkedHashSet<String>();
+        relationshipTargets = new LinkedHashMap<String,String>();
 
         // relationship types, keyed by class name for classes, or Class.name for references and collections
         relationshipTypes = new LinkedHashMap<String,String>();
@@ -107,7 +118,7 @@ public class Neo4jModelParser {
                 }
                 System.out.print(classDescriptor.getSimpleName());
                 if (isRelationship) {
-                    System.out.print(" --> "+nmp.getRelationshipType(classDescriptor));
+                    System.out.print(" ==> "+nmp.getRelationshipTarget(classDescriptor));
                 }
                 System.out.println("");
                 // show attributes
@@ -167,15 +178,44 @@ public class Neo4jModelParser {
     }
 
     /**
-     * Return true if the provided class is meant to be a Neo4j relationship
+     * Return true if the provided class is stored as a Neo4j relationship rather than a node
      *
      * @param cd the ClassDescriptor
      * @return true if the class is to be a Neo4j relationship
      */
     public boolean isRelationship(ClassDescriptor cd) {
-        return relationshipTypes.containsKey(cd.getSimpleName());
+        return relationships.contains(cd.getSimpleName());
     }
 
+    /**
+     * Return true if the provided class is stored as a Neo4j relationship rather than a node
+     *
+     * @param className the (simple) name of the class
+     * @return true if the class is to be a Neo4j relationship; false otherwise or if the name is not associated with a class
+     */
+    public boolean isRelationship(String className) {
+        ClassDescriptor cd = model.getClassDescriptorByName(className);
+        if (cd!=null) {
+            return isRelationship(cd);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Return the target field of a class which is stored as a Neo4j relationship rather than a node
+     *
+     * @param cd the ClassDescriptor
+     * @return the relationship target field name
+     */
+    public String getRelationshipTarget(ClassDescriptor cd) {
+        if (relationshipTargets.containsKey(cd.getSimpleName())) {
+            return relationshipTargets.get(cd.getSimpleName());
+        } else {
+            return null;
+        }
+    }
+    
     /**
      * Return the relationship type for the given class, if it is to be represented in Neo4j as a relationship; null otherwise.
      *
@@ -184,7 +224,7 @@ public class Neo4jModelParser {
      */
     public String getRelationshipType(ClassDescriptor cd) {
         if (relationshipTypes.containsKey(cd.getSimpleName())) {
-            return(relationshipTypes.get(cd.getSimpleName()));
+            return relationshipTypes.get(cd.getSimpleName());
         } else {
             return null;
         }
@@ -243,6 +283,10 @@ public class Neo4jModelParser {
         String key = className+"."+fieldName;
         if (relationshipTypes.containsKey(key)) return relationshipTypes.get(key);
         ClassDescriptor classDescriptor = model.getClassDescriptorByName(className);
+        // is this actually a relationship?
+        if (isRelationship(classDescriptor)) {
+            return "DEBUG: IS A NEO4J RELATIONSHIP";
+        }
         // reverse reference to a reference renamed?
         ReferenceDescriptor rd = classDescriptor.getReferenceDescriptorByName(fieldName);
         if (rd!=null) {
@@ -276,6 +320,15 @@ public class Neo4jModelParser {
      */
     public Map<String,String> getRelationshipTypes() {
         return relationshipTypes;
+    }
+
+    /**
+     * Return the full map of relationships
+     *
+     * @return a string-string map of relationships-types
+     */
+    public Set<String> getRelationships() {
+        return relationships;
     }
 
     /**
@@ -330,15 +383,13 @@ public class Neo4jModelParser {
         LinkedHashMap<String,String> addMap = new LinkedHashMap<String,String>();
         for (String key : relationshipTypes.keySet()) {
             String[] parts = key.split("\\.");
-            if (parts.length==2) {
-                String className = parts[0];
-                String refName = parts[1];
-                String relType = relationshipTypes.get(key);
-                ClassDescriptor cd = model.getClassDescriptorByName(className);
-                Set<ClassDescriptor> subDescriptors = model.getAllSubs(cd);
-                for (ClassDescriptor scd : subDescriptors) {
-                    addMap.put(scd.getSimpleName()+"."+refName, relType);
-                }
+            String className = parts[0];
+            String refName = parts[1];
+            String relType = relationshipTypes.get(key);
+            ClassDescriptor cd = model.getClassDescriptorByName(className);
+            Set<ClassDescriptor> subDescriptors = model.getAllSubs(cd);
+            for (ClassDescriptor scd : subDescriptors) {
+                addMap.put(scd.getSimpleName()+"."+refName, relType);
             }
         }
         relationshipTypes.putAll(addMap);
@@ -406,6 +457,8 @@ public class Neo4jModelParser {
             // added Neo4j attributes
             boolean neo4jIgnore = Boolean.valueOf(attrs.getValue(NEO4J_IGNORE_ATTRIBUTE)).booleanValue();
             String neo4jRelationship = attrs.getValue(NEO4J_RELATIONSHIP_ATTRIBUTE);
+            String neo4jAsRelationship = attrs.getValue(NEO4J_AS_RELATIONSHIP_ATTRIBUTE);
+            String neo4jRelationshipTarget = attrs.getValue(NEO4J_RELATIONSHIP_TARGET_ATTRIBUTE);
             
             if ("class".equals(qName)) {
 
@@ -413,9 +466,9 @@ public class Neo4jModelParser {
                 String supers = attrs.getValue("extends");
                 cls = new SkeletonClass(name, supers);
                 if (neo4jIgnore) ignoredClasses.add(name);
-                if (!StringUtils.isEmpty(neo4jRelationship)) {
+                if (!StringUtils.isEmpty(neo4jAsRelationship)) {
                     ignoredClasses.add(name);
-                    relationshipTypes.put(name, neo4jRelationship);
+                    relationships.add(name);
                 }
 
             } else if ("attribute".equals(qName)) {
@@ -429,14 +482,20 @@ public class Neo4jModelParser {
                 String name = attrs.getValue("name");
                 if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("Error - `" + cls.name + "` has a reference" + " with an empty/null name");
                 if (neo4jIgnore) ignoredReferences.add(cls.name+"."+name);
-                if (!StringUtils.isEmpty(neo4jRelationship)) relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
+                if (!StringUtils.isEmpty(neo4jRelationship)) {
+                    relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
+                    if (!StringUtils.isEmpty(neo4jRelationshipTarget)) relationshipTargets.put(cls.name, name);
+                }
 
             } else if ("collection".equals(qName)) {
 
                 String name = attrs.getValue("name");
                 if (StringUtils.isEmpty(name)) throw new IllegalArgumentException("Error - `" + cls.name + "` has a collection" + " with an empty/null name");
                 if (neo4jIgnore) ignoredCollections.add(cls.name+"."+name);
-                if (!StringUtils.isEmpty(neo4jRelationship)) relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
+                if (!StringUtils.isEmpty(neo4jRelationship)) {
+                    relationshipTypes.put(cls.name+"."+name, neo4jRelationship);
+                    if (!StringUtils.isEmpty(neo4jRelationshipTarget)) relationshipTargets.put(cls.name, name);
+                }
 
             }
         }

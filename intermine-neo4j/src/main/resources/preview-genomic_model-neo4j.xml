@@ -1,8 +1,8 @@
 <model name="genomic" package="org.intermine.model.bio">
 <class name="ChromosomalDuplication" extends="ChromosomeStructureVariation" is-interface="true"></class>
-<class name="OntologyAnnotation" is-interface="true" neo4j-relationship="ANNOTATED_BY">
+<class name="OntologyAnnotation" is-interface="true" neo4j-as-relationship="true">
 	<attribute name="qualifier" type="java.lang.String"/>
-	<reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations"/>
+	<reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations" neo4j-relationship="ANNOTATED_BY"/>
 	<reference name="subject" referenced-type="BioEntity" reverse-reference="ontologyAnnotations"/>
 	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
@@ -371,9 +371,9 @@
 <class name="NaturalTransposableElement" extends="TransposableElement" is-interface="true">
 	<collection name="transposableElements" referenced-type="TransposableElement" reverse-reference="insertedElement"/>
 </class>
-<class name="GOAnnotation" extends="OntologyAnnotation" is-interface="true" neo4j-relationship="ANNOTATED_BY">
+<class name="GOAnnotation" extends="OntologyAnnotation" is-interface="true">
 	<attribute name="annotationExtension" type="java.lang.String"/>
-	<collection name="evidence" referenced-type="GOEvidence" neo4j-relationship="EVIDENCED_BY"/>
+	<collection name="evidence" referenced-type="GOEvidence"/>
 </class>
 <class name="Sequence" is-interface="true">
 	<attribute name="md5checksum" type="java.lang.String"/>
@@ -567,7 +567,7 @@
 	<reference name="EST" referenced-type="EST"/>
 	<collection name="results" referenced-type="MicroArrayResult"/>
 </class>
-<class name="OntologyRelation" is-interface="true" neo4j-relationship="RELATED_TO">
+<class name="OntologyRelation" is-interface="true" neo4j-ignore="true">
 	<attribute name="relationship" type="java.lang.String"/>
 	<attribute name="redundant" type="java.lang.Boolean"/>
 	<attribute name="direct" type="java.lang.Boolean"/>
@@ -592,13 +592,13 @@
 	<reference name="sequenceOntologyTerm" referenced-type="SOTerm" neo4j-relationship="HAS_TERM"/>
 </class>
 <class name="Chromosome" extends="SequenceFeature" is-interface="true"></class>
-<class name="Location" is-interface="true" neo4j-relationship="LOCATED_ON">
+<class name="Location" is-interface="true" neo4j-as-relationship="true">
 	<attribute name="start" type="java.lang.Integer"/>
 	<attribute name="end" type="java.lang.Integer"/>
 	<attribute name="strand" type="java.lang.String"/>
-	<reference name="feature" referenced-type="BioEntity" reverse-reference="locations"/>
-	<reference name="locatedOn" referenced-type="BioEntity" reverse-reference="locatedFeatures"/>
-	<collection name="dataSets" referenced-type="DataSet" 	neo4j-ignore="true"/>
+	<reference name="locatedOn" referenced-type="BioEntity" reverse-reference="locatedFeatures" neo4j-relationship="LOCATED_ON" neo4j-relationship-target="true"/>
+	<reference name="feature" referenced-type="BioEntity" reverse-reference="locations" neo4j-ignore="true"/>
+	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="CrossReference" is-interface="true">
 	<attribute name="identifier" type="java.lang.String"/>
