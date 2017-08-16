@@ -50,14 +50,20 @@ public class Neo4jEdgeLoader {
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, ModelParserException {
 
         // get the args
-        if (args.length!=3) {
-            System.out.println("Usage: Neo4jEdgeLoader <SourceClass> <referenceName> <targetName>");
-            System.out.println("Example: Neo4jEdgeLoader Gene chromosomeLocation locatedOn");
+        if (args.length!=1) {
+            System.out.println("Usage: Neo4jEdgeLoader SourceClass.fieldName");
+            System.out.println("Example: Neo4jEdgeLoader Gene.chromosomeLocation");
             System.exit(0);
         }
-        String sourceClass = args[0];
-        String edgeName = args[1];
-        String targetName = args[2];
+
+        String[] parts = args[0].split("\\.");
+        if (parts.length!=2) {
+            System.out.println("Usage: Neo4jEdgeLoader SourceClass.fieldName");
+            System.out.println("Example: Neo4jEdgeLoader Gene.chromosomeLocation");
+            System.exit(0);
+        }
+        String sourceClass = parts[0];
+        String fieldName = parts[1];
 
         // get the properties from the default file
         Neo4jLoaderProperties props = new Neo4jLoaderProperties();
@@ -77,8 +83,74 @@ public class Neo4jEdgeLoader {
         Neo4jModelParser nmp = new Neo4jModelParser();
         nmp.process(props);
 
-        // map IM classes that become edges to their Neo4j relationship type
-        Map<String,String> edgeClassTypes = nmp.getRelationshipTypes();
+        // Get the source descriptor
+        ClassDescriptor sourceDescriptor = model.getClassDescriptorByName(sourceClass);
+        if (sourceDescriptor==null) {
+            System.out.println("Model does not contain class: "+sourceClass);
+            System.exit(1);
+        }
+
+
+        // Find the field class descriptor, trying references, then collections
+        String fieldClass = null;
+        ClassDescriptor fieldDescriptor = null;
+        for (ReferenceDescriptor rd : sourceDescriptor.getAllReferenceDescriptors()) {
+            String refName = rd.getName();
+            if (refName.equals(fieldName)) {
+                fieldDescriptor = rd.getReferencedClassDescriptor();
+                fieldClass = fieldDescriptor.getSimpleName();
+            }
+        }
+        if (fieldClass==null) {
+            for (CollectionDescriptor cd : sourceDescriptor.getAllCollectionDescriptors()) {
+                String collName = cd.getName();
+                if (collName.equals(fieldName)) {
+                    fieldDescriptor = cd.getReferencedClassDescriptor();
+                    fieldClass = fieldDescriptor.getSimpleName();
+                }
+            }
+        }
+        if (fieldClass==null) {
+            System.out.println("Couldn't find "+fieldName+" in either references or collections of "+sourceClass);
+            System.exit(1);
+        }
+
+        // check that the field is indeed stored as a Neo4j relationship
+        if (!nmp.isRelationship(fieldDescriptor)) {
+            System.err.println("Error: "+fieldDescriptor+" is not stored as a Neo4j relationship.");
+            System.exit(1);
+        }
+
+        // now get the target name referenced in the field class
+        String targetName = nmp.getRelationshipTarget(fieldDescriptor);
+        if (targetName==null) {
+            System.err.println("Error: could not find target of "+fieldDescriptor);
+            System.exit(1);
+        }
+        
+        // get the target descriptor and associated items
+        ClassDescriptor targetDescriptor = null;
+        String targetClass = null;
+        for (ReferenceDescriptor rd : fieldDescriptor.getAllReferenceDescriptors()) {
+            String refName = rd.getName();
+            if (refName.equals(targetName)) {
+                targetDescriptor = rd.getReferencedClassDescriptor();
+                targetClass = targetDescriptor.getSimpleName();
+            }
+        }
+        if (targetClass==null) {
+            System.out.println("Could not find reference to "+targetName+" in class "+fieldClass);
+            System.exit(1);
+        }
+
+        // get the relationship type
+        String relationshipType = nmp.getRelationshipType(fieldClass,targetName);
+
+        // informational output
+        System.out.println("sourceClass="+sourceClass);
+        System.out.println("targetName="+targetName);
+        System.out.println("relationshipType="+relationshipType);
+        System.out.println("targetClass="+targetClass);
 
         // Retrieve the IM IDs of things that have already been stored
         List<Integer> thingsAlreadyStored = new ArrayList<Integer>();
@@ -94,72 +166,23 @@ public class Neo4jEdgeLoader {
             }
         }
 
-        // Get the source descriptor
-        ClassDescriptor sourceDescriptor = model.getClassDescriptorByName(sourceClass);
-        if (sourceDescriptor==null) {
-            System.out.println("Model does not contain class: "+sourceClass);
-            System.exit(1);
-        }
-
-        // Find the edge class descriptor, trying references, then collections
-        String edgeClass = null;
-        ClassDescriptor edgeDescriptor = null;
-        for (ReferenceDescriptor rd : sourceDescriptor.getAllReferenceDescriptors()) {
-            String refName = rd.getName();
-            if (refName.equals(edgeName)) {
-                edgeDescriptor = rd.getReferencedClassDescriptor();
-                edgeClass = edgeDescriptor.getSimpleName();
-            }
-        }
-        if (edgeClass==null) {
-            for (CollectionDescriptor cd : sourceDescriptor.getAllCollectionDescriptors()) {
-                String collName = cd.getName();
-                if (collName.equals(edgeName)) {
-                    edgeDescriptor = cd.getReferencedClassDescriptor();
-                    edgeClass = edgeDescriptor.getSimpleName();
-                }
-            }
-        }
-        if (edgeClass==null) {
-            System.out.println("Couldn't find "+edgeName+" in either references or collections of "+sourceClass);
-            System.exit(1);
-        }
-
-        // now get the target class referenced from the edge class
-        String targetClass = null;
-        ClassDescriptor targetDescriptor = null;
-        for (ReferenceDescriptor rd : edgeDescriptor.getAllReferenceDescriptors()) {
-            String refName = rd.getName();
-            if (refName.equals(targetName)) {
-                targetDescriptor = rd.getReferencedClassDescriptor();
-                targetClass = targetDescriptor.getSimpleName();
-            }
-        }
-        if (targetClass==null) {
-            System.out.println("Could not find reference to "+targetName+" in class "+edgeClass);
-            System.exit(1);
-        }
-
-        // now we need the attributes of the edge class
-        Set<AttributeDescriptor> attrDescriptors = edgeDescriptor.getAllAttributeDescriptors();
+        // now we need the attributes of the field class
+        Set<AttributeDescriptor> attrDescriptors = fieldDescriptor.getAllAttributeDescriptors();
         Map<String,String> attrNamesTypes = new HashMap<String,String>();
         for (AttributeDescriptor ad : attrDescriptors) {
             attrNamesTypes.put(ad.getName(),ad.getType());
         }
-        System.out.println(edgeName+":"+attrNamesTypes.keySet());
+        System.out.println(fieldName+":"+attrNamesTypes.keySet());
 
         // query the source:relation attributes:target
         nodeQuery.addView(sourceClass+".id"); // Neo4j source key
-        nodeQuery.addView(sourceClass+"."+edgeName+".id"); // Neo4j edge key
-        nodeQuery.addView(sourceClass+"."+edgeName+"."+targetName+".id"); // Neo4j target key
+        nodeQuery.addView(sourceClass+"."+fieldName+".id"); // Neo4j edge key
+        nodeQuery.addView(sourceClass+"."+fieldName+"."+targetName+".id"); // Neo4j target key
         for (String attrName : attrNamesTypes.keySet()) {
-            if (!attrName.equals("id")) nodeQuery.addView(sourceClass+"."+edgeName+"."+attrName);
+            if (!attrName.equals("id")) nodeQuery.addView(sourceClass+"."+fieldName+"."+attrName);
         }
 
-        // get the edge type from either the edgeName or the map back to its class
-        String edgeType = edgeName;
-        if (edgeClassTypes.containsKey(edgeClass)) edgeType = edgeClassTypes.get(edgeClass);
-
+        // iterate over the source class and merge the relationships
         int nodeCount = 0;
         Iterator<List<Object>> rows = service.getRowListIterator(nodeQuery);
         while (rows.hasNext() && (props.maxRows==0 || nodeCount<props.maxRows)) {
@@ -179,17 +202,17 @@ public class Neo4jEdgeLoader {
                 Neo4jLoader.populateIdClassAttributes(service, driver, attrQuery, tid, targetClass, targetDescriptor, nmp);
 
                 // MERGE the edge, but don't relate InterMineID nodes!
-                String merge = "MATCH (s {id:"+sid+"}),(t {id:"+tid+"}) WHERE labels(s)<>'InterMineID' AND labels(t)<>'InterMineID' MERGE (s)-[:"+edgeType+" {id:"+eid+"}]->(t)";
+                String merge = "MATCH (s {id:"+sid+"}),(t {id:"+tid+"}) WHERE labels(s)<>'InterMineID' AND labels(t)<>'InterMineID' MERGE (s)-[:"+relationshipType+" {id:"+eid+"}]->(t)";
                 try (Session session = driver.session()) {
                     try (Transaction tx = session.beginTransaction()) {
                         tx.run(merge);
                         tx.success();
-                        System.out.println("("+sourceClass+":"+sid+")-["+edgeType+":"+eid+"]->("+targetClass+":"+tid+")");
+                        System.out.println("("+sourceClass+":"+sid+")-["+relationshipType+":"+eid+"]->("+targetClass+":"+tid+")");
                     }
                 }
 
                 // MATCH the edge and SET its properties
-                String set = "MATCH p=()-[r:"+edgeType+" {id:"+eid+"}]->() ";
+                String set = "MATCH p=()-[r:"+relationshipType+" {id:"+eid+"}]->() ";
                 boolean first = true;
                 for (String attrName : attrNamesTypes.keySet()) {
                     String attrType = attrNamesTypes.get(attrName);

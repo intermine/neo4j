@@ -87,7 +87,7 @@ task edgeLoader(type: JavaExec) {
     if(project.hasProperty('Args')){
         args(Args.split(','))
     }
-    description = "Neo4j Edge Loader: loads edges into Neo4j given by source class, edge reference or collection, and target as referenced in the edge class. Usage: ./gradlew edgeLoader -PArgs=Gene,chromosomeLocation,locatedOn"
+    description = "Neo4j Edge Loader: loads edges into Neo4j given by source class and edge reference or collection. Usage: ./gradlew edgeLoader -PArgs=Gene.chromosomeLocation"
     classpath sourceSets.main.runtimeClasspath
     main = "org.intermine.neo4j.Neo4jEdgeLoader"
 }
