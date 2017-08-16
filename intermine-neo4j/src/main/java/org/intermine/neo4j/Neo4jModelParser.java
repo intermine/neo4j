@@ -215,6 +215,22 @@ public class Neo4jModelParser {
             return null;
         }
     }
+
+    /**
+     * Return the target field of a class which is stored as a Neo4j relationship rather than a node
+     *
+     * @param className the (simple) name of the class
+     * @return the relationship target field name
+     */
+    public String getRelationshipTarget(String className) {
+        ClassDescriptor cd = model.getClassDescriptorByName(className);
+        if (cd!=null) {
+            return getRelationshipTarget(cd);
+        } else {
+            return null;
+        }
+    }
+
     
     /**
      * Return the relationship type for the given class, if it is to be represented in Neo4j as a relationship; null otherwise.

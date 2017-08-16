@@ -128,23 +128,24 @@ public class Neo4jEdgeLoader {
             System.exit(1);
         }
         
-        // get the target descriptor and associated items
+        // get the relationship type
+        String relationshipType = nmp.getRelationshipType(fieldClass, targetName);
+
+        // get the target descriptor and class
         ClassDescriptor targetDescriptor = null;
         String targetClass = null;
-        for (ReferenceDescriptor rd : fieldDescriptor.getAllReferenceDescriptors()) {
-            String refName = rd.getName();
-            if (refName.equals(targetName)) {
-                targetDescriptor = rd.getReferencedClassDescriptor();
-                targetClass = targetDescriptor.getSimpleName();
-            }
-        }
-        if (targetClass==null) {
-            System.out.println("Could not find reference to "+targetName+" in class "+fieldClass);
+        if (fieldDescriptor.getReferenceDescriptorByName(targetName)!=null) {
+            ReferenceDescriptor rd = fieldDescriptor.getReferenceDescriptorByName(targetName);
+            targetDescriptor = rd.getReferencedClassDescriptor();
+            targetClass = targetDescriptor.getSimpleName();
+        } else if (fieldDescriptor.getCollectionDescriptorByName(targetName)!=null) {
+            CollectionDescriptor cd = fieldDescriptor.getCollectionDescriptorByName(targetName);
+            targetDescriptor = cd.getReferencedClassDescriptor();
+            targetClass = targetDescriptor.getSimpleName();
+        } else {
+            System.out.println("Error: could not find reference to "+targetName+" in class "+fieldClass);
             System.exit(1);
         }
-
-        // get the relationship type
-        String relationshipType = nmp.getRelationshipType(fieldClass,targetName);
 
         // informational output
         System.out.println("sourceClass="+sourceClass);
