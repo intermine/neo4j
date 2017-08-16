@@ -75,7 +75,7 @@ public class QueryGenerator {
         List<OrderElement> orderElements = pathQuery.getOrderBy();
         for (OrderElement orderElement : orderElements) {
             Order order = new Order(orderElement, pathTree);
-            cypherQuery.addToOrderBy(order.toString());
+            cypherQuery.addOrder(order);
         }
     }
 
