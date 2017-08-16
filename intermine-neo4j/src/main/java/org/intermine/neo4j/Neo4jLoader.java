@@ -348,7 +348,8 @@ public class Neo4jLoader {
                         String val = escapeForNeo4j(row[i++].toString());
                         terms++;
                         if (terms>1) match += ",";
-                        if (attrType.equals("java.lang.String") || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
+                        if (attrType.equals("java.lang.String") || attrType.equals("java.util.Date")
+                                || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
                             match += "n."+attrName+"=\""+val+"\"";
                         } else {
                             match += "n."+attrName+"="+val;
