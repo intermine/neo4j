@@ -2,8 +2,8 @@
 <class name="ChromosomalDuplication" extends="ChromosomeStructureVariation" is-interface="true"></class>
 <class name="OntologyAnnotation" is-interface="true" neo4j-as-relationship="true">
 	<attribute name="qualifier" type="java.lang.String"/>
-	<reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations" neo4j-relationship="ANNOTATED_BY"/>
-	<reference name="subject" referenced-type="BioEntity" reverse-reference="ontologyAnnotations"/>
+	<reference name="ontologyTerm" referenced-type="OntologyTerm" reverse-reference="ontologyAnnotations" neo4j-relationship="ANNOTATED_BY" neo4j-relationship-target="true"/>
+	<reference name="subject" referenced-type="BioEntity" reverse-reference="ontologyAnnotations" neo4j-ignore="true"/>
 	<collection name="dataSets" referenced-type="DataSet" neo4j-ignore="true"/>
 </class>
 <class name="Exon" extends="SequenceFeature" is-interface="true">

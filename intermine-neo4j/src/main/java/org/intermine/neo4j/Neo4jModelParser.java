@@ -161,8 +161,43 @@ public class Neo4jModelParser {
             String[] parts = classDotField.split("\\.");
             String className = parts[0];
             String fieldName = parts[1];
-            System.out.println(classDotField+" --> "+nmp.getRelationshipType(className, fieldName));
-
+            ClassDescriptor classDescriptor = nmp.getModel().getClassDescriptorByName(className);
+            boolean isRelationship = nmp.isRelationship(classDescriptor);
+            boolean isIgnored = nmp.isIgnored(classDescriptor);
+            if (isRelationship) {
+                System.out.print("R ");
+            } else if (isIgnored) {
+                System.out.print("X ");
+            } else {
+                System.out.print("+ ");
+            }
+            System.out.print(className);
+            if (isRelationship) {
+                System.out.print(" ==> "+nmp.getRelationshipTarget(classDescriptor));
+            }
+            System.out.println("");
+            ClassDescriptor cd = null;
+            if (classDescriptor.getReferenceDescriptorByName(fieldName)!=null) {
+                ReferenceDescriptor refDescriptor = classDescriptor.getReferenceDescriptorByName(fieldName);
+                cd = refDescriptor.getReferencedClassDescriptor();
+            } else if (classDescriptor.getCollectionDescriptorByName(fieldName)!=null) {
+                CollectionDescriptor collDescriptor = classDescriptor.getCollectionDescriptorByName(fieldName);
+                cd = collDescriptor.getReferencedClassDescriptor();
+            }
+            if (cd!=null) {
+                if (nmp.isIgnored(cd)) System.out.print("X");
+                System.out.print("\tr "+cd.getSimpleName());
+                String relType = nmp.getRelationshipType(cd);
+                if (relType!=null && relType.equals(cd.getSimpleName())) {
+                    System.out.print(" === ");
+                } else {
+                    System.out.print(" --> ");
+                }
+                System.out.println(relType);
+            } else {
+                System.err.println("Could not determine collection or reference from "+classDotField);
+            }
+            
         }
 
     }
@@ -175,6 +210,21 @@ public class Neo4jModelParser {
      */
     public boolean isIgnored(ClassDescriptor cd) {
         return ignoredClasses.contains(cd.getSimpleName());
+    }
+
+    /**
+     * Return true if the provided class name is to be ignored for Neo4j node loading
+     *
+     * @param className the (simple) name of the class
+     * @return true if the class is to be ignored in Neo4j node loading
+     */
+    public boolean isIgnored(String className) {
+        ClassDescriptor cd = model.getClassDescriptorByName(className);
+        if (cd!=null) {
+            return isIgnored(cd);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -301,7 +351,7 @@ public class Neo4jModelParser {
         ClassDescriptor classDescriptor = model.getClassDescriptorByName(className);
         // is this actually a relationship?
         if (isRelationship(classDescriptor)) {
-            return "DEBUG: IS A NEO4J RELATIONSHIP";
+            return getRelationshipType(classDescriptor);
         }
         // reverse reference to a reference renamed?
         ReferenceDescriptor rd = classDescriptor.getReferenceDescriptorByName(fieldName);
