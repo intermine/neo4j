@@ -140,53 +140,64 @@ public class QueryGenerator {
             cypherQuery.addToMatch("(" + treeNode.getVariableName() +
                              " :" + treeNode.getGraphicalName() + ")");
         }
-        else if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
+        else {
+            String match = null;
+            if (treeNode.getTreeNodeType() == TreeNodeType.NODE) {
 
-            Neo4jModelParser modelParser = new Neo4jModelParser();
-            modelParser.process(new Neo4jLoaderProperties());
+                Neo4jModelParser modelParser = new Neo4jModelParser();
+                modelParser.process(new Neo4jLoaderProperties());
 
-            String match = "Error in createMatchClause";
-            TreeNode parentTreeNode = treeNode.getParent();
-            if (parentTreeNode.getTreeNodeType() == TreeNodeType.NODE) {
-                String className = parentTreeNode.getPath().getEndClassDescriptor().getSimpleName();
-                String refName = treeNode.getName();
+                TreeNode parentTreeNode = treeNode.getParent();
+                if (parentTreeNode.getTreeNodeType() == TreeNodeType.NODE) {
+                    String className = parentTreeNode.getPath().getEndClassDescriptor().getSimpleName();
+                    String refName = treeNode.getName();
 
-                String relationshipType = modelParser.getRelationshipType(className, refName);
+                    String relationshipType = modelParser.getRelationshipType(className, refName);
 
-                match = "(" +
-                        parentTreeNode.getVariableName() +
-                        ")-[:" +
-                        relationshipType +
-                        "]-(" +
-                        treeNode.getVariableName() +
-                        " :" +
-                        treeNode.getGraphicalName() +
-                        ")";
+                    match = "(" +
+                            parentTreeNode.getVariableName() +
+                            ")-[:" +
+                            relationshipType +
+                            "]-(" +
+                            treeNode.getVariableName() +
+                            " :" +
+                            treeNode.getGraphicalName() +
+                            ")";
+                } else if (parentTreeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                    match = "(" +
+                            parentTreeNode.getParent().getVariableName() +
+                            ")-[" +
+                            parentTreeNode.getVariableName() +
+                            ":" +
+                            parentTreeNode.getGraphicalName() +
+                            "]-(" +
+                            treeNode.getVariableName() +
+                            " :" +
+                            treeNode.getGraphicalName() +
+                            ")";
+                }
             }
-            else if (parentTreeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
-                match = "(" +
-                        parentTreeNode.getParent().getVariableName() +
-                        ")-[" +
-                        parentTreeNode.getVariableName() +
-                        ":" +
-                        parentTreeNode.getGraphicalName() +
-                        "]-(" +
-                        treeNode.getVariableName() +
-                        " :" +
-                        treeNode.getGraphicalName() +
-                        ")";
+            else if (treeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                if (treeNode.getChildrenKeys().isEmpty()) {
+                    TreeNode parentTreeNode = treeNode.getParent();
+                    match = "(" +
+                            parentTreeNode.getVariableName() +
+                            ")-[" +
+                            treeNode.getVariableName() +
+                            ":" +
+                            treeNode.getGraphicalName() +
+                            "]-()";
+                }
             }
-
-            if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
-                cypherQuery.addToMatch(match);
+            if (match != null) {
+                if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
+                    cypherQuery.addToMatch(match);
+                }
+                else {
+                    cypherQuery.addToOptionalMatch(match);
+                }
             }
-            else {
-                cypherQuery.addToOptionalMatch(match);
-            }
-
         }
-        // If current TreeNode represents a Graphical Relationship, then Do nothing.
-        // We will match this relationship when recursion reaches its children.
 
         // Add all children to Match clause
         for (String key : treeNode.getChildrenKeys()) {
