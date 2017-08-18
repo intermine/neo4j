@@ -1,6 +1,6 @@
 MATCH (gene :Gene),
 (gene)-[:ANNOTATED_BY]-(gene_goannotation :GOAnnotation),
-(gene_goannotation)-[:ontologyTerm]-(gene_goannotation_ontologyterm :OntologyTerm),
+(gene_goannotation)-[:ANNOTATED_BY]-(gene_goannotation_ontologyterm :OntologyTerm),
 (gene_goannotation_ontologyterm)-[:parents]-(gene_goannotation_ontologyterm_parents :OntologyTerm),
 (gene)-[:PART_OF]-(gene_organism :Organism)
 
