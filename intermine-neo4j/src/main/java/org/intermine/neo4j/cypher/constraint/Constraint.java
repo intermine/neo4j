@@ -150,8 +150,8 @@ public class Constraint {
         }
         List<String> ranges = new ArrayList<>(PathConstraint.getValues(pathConstraint));
         PathConstraintRange pcr = new PathConstraintRange(pathConstraint.getPath(),
-        pathConstraint.getOp(),
-        ranges);
+                                                            pathConstraint.getOp(),
+                                                            ranges);
         String constraintString = "";
         for (String range: pcr.getValues()) {
             GenomicInterval interval = new GenomicInterval(range);
@@ -170,19 +170,17 @@ public class Constraint {
 
                 }
                 else if (constraintType == ConstraintType.CONTAINS) {
-                    constraintString += "(" +
-                                    treeNode.getVariableName() + ".start <= " + start +
+                    constraintString += treeNode.getVariableName() + ".start <= " + start +
                                     " AND " +
                                     treeNode.getVariableName() + ".end >= " + end;
                 }
                 else if (constraintType == ConstraintType.WITHIN) {
-                    constraintString += "(" +
-                                    treeNode.getVariableName() + ".start >= " + start +
+                    constraintString += treeNode.getVariableName() + ".start >= " + start +
                                     " AND " +
                                     treeNode.getVariableName() + ".end <= " + end;
                 }
                 constraintString += " AND " +
-                                "(" + treeNode.getVariableName() + ")--(:Chromosome {primaryIdentifier:" +
+                                "()-[" + treeNode.getVariableName() + "]-(:Chromosome {primaryIdentifier:" +
                                 Helper.quoted(chromosomePrimaryId) + "})" +
                                 ")";
             }

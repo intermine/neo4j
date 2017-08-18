@@ -1,7 +1,6 @@
 MATCH (gene :Gene),
 (gene)-[:gene]-(gene_cdss :CDS),
-(gene_cdss)-[:ANNOTATED_BY]-(gene_cdss_ontologyannotations :OntologyAnnotation),
-(gene_cdss_ontologyannotations)-[:dataSets]-(gene_cdss_ontologyannotations_datasets :DataSet),
+(gene_cdss)-[gene_cdss_ontologyannotations:DEBUG: IS A NEO4J RELATIONSHIP]-(gene_cdss_ontologyannotations_datasets :DataSet),
 (gene_cdss_ontologyannotations_datasets)-[:dataSets]-(gene_cdss_ontologyannotations_datasets_bioentities :BioEntity),
 (gene_cdss_ontologyannotations_datasets_bioentities)-[:SYNONYM_OF]-(gene_cdss_ontologyannotations_datasets_bioentities_synonyms :Synonym),
 (gene_cdss_ontologyannotations_datasets_bioentities)-[:CROSS_REFERENCED_BY]-(gene_cdss_ontologyannotations_datasets_bioentities_crossreferences :CrossReference)
