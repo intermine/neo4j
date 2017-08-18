@@ -1,0 +1,2 @@
+<query model="genomic" view="Gene.primaryIdentifier Gene.chromosomeLocation.end Gene.chromosomeLocation.locatedOn.primaryIdentifier Gene.chromosomeLocation.start">
+</query>

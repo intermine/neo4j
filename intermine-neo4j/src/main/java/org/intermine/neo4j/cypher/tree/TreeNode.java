@@ -1,6 +1,8 @@
 package org.intermine.neo4j.cypher.tree;
 
 import org.intermine.metadata.ModelParserException;
+import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.neo4j.Neo4jModelParser;
 import org.intermine.neo4j.cypher.Helper;
 import org.intermine.pathquery.OuterJoinStatus;
 import org.intermine.pathquery.Path;
@@ -63,10 +65,21 @@ public class TreeNode {
             this.graphicalName = path.getLastElement();
             this.treeNodeType = TreeNodeType.PROPERTY;
         }
-        else {
-            // When end of the path is either a Collection or Reference
-            this.graphicalName = path.getEndClassDescriptor().getSimpleName();
-            this.treeNodeType = TreeNodeType.NODE;
+        else { // When end of the path is either a Collection or Reference
+            String referencedClass = path.getLastClassDescriptor().getSimpleName();
+
+            Neo4jModelParser modelParser = new Neo4jModelParser();
+            modelParser.process(new Neo4jLoaderProperties());
+
+            if(modelParser.isRelationship(referencedClass)) {
+                String relationshipTarget = modelParser.getRelationshipTarget(referencedClass);
+                this.graphicalName = modelParser.getRelationshipType(referencedClass, relationshipTarget);
+                this.treeNodeType = TreeNodeType.RELATIONSHIP;
+            }
+            else {
+                this.graphicalName = path.getEndClassDescriptor().getSimpleName();
+                this.treeNodeType = TreeNodeType.NODE;
+            }
         }
     }
 

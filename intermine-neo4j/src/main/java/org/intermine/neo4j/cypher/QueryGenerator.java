@@ -145,21 +145,37 @@ public class QueryGenerator {
             Neo4jModelParser modelParser = new Neo4jModelParser();
             modelParser.process(new Neo4jLoaderProperties());
 
+            String match = "Error in createMatchClause";
             TreeNode parentTreeNode = treeNode.getParent();
-            String className = parentTreeNode.getPath().getEndClassDescriptor().getSimpleName();
-            String refName = treeNode.getName();
+            if (parentTreeNode.getTreeNodeType() == TreeNodeType.NODE) {
+                String className = parentTreeNode.getPath().getEndClassDescriptor().getSimpleName();
+                String refName = treeNode.getName();
 
-            String relationshipType = modelParser.getRelationshipType(className, refName);
+                String relationshipType = modelParser.getRelationshipType(className, refName);
 
-            String match = "(" +
-                            parentTreeNode.getVariableName() +
-                            ")-[:" +
-                            relationshipType +
-                            "]-(" +
-                            treeNode.getVariableName() +
-                            " :" +
-                            treeNode.getGraphicalName() +
-                            ")";
+                match = "(" +
+                        parentTreeNode.getVariableName() +
+                        ")-[:" +
+                        relationshipType +
+                        "]-(" +
+                        treeNode.getVariableName() +
+                        " :" +
+                        treeNode.getGraphicalName() +
+                        ")";
+            }
+            else if (parentTreeNode.getTreeNodeType() == TreeNodeType.RELATIONSHIP) {
+                match = "(" +
+                        parentTreeNode.getParent().getVariableName() +
+                        ")-[" +
+                        parentTreeNode.getVariableName() +
+                        ":" +
+                        parentTreeNode.getGraphicalName() +
+                        "]-(" +
+                        treeNode.getVariableName() +
+                        " :" +
+                        treeNode.getGraphicalName() +
+                        ")";
+            }
 
             if (treeNode.getOuterJoinStatus() == OuterJoinStatus.INNER) {
                 cypherQuery.addToMatch(match);

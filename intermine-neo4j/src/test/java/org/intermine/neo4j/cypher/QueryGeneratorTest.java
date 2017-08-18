@@ -254,4 +254,12 @@ public class QueryGeneratorTest {
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
+    @Test
+    public void verifyClassesThatAreLoadedAsRelationships() throws Exception {
+        PathQuery containsConstraint = getPathQuery("Gene-chromosomeLocation.xml");
+        String actualCypher = QueryGenerator.pathQueryToCypher(containsConstraint).toString();
+        String expectedCypher = getCypherQuery("Gene-chromosomeLocation.cypher");
+        Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
+    }
+
 }
