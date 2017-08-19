@@ -3,7 +3,6 @@ MATCH (gene :Gene),
 (gene_goannotation)-[:ANNOTATED_BY]-(gene_goannotation_ontologyterm :OntologyTerm),
 (gene_goannotation_ontologyterm)-[:parents]-(gene_goannotation_ontologyterm_parents :OntologyTerm),
 (gene)-[:PART_OF]-(gene_organism :Organism)
-
 WHERE gene_goannotation_ontologyterm_parents.name = 'DNA binding' AND gene_organism.name = 'Drosophila melanogaster'
 RETURN gene.secondaryIdentifier,
 gene.symbol,
