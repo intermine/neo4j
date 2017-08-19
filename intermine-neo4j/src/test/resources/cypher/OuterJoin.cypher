@@ -4,7 +4,6 @@ MATCH (gene :Gene),
 (gene_chromosome_sequenceontologyterm_datasets)-[:publication]-(gene_chromosome_sequenceontologyterm_datasets_publication :Publication)
 OPTIONAL MATCH (gene_chromosome_sequenceontologyterm)-[:dataSets]-(gene_chromosome_sequenceontologyterm_datasets :DataSet),
 (gene_chromosome_sequenceontologyterm_datasets_publication)-[:AUTHOR_OF]-(gene_chromosome_sequenceontologyterm_datasets_publication_authors :Author)
-
 RETURN gene.primaryIdentifier,
 gene_chromosome.primaryIdentifier,
 gene_chromosome_sequenceontologyterm.identifier,
