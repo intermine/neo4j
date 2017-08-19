@@ -12,13 +12,13 @@ import java.util.Map;
  */
 public class CypherQuery {
 
-    private String matchClause = "";
+    private StringBuilder matchClause = new StringBuilder();
 
-    private String optionalMatchClause = "";
+    private StringBuilder optionalMatchClause = new StringBuilder();
 
-    private String whereClause = "";
+    private StringBuilder whereClause = new StringBuilder();
 
-    private String returnClause = "";
+    private StringBuilder returnClause = new StringBuilder();
 
     private List<Order> orders = new ArrayList<>();
 
@@ -34,10 +34,10 @@ public class CypherQuery {
      * @param string the given match
      */
     protected void addToMatch(String string){
-        if(matchClause.equals("")){
-            matchClause += "MATCH " + string;
+        if(matchClause.length() == 0){
+            matchClause.append("MATCH " + string);
         } else {
-            matchClause += ",\n" + string;
+            matchClause.append(",\n" + string);
         }
     }
 
@@ -47,10 +47,10 @@ public class CypherQuery {
      * @param string the given match
      */
     protected void addToOptionalMatch(String string){
-        if(optionalMatchClause.equals("")){
-            optionalMatchClause += "OPTIONAL MATCH " + string;
+        if(optionalMatchClause.length() == 0){
+            optionalMatchClause.append("OPTIONAL MATCH " + string);
         } else {
-            optionalMatchClause += ",\n" + string;
+            optionalMatchClause.append(",\n" + string);
         }
     }
 
@@ -60,10 +60,10 @@ public class CypherQuery {
      * @param string the given view
      */
     protected void addToReturn(String string){
-        if(returnClause.equals("")){
-            returnClause += "RETURN " + string;
+        if(returnClause.length() == 0){
+            returnClause.append("RETURN " + string);
         } else {
-            returnClause += ",\n" + string;
+            returnClause.append(",\n" + string);
         }
     }
 
@@ -75,10 +75,8 @@ public class CypherQuery {
      * @param whereClause the given where clause
      */
     protected void setWhereClause(String whereClause){
-        if (!whereClause.startsWith("WHERE ")){
-            whereClause = "WHERE " + whereClause;
-        }
-        this.whereClause = whereClause;
+        this.whereClause = new StringBuilder();
+        this.whereClause.append(whereClause);
     }
 
     /**
@@ -87,7 +85,7 @@ public class CypherQuery {
      * @return the MATCH clause
      */
     public String getMatchClause() {
-        return matchClause;
+        return matchClause.toString();
     }
 
     /**
@@ -96,7 +94,7 @@ public class CypherQuery {
      * @return the OPTIONAL MATCH clause
      */
     public String getOptionalMatchClause() {
-        return optionalMatchClause;
+        return optionalMatchClause.toString();
     }
 
     /**
@@ -105,7 +103,26 @@ public class CypherQuery {
      * @return the WHERE clause
      */
     public String getWhereClause() {
-        return whereClause;
+        return whereClause.toString();
+    }
+
+    public String getOrderByClause() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (!orders.isEmpty()) {
+            stringBuilder.append("ORDER BY ");
+            boolean first = true;
+            for (Order order : orders) {
+                if (first) {
+                    first = false;
+                } else {
+                    stringBuilder.append(",\n");
+                }
+                stringBuilder.append(order.getVariableName() + "." +
+                                    order.getPropertyKey() + " " +
+                                    order.getDirection());
+            }
+        }
+        return stringBuilder.toString();
     }
 
     /**
@@ -114,7 +131,7 @@ public class CypherQuery {
      * @return the RETURN clause
      */
     public String getReturnClause() {
-        return returnClause;
+        return returnClause.toString();
     }
 
     public List<Order> getOrders() {
@@ -137,34 +154,33 @@ public class CypherQuery {
      */
     @Override
     public String toString() {
-        String query = matchClause + "\n" +
-                optionalMatchClause + "\n" +
-                whereClause + "\n" +
-                returnClause + "\n";
+        StringBuilder query = new StringBuilder();
 
-        // Generate Order By Clause
+        query.append(getMatchClause() + "\n");
+
+        if (optionalMatchClause.length() != 0) {
+            query.append(getOptionalMatchClause() + "\n");
+        }
+
+        if (whereClause.length() != 0) {
+            query.append(getWhereClause() + "\n");
+        }
+
+        query.append(getReturnClause() + "\n");
+
         if (!orders.isEmpty()) {
-            query += "ORDER BY ";
-            boolean first = true;
-            for (Order order : orders) {
-                if (first) {
-                    first = false;
-                } else {
-                    query += ",\n";
-                }
-                query += order.getVariableName() + "." +
-                        order.getPropertyKey() + " " +
-                        order.getDirection();
-            }
+            query.append(getOrderByClause());
         }
 
         if (resultRowsSkip != -1) {
-            query += "\nSKIP " + String.valueOf(resultRowsSkip);
+            query.append("\nSKIP " + String.valueOf(resultRowsSkip));
         }
+
         if (resultRowsLimit != -1) {
-            query += "\nLIMIT " + String.valueOf(resultRowsLimit);
+            query.append("\nLIMIT " + String.valueOf(resultRowsLimit));
         }
-        return query;
+
+        return query.toString();
     }
 
     public void setResultRowsLimit(int resultRowsLimit) {
