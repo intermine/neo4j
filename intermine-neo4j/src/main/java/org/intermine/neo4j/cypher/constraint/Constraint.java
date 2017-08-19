@@ -109,9 +109,21 @@ public class Constraint {
     }
 
     private String getIsNullConstraint(TreeNode treeNode){
-        return treeNode.getParent().getVariableName() + "." +
-                treeNode.getGraphicalName() + " " +
-                "IS NULL";
+        String nullConstraint = null;
+
+        switch (treeNode.getTreeNodeType()) {
+            case NODE:
+            case RELATIONSHIP:
+                nullConstraint = treeNode.getVariableName() + " IS NULL";
+                break;
+            case PROPERTY:
+                nullConstraint = treeNode.getParent().getVariableName() + "." +
+                                treeNode.getGraphicalName() + " " +
+                                "IS NULL";
+                break;
+        }
+
+        return nullConstraint;
     }
 
     private String getGreaterThanConstraint(TreeNode treeNode, PathConstraint pathConstraint){
@@ -367,13 +379,12 @@ public class Constraint {
                 constraint = getLoopConstraint(treeNode, pathConstraint, pathTree);
                 break;
 
-            // Ignore as these are obsolete
+            // These two are obsolete
             case HAS:
             case DOES_NOT_HAVE:
 
             case UNSUPPORTED_CONSTRAINT:
-                this.constraint = "<UNSUPPORTED CONSTRAINT>";
-                break;
+                throw new UnsupportedOperationException("Unsupported Constraint Found in Path Query to Cypher Translation");
         }
     }
 
