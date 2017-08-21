@@ -1,0 +1,15 @@
+MATCH (chromosomaldeletion :ChromosomalDeletion),
+(chromosomaldeletion)-[:chromosome]-(chromosomaldeletion_chromosome :Chromosome),
+(chromosomaldeletion)-[:OVERLAPS]-(chromosomaldeletion_overlappingfeatures :SequenceFeature)
+WHERE chromosomaldeletion.secondaryIdentifier = 'Df(1)LB6'
+RETURN chromosomaldeletion.primaryIdentifier,
+chromosomaldeletion.secondaryIdentifier,
+chromosomaldeletion_chromosome.primaryIdentifier,
+chromosomaldeletion_chromosomelocation.start,
+chromosomaldeletion_chromosomelocation.end,
+chromosomaldeletion_overlappingfeatures.primaryIdentifier,
+chromosomaldeletion_overlappingfeatures.symbol,
+chromosomaldeletion_overlappingfeatures.secondaryIdentifier,
+chromosomaldeletion_overlappingfeatures_chromosomelocation.start,
+chromosomaldeletion_overlappingfeatures_chromosomelocation.end
+ORDER BY chromosomaldeletion.primaryIdentifier ASC
