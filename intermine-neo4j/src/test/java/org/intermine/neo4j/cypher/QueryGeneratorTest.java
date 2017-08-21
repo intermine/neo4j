@@ -1,19 +1,29 @@
 package org.intermine.neo4j.cypher;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.intermine.metadata.ModelParserException;
 import org.intermine.neo4j.Neo4jLoaderProperties;
+import org.intermine.pathquery.PathException;
 import org.intermine.pathquery.PathQuery;
 import org.intermine.webservice.client.services.QueryService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 public class QueryGeneratorTest {
     private static final Logger LOG = Logger.getLogger(QueryGeneratorTest.class);
+
+    private static final File templatesPathQueryDirectory = new File("src/test/resources/pathquery/templates");
 
     private static QueryService queryService;
 
@@ -25,7 +35,6 @@ public class QueryGeneratorTest {
 
     private PathQuery getPathQuery(String name) throws IOException {
         String path = "pathquery/" + name;
-        System.out.println("Path is " + path);
         InputStream is = getClass().getClassLoader().getResourceAsStream(path);
         if (is == null) {
             LOG.error("Could not find the required XML file: " + path);
@@ -262,4 +271,24 @@ public class QueryGeneratorTest {
         Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
     }
 
+    @Test
+    public void verifyAllTemplatesAreConverted() throws Exception {
+        for (final File fileEntry : templatesPathQueryDirectory.listFiles()) {
+            if (!fileEntry.isDirectory()) {
+                Scanner sc = new Scanner(fileEntry);
+                String pathQueryString = "";
+                while(sc.hasNextLine()){
+                    String str = sc.nextLine();
+                    pathQueryString += str;
+                }
+
+                PathQuery pathQuery = queryService.createPathQuery(pathQueryString);
+                String actualCypher = QueryGenerator.pathQueryToCypher(pathQuery).toString();
+                String cypherQueryFileName = fileEntry.getName().replaceAll("\\.xml", ".cypher");
+                String expectedCypher = getCypherQuery("templates/" + cypherQueryFileName);
+                System.out.println("Testing QueryGenerator with template " + fileEntry.getName());
+                Assert.assertEquals(expectedCypher, actualCypher.replaceAll("\n$", ""));
+            }
+        }
+    }
 }
