@@ -1,1 +1,0 @@
-<query name="im_available_organisms" model="genomic" view="Gene.organism.shortName" longDescription="For all genes, list the taxonIds available.  Used by webservice to construct links to other intermines." sortOrder="Gene.organism.shortName asc"><constraint path="Gene.primaryIdentifier" editable="true" op="=" value="*" /></query>
