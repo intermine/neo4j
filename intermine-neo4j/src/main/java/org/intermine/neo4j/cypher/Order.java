@@ -5,7 +5,9 @@ import org.intermine.neo4j.cypher.tree.TreeNode;
 import org.intermine.pathquery.OrderElement;
 
 /**
- * Represents a order in cypher.
+ * Represents an order in the cypher query. It is used for generating the ORDER BY clause.
+ * Each Order object is written in the form - variableName.propertyKey DIRECTION.
+ * For example, "gene.primaryIdentifier DESC".
  *
  * @author Yash Sharma
  */
@@ -32,14 +34,29 @@ public class Order {
                 direction;
     }
 
+    /**
+     * Returns the property key of the Order object.
+     *
+     * @return The property key as String.
+     */
     public String getPropertyKey() {
         return propertyKey;
     }
 
+    /**
+     * Returns the variable name of the Order object.
+     *
+     * @return The variable name as String.
+     */
     public String getVariableName() {
         return variableName;
     }
 
+    /**
+     * Returns the direction of the Order object. eg. ASC, DESC.
+     *
+     * @return The direction as String.
+     */
     public String getDirection() {
         return direction;
     }

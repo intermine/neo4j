@@ -62,8 +62,7 @@ public class Helper {
      * @param str The given string
      * @return true if the given string represents a number, false otherwise
      */
-    public static boolean isNumeric(String str)
-    {
+    public static boolean isNumeric(String str) {
         try
         {
             double d = Double.parseDouble(str);
@@ -90,6 +89,14 @@ public class Helper {
         return strings;
     }
 
+    /**
+     * Create and return the variable name for a Path.
+     * The variable name is created by converting the path string to lower case
+     * and replacing all periods with underscores.
+     *
+     * @param path The path object
+     * @return The variable name as string
+     */
     public static String getVariableNameFromPath(Path path){
         // TO DO : Use another way of creating variable names.
         // Underscore separated names may get unnecessarily large.
