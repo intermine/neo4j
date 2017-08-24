@@ -225,7 +225,8 @@ public class Neo4jEdgeLoader {
                         } else {
                             set += ", ";
                         }
-                        if (attrType.equals("java.lang.String") || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
+                        if (attrType.equals("java.lang.String") || attrType.equals("java.util.Date")
+                                || attrType.equals("org.intermine.objectstore.query.ClobAccess")) {
                             set += "r."+attrName+"=\""+val+"\"";
                         } else {
                             set += "r."+attrName+"="+val;
