@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents a Cypher Query.
+ * Represents a Cypher Query. This class contains all the clauses and variables
+ * of the cypher query.
  *
  * @author Yash Sharma
  */
@@ -67,8 +68,6 @@ public class CypherQuery {
         }
     }
 
-
-
     /**
      * Sets the given string as the WHERE clause of the Cypher query
      *
@@ -106,6 +105,11 @@ public class CypherQuery {
         return whereClause.toString();
     }
 
+    /**
+     * Gets the ORDER BY clause of the Cypher query
+     *
+     * @return the ORDER BY clause
+     */
     public String getOrderByClause() {
         StringBuilder stringBuilder = new StringBuilder();
         if (!orders.isEmpty()) {
@@ -134,14 +138,28 @@ public class CypherQuery {
         return returnClause.toString();
     }
 
+    /**
+     * Get all the Order elements of the Cypher Query
+     *
+     * @return a list of Order objects
+     */
     public List<Order> getOrders() {
         return orders;
     }
 
+    /**
+     * Sets the orders of the Cypher Query
+     *
+     * @param orders List of Order objects
+     */
     public void setOrders(List<Order> orders) {
         this.orders = orders;
     }
 
+    /**
+     * Add an order to the Cypher query
+     * @param order the order object
+     */
     public void addOrder(Order order) {
         orders.add(order);
     }
@@ -183,6 +201,12 @@ public class CypherQuery {
         return query.toString();
     }
 
+    /**
+     * Set an upper limit on the number of rows that you want to extract
+     * from the Neo4j database by running this Cypher Query
+     *
+     * @param resultRowsLimit The upper limit as integer
+     */
     public void setResultRowsLimit(int resultRowsLimit) {
         if (resultRowsLimit <= 0) {
             throw new IllegalArgumentException("CypherQuery : LIMIT can only be a positive integer.");
@@ -190,10 +214,19 @@ public class CypherQuery {
         this.resultRowsLimit = resultRowsLimit;
     }
 
+    /**
+     * Remove any limit assigned to this Cypher Query
+     */
     public void removeResultRowsLimit() {
         this.resultRowsLimit = -1;
     }
 
+    /**
+     * Set the number of rows that you want to skip while extracting result rows
+     * from the Neo4j database by running this Cypher Query
+     *
+     * @param resultRowsSkip
+     */
     public void setResultRowsSkip(int resultRowsSkip) {
         if (resultRowsSkip <= 0) {
             throw new IllegalArgumentException("CypherQuery : SKIP can only be a positive integer.");
@@ -201,22 +234,44 @@ public class CypherQuery {
         this.resultRowsSkip = resultRowsSkip;
     }
 
+    /**
+     * Remove the number of rows to be skipped which is assigned to this Cypher Query.
+     * After this operation cypher will not skip any rows while returning results from Neo4j.
+     */
     public void removeResultRowsSkip() {
         this.resultRowsSkip = -1;
     }
 
+    /**
+     * Get the limit set on number of result rows.
+     * @return the limit as integer
+     */
     public int getResultRowsLimit() {
         return resultRowsLimit;
     }
 
+    /**
+     * Get the number of rows set to be skipped.
+     * @return the number of skipped rows as integer
+     */
     public int getResultRowsSkip() {
         return resultRowsSkip;
     }
 
+    /**
+     * Add a variable name and corresponding view to the Cypher Query.
+     * @param view the view as string. For example, Gene.chromosome.primaryIdentifier.
+     * @param variableName the variable name for the view.
+     */
     public void addVariable(String view, String variableName) {
         variables.put(view, variableName);
     }
 
+    /**
+     * Get corresponding variable name by supplying view as parameter
+     * @param view the view
+     * @return the variable name for cypher query
+     */
     public String getVariable(String view) {
         return variables.get(view);
     }

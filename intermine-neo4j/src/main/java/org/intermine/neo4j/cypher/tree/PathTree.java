@@ -14,6 +14,8 @@ import java.util.*;
 
 /**
  * Describes a Path Tree.
+ * Path Tree is the Tree representation of all the Paths of a Path Query. The Path Tree
+ * representation is used during the conversion of the Path Query to Cypher.
  *
  * @author Yash Sharma
  */
@@ -70,7 +72,11 @@ public class PathTree {
         }
     }
 
-    private void setOuterJoinInPathTree(PathQuery pathQuery){
+    /**
+     * Set outer join status in the path tree wherever required as per the path query.
+     * @param pathQuery The Path Query object
+     */
+    private void setOuterJoinInPathTree(PathQuery pathQuery) {
         Map<String, OuterJoinStatus> outerJoinStatusMap = pathQuery.getOuterJoinStatus();
         for (String path : outerJoinStatusMap.keySet()){
             TreeNode treeNode = getTreeNode(path);
@@ -84,7 +90,11 @@ public class PathTree {
         }
     }
 
-    private void setOuterJoinInChildren(TreeNode treeNode){
+    /**
+     * Set join status to OUTER in all the children TreeNodes of the given TreeNode
+     * @param treeNode the given TreeNode
+     */
+    private void setOuterJoinInChildren(TreeNode treeNode) {
         if (treeNode == null){
             return;
         }
@@ -118,7 +128,7 @@ public class PathTree {
      * @param path the given path
      * @return the TreeNode object if it is found, null otherwise
      */
-    public TreeNode getTreeNode(String path){
+    public TreeNode getTreeNode(String path) {
         if(root == null){
             return null;
         }
@@ -136,14 +146,20 @@ public class PathTree {
         return treeNode;
     }
 
+    /**
+     * Get the TreeNode after traversing a Path through the Path Tree
+     * @param path the Path object
+     * @return the TreeNode object
+     */
     public TreeNode getTreeNode(Path path){
         return getTreeNode(path.toString());
     }
 
     /**
      * Prints names of all the nodes of a tree serially, separated by a closing parenthesis.
+     * Useful during debugging.
      */
-    public void serialize(){
+    public void serialize() {
         System.out.print("Serializing PathTree :\n");
         if (root == null){
             return;
@@ -158,7 +174,7 @@ public class PathTree {
     /**
      * Utility method which does recursion for the serialize method.
      */
-    private void serializeUtil(TreeNode treeNode){
+    private void serializeUtil(TreeNode treeNode) {
         if (treeNode == null){
             return;
         }
