@@ -155,6 +155,11 @@ public class QueryResult {
         this.results.add(row);
     }
 
+    /**
+     * Get Results as a JSON Array
+     * @return A JSONArrayBuilder containing Results
+     * @throws UnsupportedDataTypeException
+     */
     public JsonArrayBuilder getResultsAsJsonArray() throws UnsupportedDataTypeException {
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
 
@@ -198,6 +203,11 @@ public class QueryResult {
         return jsonArrayBuilder;
     }
 
+    /**
+     * Converts a list of strings to JSON Array
+     * @param list A list of strings
+     * @return A JsonArrayBuilder containing the strings
+     */
     public JsonArrayBuilder getListAsJsonArray(List<String> list) {
         JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
         for (String string : list) {
@@ -218,26 +228,32 @@ public class QueryResult {
         return jsonObjectBuilder.add(key, JsonValue.NULL);
     }
 
+    /**
+     * Converts QueryResult object to its JSON Representation
+     * @return A JsonObject representing the Query Result
+     * @throws UnsupportedDataTypeException
+     */
     public JsonObject toJSON() throws UnsupportedDataTypeException {
         JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
         jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "rootClass", getRootClass());
         jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "modelName", getModelName());
-
         jsonObjectBuilder = jsonObjectBuilder.add("start", getStart())
                                             .add("views", getListAsJsonArray(getViews()))
                                             .add("columnHeaders", getListAsJsonArray(getColumnHeaders()))
                                             .add("results", getResultsAsJsonArray());
         jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "executionTime", getExecutionTime());
-
         jsonObjectBuilder = jsonObjectBuilder.add("wasSuccessful", isSuccessful());
-
         jsonObjectBuilder = addStringToJsonObjectBuilder(jsonObjectBuilder, "error", getError());
-
         jsonObjectBuilder = jsonObjectBuilder.add("statusCode", getStatusCode());
 
         return jsonObjectBuilder.build();
     }
 
+    /**
+     * Converts QueryResult object to its Tab Separated Values (TSV) Representation
+     * @param columnHeadersType Type of Column Headers to be returned along with the result
+     * @return A string which contains Tab Separated Results
+     */
     public String toTSV(ColumnHeadersType columnHeadersType ) {
         StringBuilder stringBuilder = new StringBuilder();
         switch (columnHeadersType) {

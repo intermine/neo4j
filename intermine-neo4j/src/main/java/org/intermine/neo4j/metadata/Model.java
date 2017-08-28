@@ -8,8 +8,10 @@ import java.util.Set;
 /**
  * Describes a Neo4j graph data model. It gives access to various
  * {@link NodeTypeDescriptor NodeType} and {@link RelTypeDescriptor RelType}
- * nodes and their relationships within the metagraph. Metagraph structure is described at
- * https://github.com/intermine/neo4j/blob/dev/metadata.md .
+ * nodes and their relationships within the metagraph.
+ *
+ * <p>For more information on Metagraph, visit https://github.com/intermine/neo4j/wiki/Metadata.</p>
+ *
  * <p>
  * You can generate an instance of the Model class for a given Neo4j database by calling <code>Neo4jSchemaGenerator.getModel()</code>
  * method. An instance of Model class provides a number of methods to query the data model. These methods

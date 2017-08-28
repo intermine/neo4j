@@ -12,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
+ * Handles logic of "query/*" api endpoints.
+ *
  * @author Yash Sharma
  */
 @Path("query")
@@ -51,15 +53,12 @@ public class QueryResource {
             throw new BadRequestException("Invalid Path Query");
         }
         CypherQuery cypherQuery = neo4jQueryService.getCypherQuery(bean.getPathQuery());
-
         if (bean.getSize() > 0) {
             cypherQuery.setResultRowsLimit(bean.getSize());
         }
-
         if (bean.getStart() > 0) {
             cypherQuery.setResultRowsSkip(bean.getStart());
         }
-
         return cypherQuery.toString();
     }
 }
