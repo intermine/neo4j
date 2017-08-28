@@ -4,7 +4,7 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 
 /**
- * Contains various utility methods.
+ * Contains various utility methods used by other classes.
  *
  * @author Yash Sharma
  */

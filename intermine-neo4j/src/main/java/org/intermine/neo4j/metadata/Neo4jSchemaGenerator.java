@@ -7,11 +7,10 @@ import java.util.*;
 
 
 /**
- * A Java class which can be used to perform various operations on the schema/metagraph
- * of the given Neo4j graph database.
- * <p>
- * Metagraph structure described at https://github.com/intermine/neo4j/blob/dev/metadata.md
- *</p>
+ * A Java class which can be used to extract Model from the Neo4j Database and perform various
+ * other operations on the schema/metagraph of the given Neo4j graph database.
+ *
+ * <p>For more information on Metagraph, visit https://github.com/intermine/neo4j/wiki/Metadata.</p>
  *
  * @author Yash Sharma
  */
@@ -128,7 +127,7 @@ public class Neo4jSchemaGenerator {
                 // For each type there must exist only one RelType node
                 // in the metagraph.
                 String query = "CREATE CONSTRAINT ON (a:RelType) ASSERT " +
-                "a.type IS UNIQUE";
+                                "a.type IS UNIQUE";
                 tx.run(query);
                 tx.success();
                 tx.close();

@@ -6,6 +6,8 @@ import java.util.Set;
 /**
  * Describes a RelType node of the Neo4j metagraph.
  *
+ * <p>For more information on Metagraph, visit https://github.com/intermine/neo4j/wiki/Metadata.</p>
+ *
  * @author Yash Sharma
  */
 public class RelTypeDescriptor {
