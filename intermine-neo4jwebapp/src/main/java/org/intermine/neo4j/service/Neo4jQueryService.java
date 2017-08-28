@@ -30,6 +30,16 @@ import java.util.Date;
  */
 public class Neo4jQueryService {
 
+    /**
+     * Convert a Path Query to Cypher Query
+     * @param pathQueryString String containing path query XML
+     * @return CypherQuery object
+     * @throws IOException
+     * @throws PathException
+     * @throws ModelParserException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
     public CypherQuery getCypherQuery(String pathQueryString) throws IOException, PathException, ModelParserException, ParserConfigurationException, SAXException {
         Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
         QueryService service = properties.getQueryService();
@@ -38,6 +48,16 @@ public class Neo4jQueryService {
         return QueryGenerator.pathQueryToCypher(pathQuery);
     }
 
+    /**
+     *
+     * @param bean
+     * @return
+     * @throws PathException
+     * @throws IOException
+     * @throws ModelParserException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
     public QueryResult getQueryResult(QueryResultBean bean) throws PathException, IOException, ModelParserException, ParserConfigurationException, SAXException {
         Neo4jLoaderProperties properties = new Neo4jLoaderProperties();
         PathQuery pathQuery = properties.getQueryService()
@@ -60,6 +80,12 @@ public class Neo4jQueryService {
         queryResult.setModelName(pathQuery.getModel().getName());
         queryResult.setStart(bean.getStart());
         queryResult.setViews(pathQuery.getView());
+        queryResult.setSuccessful(true);
+        queryResult.setError(null);
+        queryResult.setStatusCode(200);
+        queryResult.setResults(getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
+                                                    cypherQuery,
+                                                    pathQuery));
 
         List<String> headersList = new ArrayList<>();
         Model model = new Neo4jLoaderProperties().getModel();
@@ -69,16 +95,8 @@ public class Neo4jQueryService {
         }
         queryResult.setColumnHeaders(headersList);
 
-        queryResult.setResults(getResultsFromNeo4j(properties.getGraphDatabaseDriver(),
-                                                    cypherQuery,
-                                                    pathQuery));
-
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         queryResult.setExecutionTime(dateFormat.format(new Date()));
-
-        queryResult.setSuccessful(true);
-        queryResult.setError(null);
-        queryResult.setStatusCode(200);
 
         return queryResult;
     }
@@ -108,8 +126,17 @@ public class Neo4jQueryService {
         }
     }
 
+    /**
+     * Get results from Neo4j in the form of List of rows
+     * @param driver The Neo4j database driver
+     * @param cypherQuery The Cypher Query Object
+     * @param pathQuery The Path Query object
+     * @return Results as a list of rows
+     * @throws IOException
+     * @throws ModelParserException
+     * @throws PathException
+     */
     public static List<List<Object>> getResultsFromNeo4j(Driver driver, CypherQuery cypherQuery, PathQuery pathQuery) throws IOException, ModelParserException, PathException {
-        // execute the Cypher query and load results into a list of tab-delimited strings
         List<List<Object>> resultsList = new ArrayList<>();
         Session session = driver.session();
         Transaction tx = session.beginTransaction();

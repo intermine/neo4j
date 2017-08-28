@@ -7,6 +7,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 /**
+ * Adds CORS Headers to all the responses
  * @author Yash Sharma
  */
 @Provider

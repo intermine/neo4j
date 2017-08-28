@@ -28,11 +28,8 @@ public class ErrorMessage {
     public ErrorMessage(String error, int statusCode) {
         this.error = error;
         this.statusCode = statusCode;
-
         results = new ArrayList<>();
-
         wasSuccessful = false;
-
         DateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
         executionTime = dateFormat.format(new Date());
     }
