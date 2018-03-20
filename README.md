@@ -62,3 +62,6 @@ To run the project you need to get the following prerequisites.
 ## Documentation
 
 The [project wiki](https://github.com/intermine/neo4j/wiki) contains detailed documentation of the code and the available gradle tasks.
+
+For detailed documentation regarding JAVA, you can checkout the [Java Docs](https://github.com/dialogflow/dialogflow-java-client).
+
